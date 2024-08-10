@@ -574,7 +574,7 @@ class Builtin(Value):
         try:
             return self.function(arguments)
         except Exception as e:
-            return Error(f"{e}")
+            return Error(None, f"{e}")
 
     @staticmethod
     def expect_argument_count(arguments: list[Value], count: int) -> None:
@@ -1039,22 +1039,26 @@ class Return:
 
 @dataclass
 class Break:
+    location: Optional[SourceLocation]
     pass
 
 
 @dataclass
 class Continue:
+    location: Optional[SourceLocation]
     pass
 
 
 @dataclass
 class Error:
+    location: Optional[SourceLocation]
     value: Value
 
-    def __init__(self, value: Union[str, Value]) -> None:
-        if isinstance(value, str):
-            value = String.new(value)
-        self.value = value
+    def __init__(
+        self, location: Optional[SourceLocation], value: Union[str, Value]
+    ) -> None:
+        self.location = location
+        self.value = String.new(value) if isinstance(value, str) else value
 
     def __str__(self):
         if isinstance(self.value, String):
@@ -1102,9 +1106,13 @@ class AstProgram(AstNode):
             if isinstance(result, Return):
                 return result.value
             if isinstance(result, Break):
-                return Error("attempted to break outside of a loop")
+                return Error(
+                    self.location, "attempted to break outside of a loop"
+                )
             if isinstance(result, Continue):
-                return Error("attempted to continue outside of a loop")
+                return Error(
+                    self.location, "attempted to continue outside of a loop"
+                )
             if isinstance(result, Error):
                 return result
         return None
@@ -1119,7 +1127,9 @@ class AstIdentifier(AstExpression):
     def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
         value: Optional[Value] = env.get(self.name)
         if value is None:
-            return Error(f"identifier `{self.name.data}` is not defined")
+            return Error(
+                self.location, f"identifier `{self.name.data}` is not defined"
+            )
         if cow:
             value.cow()
         return value
@@ -1249,11 +1259,12 @@ class AstPositive(AstExpression):
             return result
         metafunction = result.metafunction(String("positive"))
         if metafunction is not None:
-            return call(env, metafunction, [result.copy()])
+            return call(self.location, env, metafunction, [result.copy()])
         if isinstance(result, Number):
             return Number.new(+float(result.data))
         return Error(
-            f"attempted unary + operation with type `{result.type()}`"
+            self.location,
+            f"attempted unary + operation with type `{result.type()}`",
         )
 
 
@@ -1269,10 +1280,11 @@ class AstNegative(AstExpression):
             return result
         metafunction = result.metafunction(String("negative"))
         if metafunction is not None:
-            return call(env, metafunction, [result.copy()])
+            return call(self.location, env, metafunction, [result.copy()])
         if not isinstance(result, Number):
             return Error(
-                f"attempted unary - operation with type `{result.type()}`"
+                self.location,
+                f"attempted unary - operation with type `{result.type()}`",
             )
         return Number.new(-float(result.data))
 
@@ -1289,10 +1301,11 @@ class AstNot(AstExpression):
             return result
         metafunction = result.metafunction(String("not"))
         if metafunction is not None:
-            return call(env, metafunction, [result.copy()])
+            return call(self.location, env, metafunction, [result.copy()])
         if not isinstance(result, Boolean):
             return Error(
-                f"attempted unary not operation with type `{result.type()}`"
+                self.location,
+                f"attempted unary not operation with type `{result.type()}`",
             )
         return Boolean.new(not result.data)
 
@@ -1313,11 +1326,14 @@ class AstAnd(AstExpression):
             return rhs
         metafunction = lhs.metafunction(String("and"))
         if metafunction is not None:
-            return call(env, metafunction, [lhs.copy(), rhs.copy()])
+            return call(
+                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
+            )
         if isinstance(lhs, Boolean) and isinstance(rhs, Boolean):
             return Boolean.new(lhs.data and rhs.data)
         return Error(
-            f"attempted binary and operation with types `{lhs.type()}` and `{rhs.type()}`"
+            self.location,
+            f"attempted binary and operation with types `{lhs.type()}` and `{rhs.type()}`",
         )
 
 
@@ -1337,11 +1353,14 @@ class AstOr(AstExpression):
             return rhs
         metafunction = lhs.metafunction(String("or"))
         if metafunction is not None:
-            return call(env, metafunction, [lhs.copy(), rhs.copy()])
+            return call(
+                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
+            )
         if isinstance(lhs, Boolean) and isinstance(rhs, Boolean):
             return Boolean.new(lhs.data or rhs.data)
         return Error(
-            f"attempted binary or operation with types `{lhs.type()}` and `{rhs.type()}`"
+            self.location,
+            f"attempted binary or operation with types `{lhs.type()}` and `{rhs.type()}`",
         )
 
 
@@ -1361,15 +1380,20 @@ class AstEq(AstExpression):
             return rhs
         metafunction = lhs.metafunction(String("=="))
         if metafunction is not None:
-            return call(env, metafunction, [lhs.copy(), rhs.copy()])
+            return call(
+                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
+            )
         metafunction = lhs.metafunction(String("compare"))
         if metafunction is not None:
-            result = call(env, metafunction, [lhs.copy(), rhs.copy()])
+            result = call(
+                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
+            )
             if isinstance(result, Error):
                 return rhs
             if not isinstance(result, Number):
                 return Error(
-                    f"metafunction compare returned non-number value {result}"
+                    self.location,
+                    f"metafunction compare returned non-number value {result}",
                 )
             return Boolean.new(float(result.data) == 0)
         return Boolean.new(lhs == rhs)
@@ -1391,15 +1415,20 @@ class AstNe(AstExpression):
             return rhs
         metafunction = lhs.metafunction(String("!="))
         if metafunction is not None:
-            return call(env, metafunction, [lhs.copy(), rhs.copy()])
+            return call(
+                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
+            )
         metafunction = lhs.metafunction(String("compare"))
         if metafunction is not None:
-            result = call(env, metafunction, [lhs.copy(), rhs.copy()])
+            result = call(
+                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
+            )
             if isinstance(result, Error):
                 return rhs
             if not isinstance(result, Number):
                 return Error(
-                    f"metafunction compare returned non-number value {result}"
+                    self.location,
+                    f"metafunction compare returned non-number value {result}",
                 )
             return Boolean.new(float(result.data) != 0)
         return Boolean.new(lhs != rhs)
@@ -1421,15 +1450,20 @@ class AstLe(AstExpression):
             return rhs
         metafunction = lhs.metafunction(String("<="))
         if metafunction is not None:
-            return call(env, metafunction, [lhs.copy(), rhs.copy()])
+            return call(
+                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
+            )
         metafunction = lhs.metafunction(String("compare"))
         if metafunction is not None:
-            result = call(env, metafunction, [lhs.copy(), rhs.copy()])
+            result = call(
+                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
+            )
             if isinstance(result, Error):
                 return rhs
             if not isinstance(result, Number):
                 return Error(
-                    f"metafunction compare returned non-number value {result}"
+                    self.location,
+                    f"metafunction compare returned non-number value {result}",
                 )
             return Boolean.new(float(result.data) <= 0)
         if isinstance(lhs, Number) and isinstance(rhs, Number):
@@ -1437,7 +1471,8 @@ class AstLe(AstExpression):
         if isinstance(lhs, String) and isinstance(rhs, String):
             return Boolean.new(lhs.data <= rhs.data)
         return Error(
-            f"attempted <= operation with types `{lhs.type()}` and `{rhs.type()}`"
+            self.location,
+            f"attempted <= operation with types `{lhs.type()}` and `{rhs.type()}`",
         )
 
 
@@ -1457,15 +1492,20 @@ class AstGe(AstExpression):
             return rhs
         metafunction = lhs.metafunction(String(">="))
         if metafunction is not None:
-            return call(env, metafunction, [lhs.copy(), rhs.copy()])
+            return call(
+                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
+            )
         metafunction = lhs.metafunction(String("compare"))
         if metafunction is not None:
-            result = call(env, metafunction, [lhs.copy(), rhs.copy()])
+            result = call(
+                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
+            )
             if isinstance(result, Error):
                 return rhs
             if not isinstance(result, Number):
                 return Error(
-                    f"metafunction compare returned non-number value {result}"
+                    self.location,
+                    f"metafunction compare returned non-number value {result}",
                 )
             return Boolean.new(float(result.data) >= 0)
         if isinstance(lhs, Number) and isinstance(rhs, Number):
@@ -1473,7 +1513,8 @@ class AstGe(AstExpression):
         if isinstance(lhs, String) and isinstance(rhs, String):
             return Boolean.new(lhs.data >= rhs.data)
         return Error(
-            f"attempted >= operation with types `{lhs.type()}` and `{rhs.type()}`"
+            self.location,
+            f"attempted >= operation with types `{lhs.type()}` and `{rhs.type()}`",
         )
 
 
@@ -1493,15 +1534,20 @@ class AstLt(AstExpression):
             return rhs
         metafunction = lhs.metafunction(String("<"))
         if metafunction is not None:
-            return call(env, metafunction, [lhs.copy(), rhs.copy()])
+            return call(
+                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
+            )
         metafunction = lhs.metafunction(String("compare"))
         if metafunction is not None:
-            result = call(env, metafunction, [lhs.copy(), rhs.copy()])
+            result = call(
+                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
+            )
             if isinstance(result, Error):
                 return rhs
             if not isinstance(result, Number):
                 return Error(
-                    f"metafunction compare returned non-number value {result}"
+                    self.location,
+                    f"metafunction compare returned non-number value {result}",
                 )
             return Boolean.new(float(result.data) < 0)
         if isinstance(lhs, Number) and isinstance(rhs, Number):
@@ -1509,7 +1555,8 @@ class AstLt(AstExpression):
         if isinstance(lhs, String) and isinstance(rhs, String):
             return Boolean.new(lhs.data < rhs.data)
         return Error(
-            f"attempted < operation with types `{lhs.type()}` and `{rhs.type()}`"
+            self.location,
+            f"attempted < operation with types `{lhs.type()}` and `{rhs.type()}`",
         )
 
 
@@ -1529,15 +1576,20 @@ class AstGt(AstExpression):
             return rhs
         metafunction = lhs.metafunction(String(">"))
         if metafunction is not None:
-            return call(env, metafunction, [lhs.copy(), rhs.copy()])
+            return call(
+                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
+            )
         metafunction = lhs.metafunction(String("compare"))
         if metafunction is not None:
-            result = call(env, metafunction, [lhs.copy(), rhs.copy()])
+            result = call(
+                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
+            )
             if isinstance(result, Error):
                 return rhs
             if not isinstance(result, Number):
                 return Error(
-                    f"metafunction compare returned non-number value {result}"
+                    self.location,
+                    f"metafunction compare returned non-number value {result}",
                 )
             return Boolean.new(float(result.data) > 0)
         if isinstance(lhs, Number) and isinstance(rhs, Number):
@@ -1545,7 +1597,8 @@ class AstGt(AstExpression):
         if isinstance(lhs, String) and isinstance(rhs, String):
             return Boolean.new(lhs.data > rhs.data)
         return Error(
-            f"attempted > operation with types `{lhs.type()}` and `{rhs.type()}`"
+            self.location,
+            f"attempted > operation with types `{lhs.type()}` and `{rhs.type()}`",
         )
 
 
@@ -1565,13 +1618,16 @@ class AstAdd(AstExpression):
             return rhs
         metafunction = lhs.metafunction(String("+"))
         if metafunction is not None:
-            return call(env, metafunction, [lhs.copy(), rhs.copy()])
+            return call(
+                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
+            )
         if isinstance(lhs, Number) and isinstance(rhs, Number):
             return Number.new(float(lhs.data) + float(rhs.data))
         if isinstance(lhs, String) and isinstance(rhs, String):
             return String(lhs.data + rhs.data)
         return Error(
-            f"attempted + operation with types `{lhs.type()}` and `{rhs.type()}`"
+            self.location,
+            f"attempted + operation with types `{lhs.type()}` and `{rhs.type()}`",
         )
 
 
@@ -1591,10 +1647,13 @@ class AstSub(AstExpression):
             return rhs
         metafunction = lhs.metafunction(String("-"))
         if metafunction is not None:
-            return call(env, metafunction, [lhs.copy(), rhs.copy()])
+            return call(
+                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
+            )
         if not (isinstance(lhs, Number) and isinstance(rhs, Number)):
             return Error(
-                f"attempted - operation with types `{lhs.type()}` and `{rhs.type()}`"
+                self.location,
+                f"attempted - operation with types `{lhs.type()}` and `{rhs.type()}`",
             )
         return Number.new(float(lhs.data) - float(rhs.data))
 
@@ -1615,10 +1674,13 @@ class AstMul(AstExpression):
             return rhs
         metafunction = lhs.metafunction(String("*"))
         if metafunction is not None:
-            return call(env, metafunction, [lhs.copy(), rhs.copy()])
+            return call(
+                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
+            )
         if not (isinstance(lhs, Number) and isinstance(rhs, Number)):
             return Error(
-                f"attempted * operation with types `{lhs.type()}` and `{rhs.type()}`"
+                self.location,
+                f"attempted * operation with types `{lhs.type()}` and `{rhs.type()}`",
             )
         return Number.new(float(lhs.data) * float(rhs.data))
 
@@ -1639,10 +1701,13 @@ class AstDiv(AstExpression):
             return rhs
         metafunction = lhs.metafunction(String("/"))
         if metafunction is not None:
-            return call(env, metafunction, [lhs.copy(), rhs.copy()])
+            return call(
+                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
+            )
         if not (isinstance(lhs, Number) and isinstance(rhs, Number)):
             return Error(
-                f"attempted / operation with types `{lhs.type()}` and `{rhs.type()}`"
+                self.location,
+                f"attempted / operation with types `{lhs.type()}` and `{rhs.type()}`",
             )
         return Number.new(float(lhs.data) / float(rhs.data))
 
@@ -1674,7 +1739,8 @@ class AstFunctionCall(AstExpression):
                 function = None
             if function is None:
                 return Error(
-                    f"invalid method access with name {self.function.field.name}"
+                    self.location,
+                    f"invalid method access with name {self.function.field.name}",
                 )
         else:
             result = self.function.eval(env)
@@ -1683,7 +1749,8 @@ class AstFunctionCall(AstExpression):
             function = result
         if not isinstance(function, (Function, Builtin)):
             return Error(
-                f"attempted to call non-function type {function.type()}"
+                self.location,
+                f"attempted to call non-function type {function.type()}",
             )
 
         arguments: list[Value] = list()
@@ -1694,7 +1761,7 @@ class AstFunctionCall(AstExpression):
             if isinstance(result, Error):
                 return result
             arguments.append(result.copy())
-        return call(env, function, arguments)
+        return call(self.location, env, function, arguments)
 
 
 @final
@@ -1715,14 +1782,19 @@ class AstAccessIndex(AstExpression):
             try:
                 return store[field]
             except (NotImplementedError, IndexError, KeyError):
-                return Error(f"invalid vector access with index {field}")
+                return Error(
+                    self.location, f"invalid vector access with index {field}"
+                )
         if isinstance(store, Map):
             try:
                 return store[field]
             except (NotImplementedError, IndexError, KeyError):
-                return Error(f"invalid map access with field {field}")
+                return Error(
+                    self.location, f"invalid map access with field {field}"
+                )
         return Error(
-            f"attempted to access field of type `{store.type()}` with type `{field.type()}`"
+            self.location,
+            f"attempted to access field of type `{store.type()}` with type `{field.type()}`",
         )
 
 
@@ -1739,11 +1811,16 @@ class AstAccessScope(AstExpression):
             return store
         field = self.field.name
         if not isinstance(store, Map):
-            return Error(f"attempted to access field of type `{store.type()}`")
+            return Error(
+                self.location,
+                f"attempted to access field of type `{store.type()}`",
+            )
         try:
             return store[field]
         except KeyError:
-            return Error(f"invalid map access with field {field}")
+            return Error(
+                self.location, f"invalid map access with field {field}"
+            )
 
 
 @final
@@ -1767,7 +1844,9 @@ class AstAccessDot(AstExpression):
                 return store.meta[field]
         except KeyError:
             pass
-        return Error(f"invalid {store.type()} access with field {field}")
+        return Error(
+            self.location, f"invalid {store.type()} access with field {field}"
+        )
 
 
 @final
@@ -1795,7 +1874,8 @@ class AstDeref(AstExpression):
             return result
         if not isinstance(result, Reference):
             return Error(
-                f"attempted dereference of non-reference type `{result.type()}`"
+                self.location,
+                f"attempted dereference of non-reference type `{result.type()}`",
             )
         return result.data
 
@@ -1834,7 +1914,10 @@ class AstConditional(AstNode):
             return (result, False)
         if not isinstance(result, Boolean):
             return (
-                Error(f"conditional with non-boolean type `{result.type()}`"),
+                Error(
+                    self.location,
+                    f"conditional with non-boolean type `{result.type()}`",
+                ),
                 False,
             )
         if result.data:
@@ -1880,11 +1963,13 @@ class AstStatementFor(AstStatement):
         if isinstance(collection, Number):
             if self.identifier_v is not None:
                 return Error(
-                    f"attempted key-value iteration over type `{collection.type()}`"
+                    self.location,
+                    f"attempted key-value iteration over type `{collection.type()}`",
                 )
             if not float(collection.data).is_integer():
                 return Error(
-                    f"attempted iteration over non-integer number `{collection}`"
+                    self.location,
+                    f"attempted iteration over non-integer number `{collection}`",
                 )
             for i in range(int(float(collection.data))):
                 loop_env.let(self.identifier_k.name, Number.new(i))
@@ -1900,7 +1985,8 @@ class AstStatementFor(AstStatement):
         elif isinstance(collection, Vector):
             if self.identifier_v is not None:
                 return Error(
-                    f"attempted key-value iteration over type `{collection.type()}`"
+                    self.location,
+                    f"attempted key-value iteration over type `{collection.type()}`",
                 )
             for x in collection.data:
                 loop_env.let(self.identifier_k.name, x.copy())
@@ -1930,7 +2016,8 @@ class AstStatementFor(AstStatement):
         elif isinstance(collection, Set):
             if self.identifier_v is not None:
                 return Error(
-                    f"attempted key-value iteration over type `{collection.type()}`"
+                    self.location,
+                    f"attempted key-value iteration over type `{collection.type()}`",
                 )
             for x in collection.data:
                 loop_env.let(self.identifier_k.name, x.copy())
@@ -1945,7 +2032,8 @@ class AstStatementFor(AstStatement):
                     return result
         else:
             return Error(
-                f"attempted iteration over type `{collection.type()}`"
+                self.location,
+                f"attempted iteration over type `{collection.type()}`",
             )
         return None
 
@@ -1964,7 +2052,8 @@ class AstStatementWhile(AstStatement):
                 return expression
             if not isinstance(expression, Boolean):
                 return Error(
-                    f"conditional with non-boolean type `{expression.type()}`"
+                    self.location,
+                    f"conditional with non-boolean type `{expression.type()}`",
                 )
             if not expression.data:
                 break
@@ -1986,7 +2075,7 @@ class AstStatementBreak(AstStatement):
     location: Optional[SourceLocation]
 
     def eval(self, env: Environment) -> Optional[ControlFlow]:
-        return Break()
+        return Break(self.location)
 
 
 @final
@@ -1995,7 +2084,7 @@ class AstStatementContinue(AstStatement):
     location: Optional[SourceLocation]
 
     def eval(self, env: Environment) -> Optional[ControlFlow]:
-        return Continue()
+        return Continue(self.location)
 
 
 @final
@@ -2058,7 +2147,7 @@ class AstStatementError(AstStatement):
         result = self.expression.eval(env)
         if isinstance(result, Error):
             return result
-        return Error(result)
+        return Error(self.location, result)
 
 
 @final
@@ -2102,7 +2191,8 @@ class AstStatementAssignment(AstStatement):
             lookup = env.lookup(self.lhs.name)
             if lookup is None:
                 return Error(
-                    f"identifier `{self.lhs.name.data}` is not defined"
+                    self.location,
+                    f"identifier `{self.lhs.name.data}` is not defined",
                 )
             store = lookup.store
             field = self.lhs.name
@@ -2130,20 +2220,23 @@ class AstStatementAssignment(AstStatement):
             store = lhs_store
             field = lhs_field
         else:
-            return Error("attempted assignment to non-lvalue")
+            return Error(self.location, "attempted assignment to non-lvalue")
 
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
         if not isinstance(store, (Vector, Map)):
             return Error(
-                f"attempted to access into type `{store.type()}` with type `{field.type()}`"
+                self.location,
+                f"attempted to access into type `{store.type()}` with type `{field.type()}`",
             )
         try:
             store[field] = rhs.copy()
         except IndexError:
             assert isinstance(store, Vector)
-            return Error(f"invalid vector access with index {field}")
+            return Error(
+                self.location, f"invalid vector access with index {field}"
+            )
         return None
 
 
@@ -2589,6 +2682,7 @@ class Parser:
     def parse_statement_error(self) -> AstStatementError:
         location = self._expect_current(TokenKind.ERROR).location
         expression = self.parse_expression()
+        self._expect_current(TokenKind.SEMICOLON)
         return AstStatementError(location, expression)
 
     def parse_statement_for(self) -> AstStatementFor:
@@ -2646,6 +2740,7 @@ class Parser:
 
 
 def call(
+    location: Optional[SourceLocation],
     env: Environment,
     function: Union[Function, Builtin],
     arguments: list[Value],
@@ -2655,7 +2750,8 @@ def call(
     assert isinstance(function, Function)
     if len(arguments) != len(function.ast.parameters):
         return Error(
-            f"invalid function argument count (expected {len(function.ast.parameters)}, received {len(arguments)})"
+            location,
+            f"invalid function argument count (expected {len(function.ast.parameters)}, received {len(arguments)})",
         )
     env = Environment(function.env)
     for i in range(len(function.ast.parameters)):
@@ -2664,9 +2760,11 @@ def call(
     if isinstance(result, Return):
         return result.value
     if isinstance(result, Break):
-        return Error("attempted to break outside of a loop")
+        return Error(result.location, "attempted to break outside of a loop")
     if isinstance(result, Continue):
-        return Error("attempted to continue outside of a loop")
+        return Error(
+            result.location, "attempted to continue outside of a loop"
+        )
     if isinstance(result, Error):
         return result
     return Null()
@@ -2681,14 +2779,18 @@ class BuiltinSetmeta(Builtin):
     def function(arguments: list[Value]) -> Union[Value, "Error"]:
         Builtin.expect_argument_count(arguments, 2)
         if not isinstance(arguments[0], Reference):
-            return Error(f"expected reference, received {arguments[0].type()}")
+            return Error(
+                None, f"expected reference, received {arguments[0].type()}"
+            )
         if isinstance(arguments[1], Null):
             arguments[0].data.meta = None
             return Null()
         if isinstance(arguments[1], Map):
             arguments[0].data.meta = arguments[1]
             return Null()
-        return Error(f"expected null or map, received {arguments[1].type()}")
+        return Error(
+            None, f"expected null or map, received {arguments[1].type()}"
+        )
 
 
 class BuiltinGetmeta(Builtin):
@@ -2786,7 +2888,7 @@ class BuiltinBoolean(Builtin):
             return Boolean.new(True)
         if isinstance(arguments[0], String) and arguments[0].data == "false":
             return Boolean.new(False)
-        return Error(f"cannot convert value {arguments[0]} to boolean")
+        return Error(None, f"cannot convert value {arguments[0]} to boolean")
 
 
 class BuiltinNumber(Builtin):
@@ -2807,7 +2909,7 @@ class BuiltinNumber(Builtin):
             except ValueError:
                 # Fallthough to end-of-function error case.
                 pass
-        return Error(f"cannot convert value {arguments[0]} to number")
+        return Error(None, f"cannot convert value {arguments[0]} to number")
 
 
 class BuiltinString(Builtin):
@@ -2836,7 +2938,8 @@ class BuiltinNumberIsNaN(Builtin):
             and isinstance(arguments[0].data, Number)
         ):
             return Error(
-                f"expected reference to number, received {arguments[0].type()}"
+                None,
+                f"expected reference to number, received {arguments[0].type()}",
             )
         return Boolean.new(math.isnan(arguments[0].data.data))
 
@@ -2854,7 +2957,8 @@ class BuiltinNumberIsInteger(Builtin):
             and isinstance(arguments[0].data, Number)
         ):
             return Error(
-                f"expected reference to number, received {arguments[0].type()}"
+                None,
+                f"expected reference to number, received {arguments[0].type()}",
             )
         return Boolean.new(float(arguments[0].data.data).is_integer())
 
@@ -2872,7 +2976,8 @@ class BuiltinNumberTrunc(Builtin):
             and isinstance(arguments[0].data, Number)
         ):
             return Error(
-                f"expected reference to number, received {arguments[0].type()}"
+                None,
+                f"expected reference to number, received {arguments[0].type()}",
             )
         return Number.new(math.trunc(float(arguments[0].data.data)))
 
@@ -2890,7 +2995,8 @@ class BuiltinNumberRound(Builtin):
             and isinstance(arguments[0].data, Number)
         ):
             return Error(
-                f"expected reference to number, received {arguments[0].type()}"
+                None,
+                f"expected reference to number, received {arguments[0].type()}",
             )
         return Number.new(round(float(arguments[0].data.data)))
 
@@ -2908,7 +3014,8 @@ class BuiltinNumberFloor(Builtin):
             and isinstance(arguments[0].data, Number)
         ):
             return Error(
-                f"expected reference to number, received {arguments[0].type()}"
+                None,
+                f"expected reference to number, received {arguments[0].type()}",
             )
         return Number.new(math.floor(float(arguments[0].data.data)))
 
@@ -2926,7 +3033,8 @@ class BuiltinNumberCeil(Builtin):
             and isinstance(arguments[0].data, Number)
         ):
             return Error(
-                f"expected reference to number, received {arguments[0].type()}"
+                None,
+                f"expected reference to number, received {arguments[0].type()}",
             )
         return Number.new(math.ceil(float(arguments[0].data.data)))
 
@@ -2944,7 +3052,8 @@ class BuiltinVectorCount(Builtin):
             and isinstance(arguments[0].data, Vector)
         ):
             return Error(
-                f"expected reference to vector, received {arguments[0].type()}"
+                None,
+                f"expected reference to vector, received {arguments[0].type()}",
             )
         return Number.new(len(arguments[0].data.data))
 
@@ -2962,7 +3071,8 @@ class BuiltinVectorContains(Builtin):
             and isinstance(arguments[0].data, Vector)
         ):
             return Error(
-                f"expected reference to vector, received {arguments[0].type()}"
+                None,
+                f"expected reference to vector, received {arguments[0].type()}",
             )
         return Boolean.new(arguments[1] in arguments[0].data)
 
@@ -2980,7 +3090,8 @@ class BuiltinVectorPush(Builtin):
             and isinstance(arguments[0].data, Vector)
         ):
             return Error(
-                f"expected reference to vector, received {arguments[0].type()}"
+                None,
+                f"expected reference to vector, received {arguments[0].type()}",
             )
         arguments[0].data.data.append(arguments[1])
         return Null()
@@ -2999,7 +3110,8 @@ class BuiltinVectorPop(Builtin):
             and isinstance(arguments[0].data, Vector)
         ):
             return Error(
-                f"expected reference to vector, received {arguments[0].type()}"
+                None,
+                f"expected reference to vector, received {arguments[0].type()}",
             )
         arguments[0].data.data.pop()
         return Null()
@@ -3018,13 +3130,14 @@ class BuiltinVectorInsert(Builtin):
             and isinstance(arguments[0].data, Vector)
         ):
             return Error(
-                f"expected reference to vector, received {arguments[0].type()}"
+                None,
+                f"expected reference to vector, received {arguments[0].type()}",
             )
         if not (
             isinstance(arguments[1], Number)
             and float(arguments[1].data).is_integer()
         ):
-            return Error(f"expected integer, received {arguments[1]}")
+            return Error(None, f"expected integer, received {arguments[1]}")
         # Copy underlying data as `list.insert` will alter all Python objects
         # holding references to the underlying `SharedVectorData` object.
         underlying = arguments[0].data.data.copy()
@@ -3046,13 +3159,14 @@ class BuiltinVectorRemove(Builtin):
             and isinstance(arguments[0].data, Vector)
         ):
             return Error(
-                f"expected reference to vector, received {arguments[0].type()}"
+                None,
+                f"expected reference to vector, received {arguments[0].type()}",
             )
         if not (
             isinstance(arguments[1], Number)
             and float(arguments[1].data).is_integer()
         ):
-            return Error(f"expected integer, received {arguments[1]}")
+            return Error(None, f"expected integer, received {arguments[1]}")
         # Copy underlying data as the deletion will alter all Python objects
         # holding references to the underlying `SharedVectorData` object.
         underlying = arguments[0].data.data.copy()
@@ -3074,24 +3188,25 @@ class BuiltinVectorSlice(Builtin):
             and isinstance(arguments[0].data, Vector)
         ):
             return Error(
-                f"expected reference to vector, received {arguments[0].type()}"
+                None,
+                f"expected reference to vector, received {arguments[0].type()}",
             )
         if not (
             isinstance(arguments[1], Number)
             and float(arguments[1].data).is_integer()
         ):
-            return Error(f"expected integer, received {arguments[1]}")
+            return Error(None, f"expected integer, received {arguments[1]}")
         if not (
             isinstance(arguments[2], Number)
             and float(arguments[2].data).is_integer()
         ):
-            return Error(f"expected integer, received {arguments[2]}")
+            return Error(None, f"expected integer, received {arguments[2]}")
         bgn = int(float(arguments[1].data))
         end = int(float(arguments[2].data))
         if bgn < 0:
-            return Error(f"slice begin is less than zero")
+            return Error(None, f"slice begin is less than zero")
         if end < 0:
-            return Error(f"slice end is less than zero")
+            return Error(None, f"slice end is less than zero")
         # Copy underlying data as the update will alter all Python objects
         # holding references to the underlying `SharedVectorData` object.
         underlying = arguments[0].data.data.copy()
@@ -3111,7 +3226,8 @@ class BuiltinMapCount(Builtin):
             and isinstance(arguments[0].data, Map)
         ):
             return Error(
-                f"expected reference to map, received {arguments[0].type()}"
+                None,
+                f"expected reference to map, received {arguments[0].type()}",
             )
         return Number.new(len(arguments[0].data.data))
 
@@ -3129,7 +3245,8 @@ class BuiltinMapContains(Builtin):
             and isinstance(arguments[0].data, Map)
         ):
             return Error(
-                f"expected reference to map, received {arguments[0].type()}"
+                None,
+                f"expected reference to map, received {arguments[0].type()}",
             )
         return Boolean.new(arguments[1] in arguments[0].data)
 
@@ -3147,7 +3264,8 @@ class BuiltinMapInsert(Builtin):
             and isinstance(arguments[0].data, Map)
         ):
             return Error(
-                f"expected reference to map, received {arguments[0].type()}"
+                None,
+                f"expected reference to map, received {arguments[0].type()}",
             )
         arguments[0].data[arguments[1]] = arguments[2]
         return Null()
@@ -3166,7 +3284,8 @@ class BuiltinMapRemove(Builtin):
             and isinstance(arguments[0].data, Map)
         ):
             return Error(
-                f"expected reference to map, received {arguments[0].type()}"
+                None,
+                f"expected reference to map, received {arguments[0].type()}",
             )
         try:
             del arguments[0].data[arguments[1]]
@@ -3188,7 +3307,8 @@ class BuiltinSetCount(Builtin):
             and isinstance(arguments[0].data, Set)
         ):
             return Error(
-                f"expected reference to set, received {arguments[0].type()}"
+                None,
+                f"expected reference to set, received {arguments[0].type()}",
             )
         return Number.new(len(arguments[0].data.data))
 
@@ -3206,7 +3326,8 @@ class BuiltinSetContains(Builtin):
             and isinstance(arguments[0].data, Set)
         ):
             return Error(
-                f"expected reference to set, received {arguments[0].type()}"
+                None,
+                f"expected reference to set, received {arguments[0].type()}",
             )
         return Boolean.new(arguments[1] in arguments[0].data)
 
@@ -3224,7 +3345,8 @@ class BuiltinSetInsert(Builtin):
             and isinstance(arguments[0].data, Set)
         ):
             return Error(
-                f"expected reference to set, received {arguments[0].type()}"
+                None,
+                f"expected reference to set, received {arguments[0].type()}",
             )
         arguments[0].data.insert(arguments[1])
         return Null()
@@ -3243,7 +3365,8 @@ class BuiltinSetRemove(Builtin):
             and isinstance(arguments[0].data, Set)
         ):
             return Error(
-                f"expected reference to set, received {arguments[0].type()}"
+                None,
+                f"expected reference to set, received {arguments[0].type()}",
             )
         try:
             arguments[0].data.remove(arguments[1])
@@ -3340,7 +3463,7 @@ def repl(env: Optional[Environment] = None) -> None:
             if isinstance(result, Error):
                 print(f"error: {result}")
         except ParseError as e:
-            print(e, file=sys.stderr)
+            print(f"{e}", file=sys.stderr)
         except (EOFError, KeyboardInterrupt):
             print("", end="\n")
             return
@@ -3361,7 +3484,11 @@ def main() -> None:
         if isinstance(result, Return):
             print(result.value)
         if isinstance(result, Error):
-            print(f"error: {result}")
+            if result.location is not None:
+                print(f"[{result.location}] error: {result}")
+            else:
+                print(f"error: {result}")
+
     else:
         repl()
 

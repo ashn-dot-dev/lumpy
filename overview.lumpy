@@ -611,7 +611,7 @@ println("Try");
 try { println("inside try block"); } else err { println("inside try-else block: " + err); }
 try println("inside try expression") else err { println("inside try-else block: " + err); }
 try 1 + "foo" else err { println("inside try-else block: " + err); }
-try { error "some user defined error" } else err { println("inside try-else block: " + err); }
+try { error "some user defined error"; } else err { println("inside try-else block: " + err); }
 try { let x = []; x[1]; } else err { println("inside try-else block: " + err); }
 try { let x = []; x[1] = 123; } else err { println("inside try-else block: " + err); }
 try { let x = map{}; x["foo"]; } else err { println("inside try-else block: " + err); }
