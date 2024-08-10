@@ -3386,38 +3386,42 @@ class BuiltinSetRemove(Builtin):
         return Null()
 
 
+def let_builtin(map: Map, builtin: Builtin) -> None:
+    map[builtin.name()] = builtin
+
+
 BOOLEAN_META = Map()
 
 NUMBER_META = Map()
-NUMBER_META[String("is_nan")] = BuiltinNumberIsNaN()
-NUMBER_META[String("is_integer")] = BuiltinNumberIsInteger()
-NUMBER_META[String("trunc")] = BuiltinNumberTrunc()
-NUMBER_META[String("round")] = BuiltinNumberRound()
-NUMBER_META[String("floor")] = BuiltinNumberFloor()
-NUMBER_META[String("ceil")] = BuiltinNumberCeil()
+let_builtin(NUMBER_META, BuiltinNumberIsNaN())
+let_builtin(NUMBER_META, BuiltinNumberIsInteger())
+let_builtin(NUMBER_META, BuiltinNumberTrunc())
+let_builtin(NUMBER_META, BuiltinNumberRound())
+let_builtin(NUMBER_META, BuiltinNumberFloor())
+let_builtin(NUMBER_META, BuiltinNumberCeil())
 
 STRING_META = Map()
 
 VECTOR_META = Map()
-VECTOR_META[String("count")] = BuiltinVectorCount()
-VECTOR_META[String("contains")] = BuiltinVectorContains()
-VECTOR_META[String("push")] = BuiltinVectorPush()
-VECTOR_META[String("pop")] = BuiltinVectorPop()
-VECTOR_META[String("insert")] = BuiltinVectorInsert()
-VECTOR_META[String("remove")] = BuiltinVectorRemove()
-VECTOR_META[String("slice")] = BuiltinVectorSlice()
+let_builtin(VECTOR_META, BuiltinVectorCount())
+let_builtin(VECTOR_META, BuiltinVectorContains())
+let_builtin(VECTOR_META, BuiltinVectorPush())
+let_builtin(VECTOR_META, BuiltinVectorPop())
+let_builtin(VECTOR_META, BuiltinVectorInsert())
+let_builtin(VECTOR_META, BuiltinVectorRemove())
+let_builtin(VECTOR_META, BuiltinVectorSlice())
 
 MAP_META = Map()
-MAP_META[String("count")] = BuiltinMapCount()
-MAP_META[String("contains")] = BuiltinMapContains()
-MAP_META[String("insert")] = BuiltinMapInsert()
-MAP_META[String("remove")] = BuiltinMapRemove()
+let_builtin(MAP_META, BuiltinMapCount())
+let_builtin(MAP_META, BuiltinMapContains())
+let_builtin(MAP_META, BuiltinMapInsert())
+let_builtin(MAP_META, BuiltinMapRemove())
 
 SET_META = Map()
-SET_META[String("count")] = BuiltinSetCount()
-SET_META[String("contains")] = BuiltinSetContains()
-SET_META[String("insert")] = BuiltinSetInsert()
-SET_META[String("remove")] = BuiltinSetRemove()
+let_builtin(SET_META, BuiltinSetCount())
+let_builtin(SET_META, BuiltinSetContains())
+let_builtin(SET_META, BuiltinSetInsert())
+let_builtin(SET_META, BuiltinSetRemove())
 
 REFERENCE_META = Map()
 
@@ -3425,22 +3429,16 @@ FUNCTION_META = Map()
 
 BASE_ENV = Environment()
 BASE_ENV.let(String("NaN"), Number.new(float("NaN")))
-
-
-def let_base_env(builtin: Builtin) -> None:
-    BASE_ENV.let(builtin.name(), builtin)
-
-
-let_base_env(BuiltinSetmeta())
-let_base_env(BuiltinGetmeta())
-let_base_env(BuiltinRepr())
-let_base_env(BuiltinDump())
-let_base_env(BuiltinDumpln())
-let_base_env(BuiltinPrint())
-let_base_env(BuiltinPrintln())
-let_base_env(BuiltinBoolean())
-let_base_env(BuiltinNumber())
-let_base_env(BuiltinString())
+let_builtin(BASE_ENV.store, BuiltinSetmeta())
+let_builtin(BASE_ENV.store, BuiltinGetmeta())
+let_builtin(BASE_ENV.store, BuiltinRepr())
+let_builtin(BASE_ENV.store, BuiltinDump())
+let_builtin(BASE_ENV.store, BuiltinDumpln())
+let_builtin(BASE_ENV.store, BuiltinPrint())
+let_builtin(BASE_ENV.store, BuiltinPrintln())
+let_builtin(BASE_ENV.store, BuiltinBoolean())
+let_builtin(BASE_ENV.store, BuiltinNumber())
+let_builtin(BASE_ENV.store, BuiltinString())
 
 
 def eval_source(
