@@ -791,3 +791,22 @@ let fibonacci = function(x) {
 };
 dumpln(fibonacci);
 println("fibonacci(10) is " + repr(fibonacci(10)));
+
+print("\n");
+
+println("============================");
+println("== Top-Level Error Traces ==");
+println("============================");
+
+let g = function() {
+    let f = function() {
+        error "oopsie";
+    };
+    f();
+};
+function() {
+    let h = function() {
+        g();
+    };
+    h();
+}();

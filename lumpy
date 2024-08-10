@@ -1051,14 +1051,21 @@ class Continue:
 
 @dataclass
 class Error:
+    @dataclass
+    class TraceElement:
+        location: Optional[SourceLocation]
+        function: Union[Function, Builtin]
+
     location: Optional[SourceLocation]
     value: Value
+    trace: list[TraceElement]
 
     def __init__(
         self, location: Optional[SourceLocation], value: Union[str, Value]
     ) -> None:
         self.location = location
         self.value = String.new(value) if isinstance(value, str) else value
+        self.trace = list()
 
     def __str__(self):
         if isinstance(self.value, String):
@@ -2746,7 +2753,10 @@ def call(
     arguments: list[Value],
 ) -> Union[Value, Error]:
     if isinstance(function, Builtin):
-        return function.call(arguments)
+        produced = function.call(arguments)
+        if isinstance(produced, Error):
+            produced.trace.append(Error.TraceElement(location, function))
+        return produced
     assert isinstance(function, Function)
     if len(arguments) != len(function.ast.parameters):
         return Error(
@@ -2766,6 +2776,7 @@ def call(
             result.location, "attempted to continue outside of a loop"
         )
     if isinstance(result, Error):
+        result.trace.append(Error.TraceElement(location, function))
         return result
     return Null()
 
@@ -3488,7 +3499,11 @@ def main() -> None:
                 print(f"[{result.location}] error: {result}")
             else:
                 print(f"error: {result}")
-
+            for element in result.trace:
+                s = f"...within {element.function}"
+                if element.location is not None:
+                    s += f" called from {element.location}"
+                print(s)
     else:
         repl()
 
