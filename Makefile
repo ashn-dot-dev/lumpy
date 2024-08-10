@@ -9,7 +9,6 @@ lint:
 format:
 	python3 -m black --line-length=79 lumpy
 
-
 clean:
 	rm -rf __pycache__/
 	rm -rf .mypy_cache/
