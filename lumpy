@@ -382,10 +382,12 @@ class Map(Value):
         return item in self.data
 
     def __str__(self) -> str:
+        if len(self.data) == 0:
+            return "map{}"
         elements = ", ".join(
             [f"{str(k)}: {str(v)}" for k, v in self.data.items()]
         )
-        return f"map{{{elements}}}"
+        return f"{{{elements}}}"
 
     def __setitem__(self, key: Value, value: Value) -> None:
         if self.data.uses > 1:
@@ -451,8 +453,10 @@ class Set(Value):
         return item in self.data
 
     def __str__(self):
+        if len(self.data) == 0:
+            return "set{}"
         elements = ", ".join([f"{str(k)}" for k in self.data.keys()])
-        return f"set{{{elements}}}"
+        return f"{{{elements}}}"
 
     def insert(self, element: "Value") -> None:
         if self.data.uses > 1:
