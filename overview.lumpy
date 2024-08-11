@@ -749,6 +749,14 @@ println("string(map{}) is " + repr(string(map{})));
 
 print("\n");
 
+let greeter = import("greeter.lumpy");
+println("import(\"greeter.lumpy\") produces " + repr(greeter));
+let greet = greeter::new("Juliet");
+println("greeter::new(\"Juliet\") produces " + repr(greet));
+greet(); # Say hello to Juliet!
+
+print("\n");
+
 println("==================");
 println("== Example Code ==");
 println("==================");
@@ -805,8 +813,6 @@ let fibonacci = function(x) {
 };
 dumpln(fibonacci);
 println("fibonacci(10) is " + repr(fibonacci(10)));
-
-print("\n");
 
 println("============================");
 println("== Top-Level Error Traces ==");

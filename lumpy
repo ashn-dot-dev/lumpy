@@ -2951,6 +2951,35 @@ class BuiltinString(Builtin):
         return String(str(arguments[0]))
 
 
+class BuiltinImport(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("import")
+
+    @staticmethod
+    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+        Builtin.expect_argument_count(arguments, 1)
+        if not isinstance(arguments[0], String):
+            return Error(
+                None,
+                f"expected string, received {arguments[0].type()}",
+            )
+        result = eval_file(arguments[0].data)
+        if isinstance(result, Error):
+            return result
+        if result is None:
+            return Error(
+                None,
+                f"imported module `{arguments[0].data}` did not return a value",
+            )
+        if not isinstance(result, Value):
+            return Error(
+                None,
+                f"imported module `{arguments[0].data}` did not return a map",
+            )
+        return result
+
+
 class BuiltinNumberIsNaN(Builtin):
     @staticmethod
     def name() -> String:
@@ -3455,6 +3484,7 @@ let_builtin(BASE_ENV.store, BuiltinPrintln())
 let_builtin(BASE_ENV.store, BuiltinBoolean())
 let_builtin(BASE_ENV.store, BuiltinNumber())
 let_builtin(BASE_ENV.store, BuiltinString())
+let_builtin(BASE_ENV.store, BuiltinImport())
 
 
 def eval_source(
