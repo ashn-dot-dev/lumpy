@@ -286,6 +286,9 @@ class Vector(Value):
     def new(data: Optional[SharedVectorData] = None) -> "Vector":
         return Vector(data, VECTOR_META.copy())
 
+    def __del__(self):
+        self.data.uses -= 1
+
     def __hash__(self) -> int:
         return hash(str(self.data))
 
