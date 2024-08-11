@@ -2791,7 +2791,7 @@ class BuiltinSetmeta(Builtin):
         return String("setmeta")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
         if not isinstance(arguments[0], Reference):
             return Error(
@@ -2814,7 +2814,7 @@ class BuiltinGetmeta(Builtin):
         return String("getmeta")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if arguments[0].meta is None:
             return Null()
@@ -2827,7 +2827,7 @@ class BuiltinType(Builtin):
         return String("type")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         return String(arguments[0].type())
 
@@ -2838,7 +2838,7 @@ class BuiltinRepr(Builtin):
         return String("repr")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         return String(str(arguments[0]))
 
@@ -2849,7 +2849,7 @@ class BuiltinDump(Builtin):
         return String("dump")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         print(arguments[0], end="")
         return Null()
@@ -2861,7 +2861,7 @@ class BuiltinDumpln(Builtin):
         return String("dumpln")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         print(arguments[0], end="\n")
         return Null()
@@ -2873,7 +2873,7 @@ class BuiltinPrint(Builtin):
         return String("print")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if isinstance(arguments[0], String):
             print(arguments[0].data, end="")
@@ -2888,7 +2888,7 @@ class BuiltinPrintln(Builtin):
         return String("println")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if isinstance(arguments[0], String):
             print(arguments[0].data, end="\n")
@@ -2903,7 +2903,7 @@ class BuiltinBoolean(Builtin):
         return String("boolean")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if isinstance(arguments[0], Boolean):
             return arguments[0]
@@ -2923,7 +2923,7 @@ class BuiltinNumber(Builtin):
         return String("number")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if isinstance(arguments[0], Number):
             return arguments[0]
@@ -2944,7 +2944,7 @@ class BuiltinString(Builtin):
         return String("string")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if isinstance(arguments[0], String):
             return arguments[0]
@@ -2957,7 +2957,7 @@ class BuiltinImport(Builtin):
         return String("import")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if not isinstance(arguments[0], String):
             return Error(
@@ -2986,7 +2986,7 @@ class BuiltinNumberIsNaN(Builtin):
         return String("is_nan")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if not (
             isinstance(arguments[0], Reference)
@@ -3005,7 +3005,7 @@ class BuiltinNumberIsInteger(Builtin):
         return String("is_integer")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if not (
             isinstance(arguments[0], Reference)
@@ -3024,7 +3024,7 @@ class BuiltinNumberTrunc(Builtin):
         return String("trunc")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if not (
             isinstance(arguments[0], Reference)
@@ -3043,7 +3043,7 @@ class BuiltinNumberRound(Builtin):
         return String("round")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if not (
             isinstance(arguments[0], Reference)
@@ -3062,7 +3062,7 @@ class BuiltinNumberFloor(Builtin):
         return String("floor")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if not (
             isinstance(arguments[0], Reference)
@@ -3081,7 +3081,7 @@ class BuiltinNumberCeil(Builtin):
         return String("ceil")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if not (
             isinstance(arguments[0], Reference)
@@ -3100,7 +3100,7 @@ class BuiltinVectorCount(Builtin):
         return String("count")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if not (
             isinstance(arguments[0], Reference)
@@ -3119,7 +3119,7 @@ class BuiltinVectorContains(Builtin):
         return String("contains")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
         if not (
             isinstance(arguments[0], Reference)
@@ -3138,7 +3138,7 @@ class BuiltinVectorPush(Builtin):
         return String("push")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
         if not (
             isinstance(arguments[0], Reference)
@@ -3158,7 +3158,7 @@ class BuiltinVectorPop(Builtin):
         return String("pop")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if not (
             isinstance(arguments[0], Reference)
@@ -3178,7 +3178,7 @@ class BuiltinVectorInsert(Builtin):
         return String("insert")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 3)
         if not (
             isinstance(arguments[0], Reference)
@@ -3207,7 +3207,7 @@ class BuiltinVectorRemove(Builtin):
         return String("remove")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
         if not (
             isinstance(arguments[0], Reference)
@@ -3236,7 +3236,7 @@ class BuiltinVectorSlice(Builtin):
         return String("slice")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 3)
         if not (
             isinstance(arguments[0], Reference)
@@ -3274,7 +3274,7 @@ class BuiltinMapCount(Builtin):
         return String("count")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if not (
             isinstance(arguments[0], Reference)
@@ -3293,7 +3293,7 @@ class BuiltinMapContains(Builtin):
         return String("contains")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
         if not (
             isinstance(arguments[0], Reference)
@@ -3312,7 +3312,7 @@ class BuiltinMapInsert(Builtin):
         return String("insert")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 3)
         if not (
             isinstance(arguments[0], Reference)
@@ -3332,7 +3332,7 @@ class BuiltinMapRemove(Builtin):
         return String("remove")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
         if not (
             isinstance(arguments[0], Reference)
@@ -3355,7 +3355,7 @@ class BuiltinSetCount(Builtin):
         return String("count")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if not (
             isinstance(arguments[0], Reference)
@@ -3374,7 +3374,7 @@ class BuiltinSetContains(Builtin):
         return String("contains")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
         if not (
             isinstance(arguments[0], Reference)
@@ -3393,7 +3393,7 @@ class BuiltinSetInsert(Builtin):
         return String("insert")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
         if not (
             isinstance(arguments[0], Reference)
@@ -3413,7 +3413,7 @@ class BuiltinSetRemove(Builtin):
         return String("remove")
 
     @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
         if not (
             isinstance(arguments[0], Reference)
