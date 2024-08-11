@@ -259,77 +259,77 @@ print("\n");
 println("==========================");
 println("== Operator Overloading ==");
 println("==========================");
-let person = function(name, age) {
-    let self = {"name": name, "age": age};
-    setmeta(self.&, map{
-        "positive": function(value) {
-            println("positive called with " + repr(self));
-            return alice;
-        },
-        "negative": function(value) {
-            println("negative called with " + repr(self));
-            return alice;
-        },
-        "not": function(value) {
-            println("not called with " + repr(self));
-            return alice;
-        },
-        "and": function(lhs, rhs) {
-            println("and called with " + repr(lhs) + " and " + repr(rhs));
-            return false;
-        },
-        "or": function(lhs, rhs) {
-            println("or called with " + repr(lhs) + " and " + repr(rhs));
-            return false;
-        },
-        "==": function(lhs, rhs) {
-            println("== called with " + repr(lhs) + " and " + repr(rhs));
-            return lhs.name == rhs.name and lhs.age == rhs.age;
-        },
-        "!=": function(lhs, rhs) {
-            println("!= called with " + repr(lhs) + " and " + repr(rhs));
-            return not (lhs.name == rhs.name and lhs.age == rhs.age);
-        },
-        "<=": function(lhs, rhs) {
-            println("<= called with " + repr(lhs) + " and " + repr(rhs));
-            return false;
-        },
-        ">=": function(lhs, rhs) {
-            println(">= called with " + repr(lhs) + " and " + repr(rhs));
-            return false;
-        },
-        "<": function(lhs, rhs) {
-            println("< called with " + repr(lhs) + " and " + repr(rhs));
-            return false;
-        },
-        ">": function(lhs, rhs) {
-            println("> called with " + repr(lhs) + " and " + repr(rhs));
-            return false;
-        },
-    });
-    return self;
+let person = {
+    "new": function(name, age) {
+        let self = {"name": name, "age": age};
+        setmeta(self.&, person);
+        return self;
+    },
+    "positive": function(value) {
+        println("positive called with " + repr(value));
+        return alice;
+    },
+    "negative": function(value) {
+        println("negative called with " + repr(value));
+        return alice;
+    },
+    "not": function(value) {
+        println("not called with " + repr(value));
+        return alice;
+    },
+    "and": function(lhs, rhs) {
+        println("and called with " + repr(lhs) + " and " + repr(rhs));
+        return false;
+    },
+    "or": function(lhs, rhs) {
+        println("or called with " + repr(lhs) + " and " + repr(rhs));
+        return false;
+    },
+    "==": function(lhs, rhs) {
+        println("== called with " + repr(lhs) + " and " + repr(rhs));
+        return lhs.name == rhs.name and lhs.age == rhs.age;
+    },
+    "!=": function(lhs, rhs) {
+        println("!= called with " + repr(lhs) + " and " + repr(rhs));
+        return not (lhs.name == rhs.name and lhs.age == rhs.age);
+    },
+    "<=": function(lhs, rhs) {
+        println("<= called with " + repr(lhs) + " and " + repr(rhs));
+        return false;
+    },
+    ">=": function(lhs, rhs) {
+        println(">= called with " + repr(lhs) + " and " + repr(rhs));
+        return false;
+    },
+    "<": function(lhs, rhs) {
+        println("< called with " + repr(lhs) + " and " + repr(rhs));
+        return false;
+    },
+    ">": function(lhs, rhs) {
+        println("> called with " + repr(lhs) + " and " + repr(rhs));
+        return false;
+    },
 };
 
 println("person is " + repr(person));
 
 print("\n");
 
-println("let alice be the result of person(\"Alice\", 32)");
-let alice = person("Alice", 32);
+println("let alice be the result of person::new(\"Alice\", 32)");
+let alice = person::new("Alice", 32);
 println("alice is " + repr(alice));
 println("getmeta(alice) is " + repr(getmeta(alice)));
 
 print("\n");
 
-println("let bob be the result of person(\"Alice\", 27)");
-let bob = person("Bob", 27);
+println("let bob be the result of person::new(\"Bob\", 27)");
+let bob = person::new("Bob", 27);
 println("bob is " + repr(bob));
 println("getmeta(bob) is " + repr(getmeta(bob)));
 
 print("\n");
 
 println("calling overloadable operators on alice and bob");
-let bob = person("Bob", 27);
 +alice;
 -alice;
 not alice;
@@ -344,44 +344,45 @@ alice > bob;
 
 print("\n");
 
-let vec2 = function(x, y) {
-    let self = {"x": x, "y": y};
-    setmeta(self.&, map{
-        "positive": function(value) {
-            println("positive called with " + string(value));
-            return value;
-        },
-        "negative": function(value) {
-            println("negative called with " + string(value));
-            value.x = -value.x;
-            value.y = -value.y;
-            return value;
-        },
-        "compare": function(lhs, rhs) {
-            println("compare called with " + string(lhs) + " and " + string(rhs));
-            if lhs.x < rhs.x { return -1; }
-            if lhs.x > rhs.x { return +1; }
-            if lhs.y < rhs.y { return -1; }
-            if lhs.y > rhs.y { return +1; }
-            return 0;
-        }
-    });
-    return self;
+let vec2 = {
+    "new": function(x, y) {
+        let self = {"x": x, "y": y};
+        setmeta(self.&, vec2);
+        return self;
+    },
+    "positive": function(value) {
+        println("positive called with " + string(value));
+        return value;
+    },
+    "negative": function(value) {
+        println("negative called with " + string(value));
+        value.x = -value.x;
+        value.y = -value.y;
+        return value;
+    },
+    "compare": function(lhs, rhs) {
+        println("compare called with " + string(lhs) + " and " + string(rhs));
+        if lhs.x < rhs.x { return -1; }
+        if lhs.x > rhs.x { return +1; }
+        if lhs.y < rhs.y { return -1; }
+        if lhs.y > rhs.y { return +1; }
+        return 0;
+    },
 };
 
 println("vec2 is " + repr(vec2));
 
 print("\n");
 
-println("let a be the result of vec2(-3, +5)");
-let a = vec2(-3, +5);
+println("let a be the result of vec2::new(-3, +5)");
+let a = vec2::new(-3, +5);
 println("a is " + repr(a));
 println("getmeta(a) is " + repr(getmeta(a)));
 
 print("\n");
 
-println("let b be the result of vec2(+1, +0)");
-let b = vec2(+1, +0);
+println("let b be the result of vec2::new(+1, +0)");
+let b = vec2::new(+1, +0);
 println("b is " + repr(b));
 println("getmeta(b) is " + repr(getmeta(b)));
 
