@@ -3,6 +3,13 @@ The Lumpy Programming Language
 
 Lumpy is a small scripting language with value semantics.
 
+A brief language overview can be found in `overview.lumpy`, the output of which
+can be viewed by running:
+
+```sh
+/path/to/lumpy$ ./lumpy overview.lumpy
+```
+
 ## Development Setup
 
 ```sh
