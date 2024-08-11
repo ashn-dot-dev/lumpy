@@ -3094,6 +3094,143 @@ class BuiltinNumberCeil(Builtin):
         return Number.new(math.ceil(float(arguments[0].data.data)))
 
 
+class BuiltinStringContains(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("contains")
+
+    @staticmethod
+    def function(arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 2)
+        if not (
+            isinstance(arguments[0], Reference)
+            and isinstance(arguments[0].data, String)
+        ):
+            return Error(
+                None,
+                f"expected reference to string, received {arguments[0].type()}",
+            )
+        if not isinstance(arguments[1], String):
+            return Error(
+                None,
+                f"expected string, received {arguments[1].type()}",
+            )
+        return Boolean.new(arguments[1].data in arguments[0].data.data)
+
+
+class BuiltinStringStartsWith(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("starts_with")
+
+    @staticmethod
+    def function(arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 2)
+        if not (
+            isinstance(arguments[0], Reference)
+            and isinstance(arguments[0].data, String)
+        ):
+            return Error(
+                None,
+                f"expected reference to string, received {arguments[0].type()}",
+            )
+        if not isinstance(arguments[1], String):
+            return Error(
+                None,
+                f"expected string, received {arguments[1].type()}",
+            )
+        return Boolean.new(
+            arguments[0].data.data.startswith(arguments[1].data)
+        )
+
+
+class BuiltinStringEndsWith(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("ends_with")
+
+    @staticmethod
+    def function(arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 2)
+        if not (
+            isinstance(arguments[0], Reference)
+            and isinstance(arguments[0].data, String)
+        ):
+            return Error(
+                None,
+                f"expected reference to string, received {arguments[0].type()}",
+            )
+        if not isinstance(arguments[1], String):
+            return Error(
+                None,
+                f"expected string, received {arguments[1].type()}",
+            )
+        return Boolean.new(arguments[0].data.data.endswith(arguments[1].data))
+
+
+class BuiltinStringSplit(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("split")
+
+    @staticmethod
+    def function(arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 2)
+        if not (
+            isinstance(arguments[0], Reference)
+            and isinstance(arguments[0].data, String)
+        ):
+            return Error(
+                None,
+                f"expected reference to string, received {arguments[0].type()}",
+            )
+        if not isinstance(arguments[1], String):
+            return Error(
+                None,
+                f"expected string, received {arguments[1].type()}",
+            )
+        split = arguments[0].data.data.split(arguments[1].data)
+        return Vector.new(SharedVectorData([String(x) for x in split]))
+
+
+class BuiltinStringCut(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("cut")
+
+    @staticmethod
+    def function(arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 2)
+        if not (
+            isinstance(arguments[0], Reference)
+            and isinstance(arguments[0].data, String)
+        ):
+            return Error(
+                None,
+                f"expected reference to string, received {arguments[0].type()}",
+            )
+        if not isinstance(arguments[1], String):
+            return Error(
+                None,
+                f"expected string, received {arguments[1].type()}",
+            )
+        found = arguments[0].data.data.find(arguments[1].data)
+        if found == -1:
+            return Null()
+        prefix = String(arguments[0].data.data[0:found])
+        suffix = String(
+            arguments[0].data.data[found + len(arguments[1].data) :]
+        )
+        return Map.new(
+            SharedMapData(
+                {
+                    String("prefix"): prefix,
+                    String("suffix"): suffix,
+                }
+            )
+        )
+
+
 class BuiltinVectorCount(Builtin):
     @staticmethod
     def name() -> String:
@@ -3445,6 +3582,11 @@ let_builtin(NUMBER_META, BuiltinNumberFloor())
 let_builtin(NUMBER_META, BuiltinNumberCeil())
 
 STRING_META = Map()
+let_builtin(STRING_META, BuiltinStringContains())
+let_builtin(STRING_META, BuiltinStringStartsWith())
+let_builtin(STRING_META, BuiltinStringEndsWith())
+let_builtin(STRING_META, BuiltinStringSplit())
+let_builtin(STRING_META, BuiltinStringCut())
 
 VECTOR_META = Map()
 let_builtin(VECTOR_META, BuiltinVectorCount())

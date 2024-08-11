@@ -666,6 +666,32 @@ println("(-123.45).ceil() is " + repr((-123.45).ceil()));
 
 print("\n");
 
+println("\"foobar\".contains(\"foo\") is " + repr("foobar".contains("foo")));
+println("\"foobar\".contains(\"bar\") is " + repr("foobar".contains("bar")));
+println("\"foobar\".contains(\"baz\") is " + repr("foobar".contains("baz")));
+println("\"foobar\".contains(\"\") is " + repr("foobar".contains("")));
+
+println("\"foobar\".starts_with(\"foo\") is " + repr("foobar".starts_with("foo")));
+println("\"foobar\".starts_with(\"bar\") is " + repr("foobar".starts_with("bar")));
+println("\"foobar\".starts_with(\"\") is " + repr("foobar".starts_with("")));
+
+println("\"foobar\".ends_with(\"foo\") is " + repr("foobar".ends_with("foo")));
+println("\"foobar\".ends_with(\"bar\") is " + repr("foobar".ends_with("bar")));
+println("\"foobar\".ends_with(\"\") is " + repr("foobar".ends_with("")));
+
+println("\"foo bar\".split(\" \") is " + repr("foo bar".split(" ")));
+println("\"f o o b a r\".split(\" \") is " + repr("f o o b a r".split(" ")));
+println("\"foobar\".split(\"oo\") is " + repr("foobar".split("oo")));
+println("\"foobar\".split(\"o\") is " + repr("foobar".split("o")));
+println("\"foobar\".split(\"baz\") is " + repr("foobar".split("baz")));
+
+println("\"foo=bar\".cut(\"=\") is " + repr("foo=bar".cut("=")));
+println("\"foo=bar\".cut(\"foo\") is " + repr("foo=bar".cut("foo")));
+println("\"foo=bar\".cut(\"bar\") is " + repr("foo=bar".cut("bar")));
+println("\"foo=bar\".cut(\"\") is " + repr("foo=bar".cut("")));
+
+print("\n");
+
 let x = [123, 456, 789];
 println("initial vector x is " + repr(x));
 println("x.count() is " + repr(x.count()));
