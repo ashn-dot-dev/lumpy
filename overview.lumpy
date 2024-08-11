@@ -635,6 +635,19 @@ dumpln(getmeta(x));
 
 print("\n");
 
+println("type(null) is " + repr(type(null)));
+println("type(true) is " + repr(type(true)));
+println("type(123) is " + repr(type(123)));
+println("type(\"foo\") is " + repr(type("foo")));
+println("type([123, 456]) is " + repr(type([123, 456])));
+println("type({\"foo\": \"bar\"}) is " + repr(type({"foo": "bar"})));
+println("type({\"foo\", \"bar\"}) is " + repr(type({"foo", "bar"})));
+println("type(123.&) is " + repr(type(123.&)));
+println("type(function() {}) is " + repr(type(function() {})));
+println("type(println) is " + repr(type(println)));
+
+print("\n");
+
 println("123.is_nan() is " + repr(123.is_nan()));
 println("NaN.is_nan() is " + repr(NaN.is_nan()));
 println("123.is_integer() is " + repr(123.is_integer()));

@@ -2817,6 +2817,17 @@ class BuiltinGetmeta(Builtin):
         return arguments[0].meta
 
 
+class BuiltinType(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("type")
+
+    @staticmethod
+    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+        Builtin.expect_argument_count(arguments, 1)
+        return String(arguments[0].type())
+
+
 class BuiltinRepr(Builtin):
     @staticmethod
     def name() -> String:
@@ -3431,6 +3442,7 @@ BASE_ENV = Environment()
 BASE_ENV.let(String("NaN"), Number.new(float("NaN")))
 let_builtin(BASE_ENV.store, BuiltinSetmeta())
 let_builtin(BASE_ENV.store, BuiltinGetmeta())
+let_builtin(BASE_ENV.store, BuiltinType())
 let_builtin(BASE_ENV.store, BuiltinRepr())
 let_builtin(BASE_ENV.store, BuiltinDump())
 let_builtin(BASE_ENV.store, BuiltinDumpln())
