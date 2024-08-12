@@ -741,14 +741,13 @@ class Token:
         if self.kind == TokenKind.ILLEGAL:
             prettyable = lambda c: c in printable and c not in whitespace
             prettyrepr = lambda c: c if prettyable(c) else f"{ord(c):#04x}"
-            pretty = "".join(map(prettyrepr, self.literal))
-            return f"{self.kind}({pretty})"
+            return "".join(map(prettyrepr, self.literal))
         if self.kind == TokenKind.IDENTIFIER:
-            return f"{self.kind}({self.literal})"
+            return f"{self.literal}"
         if self.kind == TokenKind.NUMBER:
-            return f"{self.kind}({self.literal})"
+            return f"{self.literal}"
         if self.kind == TokenKind.STRING:
-            return f"{self.kind}({self.literal})"
+            return f"{self.literal}"
         if self.kind.value in Token.KEYWORDS:
             return self.kind.value
         return f"{self.kind.value}"
