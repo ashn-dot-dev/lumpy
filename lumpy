@@ -595,13 +595,38 @@ class Builtin(Value):
     def name() -> String:
         raise NotImplementedError()
 
-    @staticmethod
     @abstractmethod
-    def function(arguments: list[Value]) -> Union[Value, "Error"]:
+    def function(self, arguments: list[Value]) -> Union[Value, "Error"]:
         raise NotImplementedError()
 
     def cow(self) -> None:
         self.meta = self.meta.copy() if self.meta else None
+
+
+@dataclass
+class BuiltinFromSource(Builtin):
+    env: Optional["Environment"] = None
+
+    def __post_init__(self) -> None:
+        self.evaled = eval_source(self.source(), self.env)
+        assert isinstance(self.evaled, Function)
+
+    def __hash__(self) -> int:
+        return hash(id(self.evaled))
+
+    def __eq__(self, other) -> bool:
+        if type(self) is not type(other):
+            return False
+        return self.evaled == other.evaled
+
+    def function(self, arguments: list[Value]) -> Union[Value, "Error"]:
+        assert isinstance(self.evaled, Function)
+        return call(None, self.evaled, arguments)
+
+    @staticmethod
+    @abstractmethod
+    def source() -> str:
+        raise NotImplementedError()
 
 
 @dataclass
@@ -1273,7 +1298,7 @@ class AstPositive(AstExpression):
             return result
         metafunction = result.metafunction(String("positive"))
         if metafunction is not None:
-            return call(self.location, env, metafunction, [result.copy()])
+            return call(self.location, metafunction, [result.copy()])
         if isinstance(result, Number):
             return Number.new(+float(result.data))
         return Error(
@@ -1294,7 +1319,7 @@ class AstNegative(AstExpression):
             return result
         metafunction = result.metafunction(String("negative"))
         if metafunction is not None:
-            return call(self.location, env, metafunction, [result.copy()])
+            return call(self.location, metafunction, [result.copy()])
         if not isinstance(result, Number):
             return Error(
                 self.location,
@@ -1315,7 +1340,7 @@ class AstNot(AstExpression):
             return result
         metafunction = result.metafunction(String("not"))
         if metafunction is not None:
-            return call(self.location, env, metafunction, [result.copy()])
+            return call(self.location, metafunction, [result.copy()])
         if not isinstance(result, Boolean):
             return Error(
                 self.location,
@@ -1340,9 +1365,7 @@ class AstAnd(AstExpression):
             return rhs
         metafunction = lhs.metafunction(String("and"))
         if metafunction is not None:
-            return call(
-                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
-            )
+            return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         if isinstance(lhs, Boolean) and isinstance(rhs, Boolean):
             return Boolean.new(lhs.data and rhs.data)
         return Error(
@@ -1367,9 +1390,7 @@ class AstOr(AstExpression):
             return rhs
         metafunction = lhs.metafunction(String("or"))
         if metafunction is not None:
-            return call(
-                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
-            )
+            return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         if isinstance(lhs, Boolean) and isinstance(rhs, Boolean):
             return Boolean.new(lhs.data or rhs.data)
         return Error(
@@ -1394,13 +1415,11 @@ class AstEq(AstExpression):
             return rhs
         metafunction = lhs.metafunction(String("=="))
         if metafunction is not None:
-            return call(
-                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
-            )
+            return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         metafunction = lhs.metafunction(String("compare"))
         if metafunction is not None:
             result = call(
-                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
+                self.location, metafunction, [lhs.copy(), rhs.copy()]
             )
             if isinstance(result, Error):
                 return rhs
@@ -1429,13 +1448,11 @@ class AstNe(AstExpression):
             return rhs
         metafunction = lhs.metafunction(String("!="))
         if metafunction is not None:
-            return call(
-                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
-            )
+            return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         metafunction = lhs.metafunction(String("compare"))
         if metafunction is not None:
             result = call(
-                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
+                self.location, metafunction, [lhs.copy(), rhs.copy()]
             )
             if isinstance(result, Error):
                 return rhs
@@ -1464,13 +1481,11 @@ class AstLe(AstExpression):
             return rhs
         metafunction = lhs.metafunction(String("<="))
         if metafunction is not None:
-            return call(
-                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
-            )
+            return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         metafunction = lhs.metafunction(String("compare"))
         if metafunction is not None:
             result = call(
-                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
+                self.location, metafunction, [lhs.copy(), rhs.copy()]
             )
             if isinstance(result, Error):
                 return rhs
@@ -1506,13 +1521,11 @@ class AstGe(AstExpression):
             return rhs
         metafunction = lhs.metafunction(String(">="))
         if metafunction is not None:
-            return call(
-                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
-            )
+            return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         metafunction = lhs.metafunction(String("compare"))
         if metafunction is not None:
             result = call(
-                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
+                self.location, metafunction, [lhs.copy(), rhs.copy()]
             )
             if isinstance(result, Error):
                 return rhs
@@ -1548,13 +1561,11 @@ class AstLt(AstExpression):
             return rhs
         metafunction = lhs.metafunction(String("<"))
         if metafunction is not None:
-            return call(
-                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
-            )
+            return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         metafunction = lhs.metafunction(String("compare"))
         if metafunction is not None:
             result = call(
-                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
+                self.location, metafunction, [lhs.copy(), rhs.copy()]
             )
             if isinstance(result, Error):
                 return rhs
@@ -1590,13 +1601,11 @@ class AstGt(AstExpression):
             return rhs
         metafunction = lhs.metafunction(String(">"))
         if metafunction is not None:
-            return call(
-                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
-            )
+            return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         metafunction = lhs.metafunction(String("compare"))
         if metafunction is not None:
             result = call(
-                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
+                self.location, metafunction, [lhs.copy(), rhs.copy()]
             )
             if isinstance(result, Error):
                 return rhs
@@ -1632,9 +1641,7 @@ class AstAdd(AstExpression):
             return rhs
         metafunction = lhs.metafunction(String("+"))
         if metafunction is not None:
-            return call(
-                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
-            )
+            return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         if isinstance(lhs, Number) and isinstance(rhs, Number):
             return Number.new(float(lhs.data) + float(rhs.data))
         if isinstance(lhs, String) and isinstance(rhs, String):
@@ -1661,9 +1668,7 @@ class AstSub(AstExpression):
             return rhs
         metafunction = lhs.metafunction(String("-"))
         if metafunction is not None:
-            return call(
-                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
-            )
+            return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         if not (isinstance(lhs, Number) and isinstance(rhs, Number)):
             return Error(
                 self.location,
@@ -1688,9 +1693,7 @@ class AstMul(AstExpression):
             return rhs
         metafunction = lhs.metafunction(String("*"))
         if metafunction is not None:
-            return call(
-                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
-            )
+            return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         if not (isinstance(lhs, Number) and isinstance(rhs, Number)):
             return Error(
                 self.location,
@@ -1715,9 +1718,7 @@ class AstDiv(AstExpression):
             return rhs
         metafunction = lhs.metafunction(String("/"))
         if metafunction is not None:
-            return call(
-                self.location, env, metafunction, [lhs.copy(), rhs.copy()]
-            )
+            return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         if not (isinstance(lhs, Number) and isinstance(rhs, Number)):
             return Error(
                 self.location,
@@ -1775,7 +1776,7 @@ class AstFunctionCall(AstExpression):
             if isinstance(result, Error):
                 return result
             arguments.append(result.copy())
-        return call(self.location, env, function, arguments)
+        return call(self.location, function, arguments)
 
 
 @final
@@ -2755,7 +2756,6 @@ class Parser:
 
 def call(
     location: Optional[SourceLocation],
-    env: Environment,
     function: Union[Function, Builtin],
     arguments: list[Value],
 ) -> Union[Value, Error]:
@@ -2793,8 +2793,7 @@ class BuiltinSetmeta(Builtin):
     def name() -> String:
         return String("setmeta")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
         if not isinstance(arguments[0], Reference):
             return Error(
@@ -2816,8 +2815,7 @@ class BuiltinGetmeta(Builtin):
     def name() -> String:
         return String("getmeta")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if arguments[0].meta is None:
             return Null()
@@ -2829,8 +2827,7 @@ class BuiltinType(Builtin):
     def name() -> String:
         return String("type")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         return String(arguments[0].type())
 
@@ -2840,8 +2837,7 @@ class BuiltinRepr(Builtin):
     def name() -> String:
         return String("repr")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         return String(str(arguments[0]))
 
@@ -2851,8 +2847,7 @@ class BuiltinDump(Builtin):
     def name() -> String:
         return String("dump")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         print(arguments[0], end="")
         return Null()
@@ -2863,8 +2858,7 @@ class BuiltinDumpln(Builtin):
     def name() -> String:
         return String("dumpln")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         print(arguments[0], end="\n")
         return Null()
@@ -2875,8 +2869,7 @@ class BuiltinPrint(Builtin):
     def name() -> String:
         return String("print")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if isinstance(arguments[0], String):
             print(arguments[0].data, end="")
@@ -2890,8 +2883,7 @@ class BuiltinPrintln(Builtin):
     def name() -> String:
         return String("println")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if isinstance(arguments[0], String):
             print(arguments[0].data, end="\n")
@@ -2905,8 +2897,7 @@ class BuiltinBoolean(Builtin):
     def name() -> String:
         return String("boolean")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if isinstance(arguments[0], Boolean):
             return arguments[0]
@@ -2925,8 +2916,7 @@ class BuiltinNumber(Builtin):
     def name() -> String:
         return String("number")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if isinstance(arguments[0], Number):
             return arguments[0]
@@ -2946,8 +2936,7 @@ class BuiltinString(Builtin):
     def name() -> String:
         return String("string")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if isinstance(arguments[0], String):
             return arguments[0]
@@ -2959,8 +2948,7 @@ class BuiltinImport(Builtin):
     def name() -> String:
         return String("import")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if not isinstance(arguments[0], String):
             return Error(
@@ -2988,8 +2976,7 @@ class BuiltinNumberIsNaN(Builtin):
     def name() -> String:
         return String("is_nan")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if not (
             isinstance(arguments[0], Reference)
@@ -3007,8 +2994,7 @@ class BuiltinNumberIsInteger(Builtin):
     def name() -> String:
         return String("is_integer")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if not (
             isinstance(arguments[0], Reference)
@@ -3026,8 +3012,7 @@ class BuiltinNumberTrunc(Builtin):
     def name() -> String:
         return String("trunc")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if not (
             isinstance(arguments[0], Reference)
@@ -3045,8 +3030,7 @@ class BuiltinNumberRound(Builtin):
     def name() -> String:
         return String("round")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if not (
             isinstance(arguments[0], Reference)
@@ -3064,8 +3048,7 @@ class BuiltinNumberFloor(Builtin):
     def name() -> String:
         return String("floor")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if not (
             isinstance(arguments[0], Reference)
@@ -3083,8 +3066,7 @@ class BuiltinNumberCeil(Builtin):
     def name() -> String:
         return String("ceil")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if not (
             isinstance(arguments[0], Reference)
@@ -3102,8 +3084,7 @@ class BuiltinStringContains(Builtin):
     def name() -> String:
         return String("contains")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
         if not (
             isinstance(arguments[0], Reference)
@@ -3126,8 +3107,7 @@ class BuiltinStringStartsWith(Builtin):
     def name() -> String:
         return String("starts_with")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
         if not (
             isinstance(arguments[0], Reference)
@@ -3152,8 +3132,7 @@ class BuiltinStringEndsWith(Builtin):
     def name() -> String:
         return String("ends_with")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
         if not (
             isinstance(arguments[0], Reference)
@@ -3176,8 +3155,7 @@ class BuiltinStringJoin(Builtin):
     def name() -> String:
         return String("join")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
         if not (
             isinstance(arguments[0], Reference)
@@ -3210,8 +3188,7 @@ class BuiltinStringSplit(Builtin):
     def name() -> String:
         return String("split")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
         if not (
             isinstance(arguments[0], Reference)
@@ -3235,8 +3212,7 @@ class BuiltinStringCut(Builtin):
     def name() -> String:
         return String("cut")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
         if not (
             isinstance(arguments[0], Reference)
@@ -3273,8 +3249,7 @@ class BuiltinVectorCount(Builtin):
     def name() -> String:
         return String("count")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if not (
             isinstance(arguments[0], Reference)
@@ -3292,8 +3267,7 @@ class BuiltinVectorContains(Builtin):
     def name() -> String:
         return String("contains")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
         if not (
             isinstance(arguments[0], Reference)
@@ -3311,8 +3285,7 @@ class BuiltinVectorPush(Builtin):
     def name() -> String:
         return String("push")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
         if not (
             isinstance(arguments[0], Reference)
@@ -3331,8 +3304,7 @@ class BuiltinVectorPop(Builtin):
     def name() -> String:
         return String("pop")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if not (
             isinstance(arguments[0], Reference)
@@ -3351,8 +3323,7 @@ class BuiltinVectorInsert(Builtin):
     def name() -> String:
         return String("insert")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 3)
         if not (
             isinstance(arguments[0], Reference)
@@ -3380,8 +3351,7 @@ class BuiltinVectorRemove(Builtin):
     def name() -> String:
         return String("remove")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
         if not (
             isinstance(arguments[0], Reference)
@@ -3409,8 +3379,7 @@ class BuiltinVectorSlice(Builtin):
     def name() -> String:
         return String("slice")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 3)
         if not (
             isinstance(arguments[0], Reference)
@@ -3442,13 +3411,77 @@ class BuiltinVectorSlice(Builtin):
         return Vector.new(SharedVectorData(underlying[bgn:end]))
 
 
+class BuiltinVectorReversed(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("reversed")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        if not (
+            isinstance(arguments[0], Reference)
+            and isinstance(arguments[0].data, Vector)
+        ):
+            return Error(
+                None,
+                f"expected reference to vector, received {arguments[0].type()}",
+            )
+        # Copy underlying data as the update will alter all Python objects
+        # holding references to the underlying `SharedVectorData` object.
+        underlying = arguments[0].data.data.copy()
+        return Vector.new(SharedVectorData(reversed(underlying)))
+
+
+class BuiltinVectorSorted(BuiltinFromSource):
+    @staticmethod
+    def name() -> String:
+        return String("sorted")
+
+    @staticmethod
+    def source() -> str:
+        return """
+        let sort = function(x) {
+            if x.count() <= 1 {
+                return x;
+            }
+            let mid = (x.count() / 2).trunc();
+            let lo = sort(x.slice(0, mid));
+            let hi = sort(x.slice(mid, x.count()));
+            let lo_index = 0;
+            let hi_index = 0;
+            let result = [];
+            for _ in x.count() {
+                if lo_index == lo.count() {
+                    result.push(hi[hi_index]);
+                    hi_index = hi_index + 1;
+                }
+                elif hi_index == hi.count() {
+                    result.push(lo[lo_index]);
+                    lo_index = lo_index + 1;
+                }
+                elif lo[lo_index] < hi[hi_index] {
+                    result.push(lo[lo_index]);
+                    lo_index = lo_index + 1;
+                }
+                else {
+                    result.push(hi[hi_index]);
+                    hi_index = hi_index + 1;
+                }
+            }
+            return result;
+        };
+        return function(self) {
+            try { return sort(self.*); } else err { error err; }
+        };
+        """
+
+
 class BuiltinMapCount(Builtin):
     @staticmethod
     def name() -> String:
         return String("count")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if not (
             isinstance(arguments[0], Reference)
@@ -3466,8 +3499,7 @@ class BuiltinMapContains(Builtin):
     def name() -> String:
         return String("contains")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
         if not (
             isinstance(arguments[0], Reference)
@@ -3485,8 +3517,7 @@ class BuiltinMapInsert(Builtin):
     def name() -> String:
         return String("insert")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 3)
         if not (
             isinstance(arguments[0], Reference)
@@ -3505,8 +3536,7 @@ class BuiltinMapRemove(Builtin):
     def name() -> String:
         return String("remove")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
         if not (
             isinstance(arguments[0], Reference)
@@ -3528,8 +3558,7 @@ class BuiltinSetCount(Builtin):
     def name() -> String:
         return String("count")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if not (
             isinstance(arguments[0], Reference)
@@ -3547,8 +3576,7 @@ class BuiltinSetContains(Builtin):
     def name() -> String:
         return String("contains")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
         if not (
             isinstance(arguments[0], Reference)
@@ -3566,8 +3594,7 @@ class BuiltinSetInsert(Builtin):
     def name() -> String:
         return String("insert")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
         if not (
             isinstance(arguments[0], Reference)
@@ -3586,8 +3613,7 @@ class BuiltinSetRemove(Builtin):
     def name() -> String:
         return String("remove")
 
-    @staticmethod
-    def function(arguments: list[Value]) -> Union[Value, Error]:
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
         if not (
             isinstance(arguments[0], Reference)
@@ -3607,6 +3633,8 @@ class BuiltinSetRemove(Builtin):
 def let_builtin(map: Map, builtin: Builtin) -> None:
     map[builtin.name()] = builtin
 
+
+BASE_ENV = Environment()
 
 BOOLEAN_META = Map()
 
@@ -3634,6 +3662,7 @@ let_builtin(VECTOR_META, BuiltinVectorPop())
 let_builtin(VECTOR_META, BuiltinVectorInsert())
 let_builtin(VECTOR_META, BuiltinVectorRemove())
 let_builtin(VECTOR_META, BuiltinVectorSlice())
+let_builtin(VECTOR_META, BuiltinVectorReversed())
 
 MAP_META = Map()
 let_builtin(MAP_META, BuiltinMapCount())
@@ -3651,7 +3680,6 @@ REFERENCE_META = Map()
 
 FUNCTION_META = Map()
 
-BASE_ENV = Environment()
 BASE_ENV.let(String("NaN"), Number.new(float("NaN")))
 let_builtin(BASE_ENV.store, BuiltinSetmeta())
 let_builtin(BASE_ENV.store, BuiltinGetmeta())
@@ -3684,6 +3712,9 @@ def eval_file(
     with open(path, "r") as f:
         source = f.read()
     return eval_source(source, env, SourceLocation(str(path), 1))
+
+
+let_builtin(VECTOR_META, BuiltinVectorSorted(None, BASE_ENV))
 
 
 def repl(env: Optional[Environment] = None) -> None:

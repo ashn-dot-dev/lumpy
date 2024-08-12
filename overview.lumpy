@@ -712,6 +712,8 @@ println("x after remove is " + repr(x));
 println("x.slice(1, 4) is " + repr(x.slice(1, 4)));
 println("x.contains(456) is " + repr(x.contains(456)));
 println("x.contains(\"abc\") is " + repr(x.contains("abc")));
+println("[\"foo\", \"bar\", \"baz\"].reversed() is " + repr(["foo", "bar", "baz"].reversed()));
+println("[\"foo\", \"bar\", \"baz\"].sorted() is " + repr(["foo", "bar", "baz"].sorted()));
 
 print("\n");
 
