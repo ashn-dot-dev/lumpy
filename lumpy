@@ -3630,69 +3630,15 @@ class BuiltinSetRemove(Builtin):
         return Null()
 
 
-def let_builtin(map: Map, builtin: Builtin) -> None:
-    map[builtin.name()] = builtin
-
-
 BASE_ENV = Environment()
-
 BOOLEAN_META = Map()
-
 NUMBER_META = Map()
-let_builtin(NUMBER_META, BuiltinNumberIsNaN())
-let_builtin(NUMBER_META, BuiltinNumberIsInteger())
-let_builtin(NUMBER_META, BuiltinNumberTrunc())
-let_builtin(NUMBER_META, BuiltinNumberRound())
-let_builtin(NUMBER_META, BuiltinNumberFloor())
-let_builtin(NUMBER_META, BuiltinNumberCeil())
-
 STRING_META = Map()
-let_builtin(STRING_META, BuiltinStringContains())
-let_builtin(STRING_META, BuiltinStringStartsWith())
-let_builtin(STRING_META, BuiltinStringEndsWith())
-let_builtin(STRING_META, BuiltinStringSplit())
-let_builtin(STRING_META, BuiltinStringJoin())
-let_builtin(STRING_META, BuiltinStringCut())
-
 VECTOR_META = Map()
-let_builtin(VECTOR_META, BuiltinVectorCount())
-let_builtin(VECTOR_META, BuiltinVectorContains())
-let_builtin(VECTOR_META, BuiltinVectorPush())
-let_builtin(VECTOR_META, BuiltinVectorPop())
-let_builtin(VECTOR_META, BuiltinVectorInsert())
-let_builtin(VECTOR_META, BuiltinVectorRemove())
-let_builtin(VECTOR_META, BuiltinVectorSlice())
-let_builtin(VECTOR_META, BuiltinVectorReversed())
-
 MAP_META = Map()
-let_builtin(MAP_META, BuiltinMapCount())
-let_builtin(MAP_META, BuiltinMapContains())
-let_builtin(MAP_META, BuiltinMapInsert())
-let_builtin(MAP_META, BuiltinMapRemove())
-
 SET_META = Map()
-let_builtin(SET_META, BuiltinSetCount())
-let_builtin(SET_META, BuiltinSetContains())
-let_builtin(SET_META, BuiltinSetInsert())
-let_builtin(SET_META, BuiltinSetRemove())
-
 REFERENCE_META = Map()
-
 FUNCTION_META = Map()
-
-BASE_ENV.let(String("NaN"), Number.new(float("NaN")))
-let_builtin(BASE_ENV.store, BuiltinSetmeta())
-let_builtin(BASE_ENV.store, BuiltinGetmeta())
-let_builtin(BASE_ENV.store, BuiltinType())
-let_builtin(BASE_ENV.store, BuiltinRepr())
-let_builtin(BASE_ENV.store, BuiltinDump())
-let_builtin(BASE_ENV.store, BuiltinDumpln())
-let_builtin(BASE_ENV.store, BuiltinPrint())
-let_builtin(BASE_ENV.store, BuiltinPrintln())
-let_builtin(BASE_ENV.store, BuiltinBoolean())
-let_builtin(BASE_ENV.store, BuiltinNumber())
-let_builtin(BASE_ENV.store, BuiltinString())
-let_builtin(BASE_ENV.store, BuiltinImport())
 
 
 def eval_source(
@@ -3714,7 +3660,57 @@ def eval_file(
     return eval_source(source, env, SourceLocation(str(path), 1))
 
 
+def let_builtin(map: Map, builtin: Builtin) -> None:
+    map[builtin.name()] = builtin
+
+
+let_builtin(NUMBER_META, BuiltinNumberIsNaN())
+let_builtin(NUMBER_META, BuiltinNumberIsInteger())
+let_builtin(NUMBER_META, BuiltinNumberTrunc())
+let_builtin(NUMBER_META, BuiltinNumberRound())
+let_builtin(NUMBER_META, BuiltinNumberFloor())
+let_builtin(NUMBER_META, BuiltinNumberCeil())
+
+let_builtin(STRING_META, BuiltinStringContains())
+let_builtin(STRING_META, BuiltinStringStartsWith())
+let_builtin(STRING_META, BuiltinStringEndsWith())
+let_builtin(STRING_META, BuiltinStringSplit())
+let_builtin(STRING_META, BuiltinStringJoin())
+let_builtin(STRING_META, BuiltinStringCut())
+
+let_builtin(VECTOR_META, BuiltinVectorCount())
+let_builtin(VECTOR_META, BuiltinVectorContains())
+let_builtin(VECTOR_META, BuiltinVectorPush())
+let_builtin(VECTOR_META, BuiltinVectorPop())
+let_builtin(VECTOR_META, BuiltinVectorInsert())
+let_builtin(VECTOR_META, BuiltinVectorRemove())
+let_builtin(VECTOR_META, BuiltinVectorSlice())
+let_builtin(VECTOR_META, BuiltinVectorReversed())
 let_builtin(VECTOR_META, BuiltinVectorSorted(None, BASE_ENV))
+
+let_builtin(MAP_META, BuiltinMapCount())
+let_builtin(MAP_META, BuiltinMapContains())
+let_builtin(MAP_META, BuiltinMapInsert())
+let_builtin(MAP_META, BuiltinMapRemove())
+
+let_builtin(SET_META, BuiltinSetCount())
+let_builtin(SET_META, BuiltinSetContains())
+let_builtin(SET_META, BuiltinSetInsert())
+let_builtin(SET_META, BuiltinSetRemove())
+
+BASE_ENV.let(String("NaN"), Number.new(float("NaN")))
+let_builtin(BASE_ENV.store, BuiltinSetmeta())
+let_builtin(BASE_ENV.store, BuiltinGetmeta())
+let_builtin(BASE_ENV.store, BuiltinType())
+let_builtin(BASE_ENV.store, BuiltinRepr())
+let_builtin(BASE_ENV.store, BuiltinDump())
+let_builtin(BASE_ENV.store, BuiltinDumpln())
+let_builtin(BASE_ENV.store, BuiltinPrint())
+let_builtin(BASE_ENV.store, BuiltinPrintln())
+let_builtin(BASE_ENV.store, BuiltinBoolean())
+let_builtin(BASE_ENV.store, BuiltinNumber())
+let_builtin(BASE_ENV.store, BuiltinString())
+let_builtin(BASE_ENV.store, BuiltinImport())
 
 
 def repl(env: Optional[Environment] = None) -> None:
