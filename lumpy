@@ -3171,6 +3171,40 @@ class BuiltinStringEndsWith(Builtin):
         return Boolean.new(arguments[0].data.data.endswith(arguments[1].data))
 
 
+class BuiltinStringJoin(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("join")
+
+    @staticmethod
+    def function(arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 2)
+        if not (
+            isinstance(arguments[0], Reference)
+            and isinstance(arguments[0].data, String)
+        ):
+            return Error(
+                None,
+                f"expected reference to string, received {arguments[0].type()}",
+            )
+        if not isinstance(arguments[1], Vector):
+            return Error(
+                None,
+                f"expected string, received {arguments[1].type()}",
+            )
+        s = str()
+        for index, value in enumerate(arguments[1].data):
+            if not isinstance(value, String):
+                return Error(
+                    None,
+                    f"expected string for vector element at index {index}, received {value.type()}",
+                )
+            if index != 0:
+                s += arguments[0].data.data
+            s += value.data
+        return String.new(s)
+
+
 class BuiltinStringSplit(Builtin):
     @staticmethod
     def name() -> String:
@@ -3589,6 +3623,7 @@ let_builtin(STRING_META, BuiltinStringContains())
 let_builtin(STRING_META, BuiltinStringStartsWith())
 let_builtin(STRING_META, BuiltinStringEndsWith())
 let_builtin(STRING_META, BuiltinStringSplit())
+let_builtin(STRING_META, BuiltinStringJoin())
 let_builtin(STRING_META, BuiltinStringCut())
 
 VECTOR_META = Map()

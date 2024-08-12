@@ -685,6 +685,8 @@ println("\"foobar\".split(\"oo\") is " + repr("foobar".split("oo")));
 println("\"foobar\".split(\"o\") is " + repr("foobar".split("o")));
 println("\"foobar\".split(\"baz\") is " + repr("foobar".split("baz")));
 
+println("\", \".join([\"foo\", \"bar\", \"baz\"]) is " + repr(", ".join(["foo", "bar", "baz"])));
+
 println("\"foo=bar\".cut(\"=\") is " + repr("foo=bar".cut("=")));
 println("\"foo=bar\".cut(\"foo\") is " + repr("foo=bar".cut("foo")));
 println("\"foo=bar\".cut(\"bar\") is " + repr("foo=bar".cut("bar")));
