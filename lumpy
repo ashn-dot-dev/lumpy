@@ -3016,6 +3016,34 @@ class BuiltinString(Builtin):
         return String(str(arguments[0]))
 
 
+class BuiltinVector(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("vector")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        if isinstance(arguments[0], String):
+            return Vector(
+                SharedVectorData([String(x) for x in arguments[0].data])
+            )
+        if isinstance(arguments[0], Vector):
+            return arguments[0]
+        if isinstance(arguments[0], Map):
+            kv = lambda k, v: Vector(SharedVectorData([k.copy(), v.copy()]))
+            return Vector(
+                SharedVectorData(
+                    [kv(k, v) for k, v in arguments[0].data.items()]
+                )
+            )
+        if isinstance(arguments[0], Set):
+            kv = lambda k, v: Vector(SharedVectorData([k.copy(), v.copy()]))
+            return Vector(
+                SharedVectorData([x.copy() for x in arguments[0].data])
+            )
+        return Error(None, f"cannot convert value {arguments[0]} to vector")
+
+
 class BuiltinImport(Builtin):
     @staticmethod
     def name() -> String:
@@ -3721,6 +3749,7 @@ let_builtin(BASE_ENV.store, BuiltinPrintln())
 let_builtin(BASE_ENV.store, BuiltinBoolean())
 let_builtin(BASE_ENV.store, BuiltinNumber())
 let_builtin(BASE_ENV.store, BuiltinString())
+let_builtin(BASE_ENV.store, BuiltinVector())
 let_builtin(BASE_ENV.store, BuiltinImport())
 
 
