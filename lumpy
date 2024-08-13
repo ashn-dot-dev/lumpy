@@ -12,6 +12,8 @@ from typing import (
     Self,
     SupportsFloat,
     Tuple,
+    Type,
+    TypeVar,
     Union,
     final,
 )
@@ -68,6 +70,9 @@ class SharedSetData(UserDict["Value", None]):
 
     def copy(self) -> "SharedSetData":
         return SharedSetData([k.copy() for k in self.data.keys()])
+
+
+ValueType = TypeVar("ValueType", bound="Value")
 
 
 class Value(ABC):
@@ -591,6 +596,30 @@ class Builtin(Value):
             raise Exception(
                 f"invalid argument count (expected {count}, received {len(arguments)})"
             )
+
+    @staticmethod
+    def typed_argument(
+        arguments: list[Value], index: int, ty: Type[ValueType]
+    ) -> ValueType:
+        argument = arguments[index]
+        if not isinstance(argument, ty):
+            raise Exception(
+                f"expected {ty.type()} for argument {index}, received {argument.type()}"
+            )
+        return argument
+
+    @staticmethod
+    def typed_argument_reference(
+        arguments: list[Value], index: int, ty: Type[ValueType]
+    ) -> Tuple[Reference, ValueType]:
+        argument = arguments[index]
+        if not (
+            isinstance(argument, Reference) and isinstance(argument.data, ty)
+        ):
+            raise Exception(
+                f"expected reference to {ty.type()} for argument {index}, received {argument.type()}"
+            )
+        return (argument, argument.data)
 
     @staticmethod
     @abstractmethod
@@ -2842,15 +2871,12 @@ class BuiltinSetmeta(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
-        if not isinstance(arguments[0], Reference):
-            return Error(
-                None, f"expected reference, received {arguments[0].type()}"
-            )
+        arg0 = Builtin.typed_argument(arguments, 0, Reference)
         if isinstance(arguments[1], Null):
-            arguments[0].data.meta = None
+            arg0.data.meta = None
             return Null()
         if isinstance(arguments[1], Map):
-            arguments[0].data.meta = arguments[1]
+            arg0.data.meta = arguments[1]
             return Null()
         return Error(
             None, f"expected null or map, received {arguments[1].type()}"
@@ -3390,24 +3416,17 @@ class BuiltinVectorInsert(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 3)
-        if not (
-            isinstance(arguments[0], Reference)
-            and isinstance(arguments[0].data, Vector)
-        ):
-            return Error(
-                None,
-                f"expected reference to vector, received {arguments[0].type()}",
-            )
-        if not (
-            isinstance(arguments[1], Number)
-            and float(arguments[1].data).is_integer()
-        ):
-            return Error(None, f"expected integer, received {arguments[1]}")
+        arg0, arg0_data = Builtin.typed_argument_reference(
+            arguments, 0, Vector
+        )
+        arg1 = Builtin.typed_argument(arguments, 1, Number)
+        if not float(arg1.data).is_integer():
+            return Error(None, f"expected integer index, received {arg1}")
         # Copy underlying data as `list.insert` will alter all Python objects
         # holding references to the underlying `SharedVectorData` object.
-        underlying = arguments[0].data.data.copy()
-        underlying.insert(int(float(arguments[1].data)), arguments[2])
-        arguments[0].data.data = underlying
+        underlying = arg0_data.data.copy()
+        underlying.insert(int(float(arg1.data)), arguments[2])
+        arg0_data.data = underlying
         return Null()
 
 
@@ -3418,24 +3437,17 @@ class BuiltinVectorRemove(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
-        if not (
-            isinstance(arguments[0], Reference)
-            and isinstance(arguments[0].data, Vector)
-        ):
-            return Error(
-                None,
-                f"expected reference to vector, received {arguments[0].type()}",
-            )
-        if not (
-            isinstance(arguments[1], Number)
-            and float(arguments[1].data).is_integer()
-        ):
-            return Error(None, f"expected integer, received {arguments[1]}")
+        arg0, arg0_data = Builtin.typed_argument_reference(
+            arguments, 0, Vector
+        )
+        arg1 = Builtin.typed_argument(arguments, 1, Number)
+        if not float(arg1.data).is_integer():
+            return Error(None, f"expected integer index, received {arg1}")
         # Copy underlying data as the deletion will alter all Python objects
         # holding references to the underlying `SharedVectorData` object.
-        underlying = arguments[0].data.data.copy()
-        del underlying[int(float(arguments[1].data))]
-        arguments[0].data.data = underlying
+        underlying = arg0_data.data.copy()
+        del underlying[int(float(arg1.data))]
+        arg0_data.data = underlying
         return Null()
 
 
@@ -3446,33 +3458,26 @@ class BuiltinVectorSlice(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 3)
-        if not (
-            isinstance(arguments[0], Reference)
-            and isinstance(arguments[0].data, Vector)
-        ):
-            return Error(
-                None,
-                f"expected reference to vector, received {arguments[0].type()}",
-            )
-        if not (
-            isinstance(arguments[1], Number)
-            and float(arguments[1].data).is_integer()
-        ):
-            return Error(None, f"expected integer, received {arguments[1]}")
-        if not (
-            isinstance(arguments[2], Number)
-            and float(arguments[2].data).is_integer()
-        ):
-            return Error(None, f"expected integer, received {arguments[2]}")
-        bgn = int(float(arguments[1].data))
-        end = int(float(arguments[2].data))
+        arg0, arg0_data = Builtin.typed_argument_reference(
+            arguments, 0, Vector
+        )
+        arg1 = Builtin.typed_argument(arguments, 1, Number)
+        if not float(arg1.data).is_integer():
+            return Error(None, f"expected integer index, received {arg1}")
+        arg2 = Builtin.typed_argument(arguments, 2, Number)
+        if not float(arg2.data).is_integer():
+            return Error(None, f"expected integer index, received {arg2}")
+        bgn = int(float(arg1.data))
+        end = int(float(arg2.data))
         if bgn < 0:
             return Error(None, f"slice begin is less than zero")
         if end < 0:
             return Error(None, f"slice end is less than zero")
+        if end < bgn:
+            return Error(None, f"slice end is less than slice begin")
         # Copy underlying data as the update will alter all Python objects
         # holding references to the underlying `SharedVectorData` object.
-        underlying = arguments[0].data.data.copy()
+        underlying = arg0_data.data.copy()
         return Vector.new(SharedVectorData(underlying[bgn:end]))
 
 
@@ -3483,17 +3488,12 @@ class BuiltinVectorReversed(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
-        if not (
-            isinstance(arguments[0], Reference)
-            and isinstance(arguments[0].data, Vector)
-        ):
-            return Error(
-                None,
-                f"expected reference to vector, received {arguments[0].type()}",
-            )
+        arg0, arg0_data = Builtin.typed_argument_reference(
+            arguments, 0, Vector
+        )
         # Copy underlying data as the update will alter all Python objects
         # holding references to the underlying `SharedVectorData` object.
-        underlying = arguments[0].data.data.copy()
+        underlying = arg0_data.data.copy()
         return Vector.new(SharedVectorData(reversed(underlying)))
 
 
@@ -3548,15 +3548,8 @@ class BuiltinMapCount(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
-        if not (
-            isinstance(arguments[0], Reference)
-            and isinstance(arguments[0].data, Map)
-        ):
-            return Error(
-                None,
-                f"expected reference to map, received {arguments[0].type()}",
-            )
-        return Number.new(len(arguments[0].data.data))
+        arg0, arg0_data = Builtin.typed_argument_reference(arguments, 0, Map)
+        return Number.new(len(arg0_data.data))
 
 
 class BuiltinMapContains(Builtin):
@@ -3566,15 +3559,8 @@ class BuiltinMapContains(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
-        if not (
-            isinstance(arguments[0], Reference)
-            and isinstance(arguments[0].data, Map)
-        ):
-            return Error(
-                None,
-                f"expected reference to map, received {arguments[0].type()}",
-            )
-        return Boolean.new(arguments[1] in arguments[0].data)
+        arg0, arg0_data = Builtin.typed_argument_reference(arguments, 0, Map)
+        return Boolean.new(arguments[1] in arg0_data)
 
 
 class BuiltinMapInsert(Builtin):
@@ -3584,15 +3570,8 @@ class BuiltinMapInsert(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 3)
-        if not (
-            isinstance(arguments[0], Reference)
-            and isinstance(arguments[0].data, Map)
-        ):
-            return Error(
-                None,
-                f"expected reference to map, received {arguments[0].type()}",
-            )
-        arguments[0].data[arguments[1]] = arguments[2]
+        arg0, arg0_data = Builtin.typed_argument_reference(arguments, 0, Map)
+        arg0_data[arguments[1]] = arguments[2]
         return Null()
 
 
@@ -3603,16 +3582,9 @@ class BuiltinMapRemove(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
-        if not (
-            isinstance(arguments[0], Reference)
-            and isinstance(arguments[0].data, Map)
-        ):
-            return Error(
-                None,
-                f"expected reference to map, received {arguments[0].type()}",
-            )
+        arg0, arg0_data = Builtin.typed_argument_reference(arguments, 0, Map)
         try:
-            del arguments[0].data[arguments[1]]
+            del arg0_data[arguments[1]]
         except KeyError:
             pass
         return Null()
@@ -3625,15 +3597,8 @@ class BuiltinSetCount(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
-        if not (
-            isinstance(arguments[0], Reference)
-            and isinstance(arguments[0].data, Set)
-        ):
-            return Error(
-                None,
-                f"expected reference to set, received {arguments[0].type()}",
-            )
-        return Number.new(len(arguments[0].data.data))
+        arg0, arg0_data = Builtin.typed_argument_reference(arguments, 0, Set)
+        return Number.new(len(arg0_data.data))
 
 
 class BuiltinSetContains(Builtin):
@@ -3643,15 +3608,8 @@ class BuiltinSetContains(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
-        if not (
-            isinstance(arguments[0], Reference)
-            and isinstance(arguments[0].data, Set)
-        ):
-            return Error(
-                None,
-                f"expected reference to set, received {arguments[0].type()}",
-            )
-        return Boolean.new(arguments[1] in arguments[0].data)
+        arg0, arg0_data = Builtin.typed_argument_reference(arguments, 0, Set)
+        return Boolean.new(arguments[1] in arg0_data)
 
 
 class BuiltinSetInsert(Builtin):
@@ -3661,15 +3619,8 @@ class BuiltinSetInsert(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
-        if not (
-            isinstance(arguments[0], Reference)
-            and isinstance(arguments[0].data, Set)
-        ):
-            return Error(
-                None,
-                f"expected reference to set, received {arguments[0].type()}",
-            )
-        arguments[0].data.insert(arguments[1])
+        arg0, arg0_data = Builtin.typed_argument_reference(arguments, 0, Set)
+        arg0_data.insert(arguments[1])
         return Null()
 
 
@@ -3680,16 +3631,9 @@ class BuiltinSetRemove(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
-        if not (
-            isinstance(arguments[0], Reference)
-            and isinstance(arguments[0].data, Set)
-        ):
-            return Error(
-                None,
-                f"expected reference to set, received {arguments[0].type()}",
-            )
+        arg0, arg0_data = Builtin.typed_argument_reference(arguments, 0, Set)
         try:
-            arguments[0].data.remove(arguments[1])
+            arg0_data.remove(arguments[1])
         except KeyError:
             pass
         return Null()
