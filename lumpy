@@ -1727,6 +1727,8 @@ class AstDiv(AstExpression):
                 self.location,
                 f"attempted / operation with types `{lhs.type()}` and `{rhs.type()}`",
             )
+        if float(rhs.data) == 0.0:
+            return Error(self.location, "division by zero")
         return Number.new(float(lhs.data) / float(rhs.data))
 
 
@@ -1752,6 +1754,8 @@ class AstRem(AstExpression):
                 self.location,
                 f"attempted % operation with types `{lhs.type()}` and `{rhs.type()}`",
             )
+        if float(rhs.data) == 0.0:
+            return Error(self.location, "remainder with divisor zero")
         # The remainder will have the same sign as the dividend.
         # This behavior is identical to C's remainder operator.
         #   +7 % +3 => +1

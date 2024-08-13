@@ -230,6 +230,7 @@ print("\n");
 
 println("Operator /");
 println("123 / 456 is " + repr(123 / 456));
+try { 123 / 0; } else err { println("123 / 0 produces the error " + repr(err)); }
 
 print("\n");
 
@@ -239,6 +240,7 @@ println("+7 % -3 is " + repr(+7 % -3));
 println("-7 % +3 is " + repr(-7 % +3));
 println("-7 % -3 is " + repr(-7 % -3));
 println("10 % 3.5 is " + repr(10 % 3.5));
+try { 123 % 0; } else err { println("123 % 0 produces the error " + repr(err)); }
 
 print("\n");
 
