@@ -779,8 +779,8 @@ println("string(map{}) is " + repr(string(map{})));
 
 print("\n");
 
-let greeter = import("greeter.lumpy");
-println("import(\"greeter.lumpy\") produces " + repr(greeter));
+let greeter = import("examples/greeter.lumpy");
+println("import(\"examples/greeter.lumpy\") produces " + repr(greeter));
 let greet = greeter::new("Juliet");
 println("greeter::new(\"Juliet\") produces " + repr(greet));
 greet(); # Say hello to Juliet!

@@ -1,0 +1,11 @@
+# Greeter module - used for explaining imports.
+#
+# let greeter = import("/path/to/greeter.lumpy");
+# let greet = greeter::new("Juliet");
+# greet(); # prints the line "Hello, Juliet!"
+let new = function(name) {
+    return function() {
+        println("Hello, " + name + "!");
+    };
+};
+return {"new": new};

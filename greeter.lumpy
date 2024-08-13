@@ -1,6 +1,0 @@
-let new = function(name) {
-    return function() {
-        println("Hello, " + name + "!");
-    };
-};
-return {"new": new};
