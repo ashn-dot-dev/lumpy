@@ -233,6 +233,14 @@ println("123 / 456 is " + repr(123 / 456));
 
 print("\n");
 
+println("Operator %");
+println("+7 % +3 is " + repr(+7 % +3));
+println("+7 % -3 is " + repr(+7 % -3));
+println("-7 % +3 is " + repr(-7 % +3));
+println("-7 % -3 is " + repr(-7 % -3));
+
+print("\n");
+
 println("Operator .&");
 println("123.& is " + repr(123.&));
 

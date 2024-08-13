@@ -653,6 +653,7 @@ class TokenKind(enum.Enum):
     SUB = "-"
     MUL = "*"
     DIV = "/"
+    REM = "%"
     EQ = "=="
     NE = "!="
     LE = "<="
@@ -947,6 +948,9 @@ class Lexer:
         if self._current_character() == "/":
             self._advance_character()
             return self._new_token(TokenKind.DIV, str(TokenKind.DIV))
+        if self._current_character() == "%":
+            self._advance_character()
+            return self._new_token(TokenKind.REM, str(TokenKind.REM))
         if self._current_character() == "=" and self._peek_character() == "=":
             self._advance_character()
             self._advance_character()
@@ -1728,6 +1732,37 @@ class AstDiv(AstExpression):
 
 @final
 @dataclass
+class AstRem(AstExpression):
+    location: Optional[SourceLocation]
+    lhs: AstExpression
+    rhs: AstExpression
+
+    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+        lhs = self.lhs.eval(env)
+        if isinstance(lhs, Error):
+            return lhs
+        rhs = self.rhs.eval(env)
+        if isinstance(rhs, Error):
+            return rhs
+        metafunction = lhs.metafunction(String("%"))
+        if metafunction is not None:
+            return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
+        if not (isinstance(lhs, Number) and isinstance(rhs, Number)):
+            return Error(
+                self.location,
+                f"attempted % operation with types `{lhs.type()}` and `{rhs.type()}`",
+            )
+        # The remainder will have the same sign as the dividend.
+        # This behavior is identical to C's remainder operator.
+        #   +7 % +3 => +1
+        #   +7 % -3 => +1
+        #   -7 % +3 => -1
+        #   -7 % -3 => -1
+        return Number.new(math.remainder(float(lhs.data), float(rhs.data)))
+
+
+@final
+@dataclass
 class AstFunctionCall(AstExpression):
     location: Optional[SourceLocation]
     function: AstExpression
@@ -2285,6 +2320,7 @@ class Parser:
         TokenKind.SUB:      Precedence.ADD_SUB,
         TokenKind.MUL:      Precedence.MUL_DIV,
         TokenKind.DIV:      Precedence.MUL_DIV,
+        TokenKind.REM:      Precedence.MUL_DIV,
         TokenKind.LPAREN:   Precedence.POSTFIX,
         TokenKind.LBRACKET: Precedence.POSTFIX,
         TokenKind.DOT:      Precedence.POSTFIX,
@@ -2334,6 +2370,7 @@ class Parser:
         self._register_led(TokenKind.SUB, Parser.parse_sub)
         self._register_led(TokenKind.MUL, Parser.parse_mul)
         self._register_led(TokenKind.DIV, Parser.parse_div)
+        self._register_led(TokenKind.REM, Parser.parse_rem)
         self._register_led(TokenKind.LPAREN, Parser.parse_function_call)
         self._register_led(TokenKind.LBRACKET, Parser.parse_access_index)
         self._register_led(TokenKind.DOT, Parser.parse_access_dot)
@@ -2582,6 +2619,11 @@ class Parser:
         location = self._expect_current(TokenKind.DIV).location
         rhs = self.parse_expression(Parser.PRECEDENCES[TokenKind.DIV])
         return AstDiv(location, lhs, rhs)
+
+    def parse_rem(self, lhs: AstExpression) -> AstRem:
+        location = self._expect_current(TokenKind.REM).location
+        rhs = self.parse_expression(Parser.PRECEDENCES[TokenKind.REM])
+        return AstRem(location, lhs, rhs)
 
     def parse_function_call(self, lhs: AstExpression) -> AstFunctionCall:
         location = self._expect_current(TokenKind.LPAREN).location
