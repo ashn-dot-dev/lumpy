@@ -213,6 +213,8 @@ class Number(Value):
         return self.data == other.data
 
     def __str__(self) -> str:
+        if math.isinf(self.data):
+            return "Inf"
         if math.isnan(self.data):
             return "NaN"
         string = str(self.data)
@@ -3016,6 +3018,24 @@ class BuiltinImport(Builtin):
         return result
 
 
+class BuiltinNumberIsInf(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("is_inf")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        if not (
+            isinstance(arguments[0], Reference)
+            and isinstance(arguments[0].data, Number)
+        ):
+            return Error(
+                None,
+                f"expected reference to number, received {arguments[0].type()}",
+            )
+        return Boolean.new(math.isinf(arguments[0].data.data))
+
+
 class BuiltinNumberIsNaN(Builtin):
     @staticmethod
     def name() -> String:
@@ -3709,6 +3729,7 @@ def let_builtin(map: Map, builtin: Builtin) -> None:
     map[builtin.name()] = builtin
 
 
+let_builtin(NUMBER_META, BuiltinNumberIsInf())
 let_builtin(NUMBER_META, BuiltinNumberIsNaN())
 let_builtin(NUMBER_META, BuiltinNumberIsInteger())
 let_builtin(NUMBER_META, BuiltinNumberTrunc())
@@ -3743,6 +3764,7 @@ let_builtin(SET_META, BuiltinSetContains())
 let_builtin(SET_META, BuiltinSetInsert())
 let_builtin(SET_META, BuiltinSetRemove())
 
+BASE_ENV.let(String("Inf"), Number.new(float("Inf")))
 BASE_ENV.let(String("NaN"), Number.new(float("NaN")))
 let_builtin(BASE_ENV.store, BuiltinSetmeta())
 let_builtin(BASE_ENV.store, BuiltinGetmeta())

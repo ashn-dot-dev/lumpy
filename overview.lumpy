@@ -659,10 +659,16 @@ println("type(println) is " + repr(type(println)));
 
 print("\n");
 
+println("123.is_inf() is " + repr(123.is_inf()));
+println("(+Inf).is_inf() is " + repr((+Inf).is_inf()));
+println("(-Inf).is_inf() is " + repr((-Inf).is_inf()));
+println("NaN.is_inf() is " + repr(NaN.is_inf()));
 println("123.is_nan() is " + repr(123.is_nan()));
+println("Inf.is_nan() is " + repr(Inf.is_nan()));
 println("NaN.is_nan() is " + repr(NaN.is_nan()));
 println("123.is_integer() is " + repr(123.is_integer()));
 println("123.5.is_integer() is " + repr(123.5.is_integer()));
+println("Inf.is_integer() is " + repr(Inf.is_integer()));
 println("NaN.is_integer() is " + repr(NaN.is_integer()));
 println("(+123.45).trunc() is " + repr((+123.45).trunc()));
 println("(-123.45).trunc() is " + repr((-123.45).trunc()));
