@@ -3053,6 +3053,25 @@ class BuiltinVector(Builtin):
         return Error(None, f"cannot convert value {arguments[0]} to vector")
 
 
+class BuiltinAssert(BuiltinFromSource):
+    @staticmethod
+    def name() -> String:
+        return String("assert")
+
+    @staticmethod
+    def source() -> str:
+        return """
+        let assert = function(condition) {
+            if not condition {
+                error "assertion failure";
+            }
+        };
+        return function(condition) {
+            try { assert(condition); } else err { error err; }
+        };
+        """
+
+
 class BuiltinImport(Builtin):
     @staticmethod
     def name() -> String:
@@ -3642,6 +3661,7 @@ let_builtin(BASE_ENV.store, BuiltinBoolean())
 let_builtin(BASE_ENV.store, BuiltinNumber())
 let_builtin(BASE_ENV.store, BuiltinString())
 let_builtin(BASE_ENV.store, BuiltinVector())
+let_builtin(BASE_ENV.store, BuiltinAssert())
 let_builtin(BASE_ENV.store, BuiltinImport())
 
 

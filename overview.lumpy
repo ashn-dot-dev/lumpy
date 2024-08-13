@@ -804,6 +804,11 @@ println("vector({\"foo\", \"bar\", \"baz\"}) is " + repr(vector({"foo", "bar", "
 
 print("\n");
 
+assert(true); println("assert(true) does nothing");
+try { assert(false); } else err { println("assert(false) produces " + repr(err)); }
+
+print("\n");
+
 let greeter = import("examples/greeter.lumpy");
 println("import(\"examples/greeter.lumpy\") produces " + repr(greeter));
 let greet = greeter::new("Juliet");
