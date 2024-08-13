@@ -2944,7 +2944,10 @@ class BuiltinPrint(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
-        if isinstance(arguments[0], String):
+        metafunction = arguments[0].metafunction(String("string"))
+        if metafunction is not None:
+            print(call(None, metafunction, arguments), end="")
+        elif isinstance(arguments[0], String):
             print(arguments[0].data, end="")
         else:
             print(arguments[0], end="")
@@ -2958,7 +2961,10 @@ class BuiltinPrintln(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
-        if isinstance(arguments[0], String):
+        metafunction = arguments[0].metafunction(String("string"))
+        if metafunction is not None:
+            print(call(None, metafunction, arguments), end="\n")
+        elif isinstance(arguments[0], String):
             print(arguments[0].data, end="\n")
         else:
             print(arguments[0], end="\n")
@@ -3011,6 +3017,9 @@ class BuiltinString(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
+        metafunction = arguments[0].metafunction(String("string"))
+        if metafunction is not None:
+            return call(None, metafunction, arguments)
         if isinstance(arguments[0], String):
             return arguments[0]
         return String(str(arguments[0]))
