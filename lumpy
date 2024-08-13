@@ -1758,7 +1758,7 @@ class AstRem(AstExpression):
         #   +7 % -3 => +1
         #   -7 % +3 => -1
         #   -7 % -3 => -1
-        return Number.new(math.remainder(float(lhs.data), float(rhs.data)))
+        return Number.new(math.fmod(float(lhs.data), float(rhs.data)))
 
 
 @final

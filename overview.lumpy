@@ -238,6 +238,7 @@ println("+7 % +3 is " + repr(+7 % +3));
 println("+7 % -3 is " + repr(+7 % -3));
 println("-7 % +3 is " + repr(-7 % +3));
 println("-7 % -3 is " + repr(-7 % -3));
+println("10 % 3.5 is " + repr(10 % 3.5));
 
 print("\n");
 
