@@ -263,6 +263,9 @@ class String(Value):
     def __str__(self) -> str:
         return f'"{escape(self.data)}"'
 
+    def __contains__(self, item) -> bool:
+        return item in self.data
+
     @staticmethod
     def type() -> str:
         return "string"
@@ -309,12 +312,12 @@ class Vector(Value):
                 return False
         return True
 
-    def __contains__(self, item) -> bool:
-        return item in self.data
-
     def __str__(self) -> str:
         elements = ", ".join([str(x) for x in self.data])
         return f"[{elements}]"
+
+    def __contains__(self, item) -> bool:
+        return item in self.data
 
     def __setitem__(self, key: Value, value: Value) -> None:
         if not isinstance(key, Number):
@@ -388,9 +391,6 @@ class Map(Value):
                 return False
         return True
 
-    def __contains__(self, item) -> bool:
-        return item in self.data
-
     def __str__(self) -> str:
         if len(self.data) == 0:
             return "map{}"
@@ -398,6 +398,9 @@ class Map(Value):
             [f"{str(k)}: {str(v)}" for k, v in self.data.items()]
         )
         return f"{{{elements}}}"
+
+    def __contains__(self, item) -> bool:
+        return item in self.data
 
     def __setitem__(self, key: Value, value: Value) -> None:
         if self.data.uses > 1:
@@ -458,9 +461,6 @@ class Set(Value):
             if k not in other.data:
                 return False
         return True
-
-    def __contains__(self, item) -> bool:
-        return item in self.data
 
     def __str__(self):
         if len(self.data) == 0:
@@ -3307,17 +3307,23 @@ class BuiltinVectorCount(Builtin):
         return Number.new(len(arg0_data.data))
 
 
-class BuiltinVectorContains(Builtin):
+class BuiltinVectorContains(BuiltinFromSource):
     @staticmethod
     def name() -> String:
         return String("contains")
 
-    def function(self, arguments: list[Value]) -> Union[Value, Error]:
-        Builtin.expect_argument_count(arguments, 2)
-        arg0, arg0_data = Builtin.typed_argument_reference(
-            arguments, 0, Vector
-        )
-        return Boolean.new(arguments[1] in arg0_data)
+    @staticmethod
+    def source() -> str:
+        return """
+        return function(self, value) {
+            for element in self.* {
+                if element == value {
+                    return true;
+                }
+            }
+            return false;
+        };
+        """
 
 
 class BuiltinVectorPush(Builtin):
@@ -3491,15 +3497,23 @@ class BuiltinMapCount(Builtin):
         return Number.new(len(arg0_data.data))
 
 
-class BuiltinMapContains(Builtin):
+class BuiltinMapContains(BuiltinFromSource):
     @staticmethod
     def name() -> String:
         return String("contains")
 
-    def function(self, arguments: list[Value]) -> Union[Value, Error]:
-        Builtin.expect_argument_count(arguments, 2)
-        arg0, arg0_data = Builtin.typed_argument_reference(arguments, 0, Map)
-        return Boolean.new(arguments[1] in arg0_data)
+    @staticmethod
+    def source() -> str:
+        return """
+        return function(self, value) {
+            for key in self.* {
+                if key == value {
+                    return true;
+                }
+            }
+            return false;
+        };
+        """
 
 
 class BuiltinMapInsert(Builtin):
@@ -3540,15 +3554,23 @@ class BuiltinSetCount(Builtin):
         return Number.new(len(arg0_data.data))
 
 
-class BuiltinSetContains(Builtin):
+class BuiltinSetContains(BuiltinFromSource):
     @staticmethod
     def name() -> String:
         return String("contains")
 
-    def function(self, arguments: list[Value]) -> Union[Value, Error]:
-        Builtin.expect_argument_count(arguments, 2)
-        arg0, arg0_data = Builtin.typed_argument_reference(arguments, 0, Set)
-        return Boolean.new(arguments[1] in arg0_data)
+    @staticmethod
+    def source() -> str:
+        return """
+        return function(self, value) {
+            for element in self.* {
+                if element == value {
+                    return true;
+                }
+            }
+            return false;
+        };
+        """
 
 
 class BuiltinSetInsert(Builtin):
