@@ -1330,7 +1330,7 @@ class AstPositive(AstExpression):
         result = self.expression.eval(env)
         if isinstance(result, Error):
             return result
-        metafunction = result.metafunction(String("positive"))
+        metafunction = result.metafunction(String("unary+"))
         if metafunction is not None:
             return call(self.location, metafunction, [result.copy()])
         if isinstance(result, Number):
@@ -1351,7 +1351,7 @@ class AstNegative(AstExpression):
         result = self.expression.eval(env)
         if isinstance(result, Error):
             return result
-        metafunction = result.metafunction(String("negative"))
+        metafunction = result.metafunction(String("unary-"))
         if metafunction is not None:
             return call(self.location, metafunction, [result.copy()])
         if not isinstance(result, Number):

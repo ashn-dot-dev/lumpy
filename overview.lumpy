@@ -277,12 +277,12 @@ let person = {
         setmeta(self.&, person);
         return self;
     },
-    "positive": function(value) {
-        println("positive called with " + repr(value));
+    "unary+": function(value) {
+        println("unary+ called with " + repr(value));
         return alice;
     },
-    "negative": function(value) {
-        println("negative called with " + repr(value));
+    "unary-": function(value) {
+        println("unary- called with " + repr(value));
         return alice;
     },
     "not": function(value) {
@@ -362,12 +362,12 @@ let vec2 = {
         setmeta(self.&, vec2);
         return self;
     },
-    "positive": function(value) {
-        println("positive called with " + string(value));
+    "unary+": function(value) {
+        println("unary+ called with " + string(value));
         return value;
     },
-    "negative": function(value) {
-        println("negative called with " + string(value));
+    "unary-": function(value) {
+        println("unary- called with " + string(value));
         value.x = -value.x;
         value.y = -value.y;
         return value;
