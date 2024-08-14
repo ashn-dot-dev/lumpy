@@ -104,7 +104,7 @@ for x in ordered {
     println(x);
 }
 
-# Validate that the cycle-detecting and non-cycle detecting depth-first search
+# Validate that the cycle-detecting and non-cycle-detecting depth-first search
 # produce identical results for acyclic directed graphs.
 assert(ordered == dfs_cycle_detecting(graph::new({a.&, b.&, c.&, d.&, e.&})));
 
