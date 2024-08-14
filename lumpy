@@ -1278,6 +1278,10 @@ class AstMap(AstExpression):
             v_result = v.eval(env)
             if isinstance(v_result, Error):
                 return v_result
+            if isinstance(k, AstString) and isinstance(v, AstFunction):
+                assert isinstance(k_result, String)
+                assert isinstance(v_result, Function)
+                v.name = String(k.data)
             elements[k_result.copy()] = v_result.copy()
         return Map.new(SharedMapData(elements))
 
