@@ -269,6 +269,35 @@ class String(Value):
     def __contains__(self, item) -> bool:
         return item in self.data
 
+    def __setitem__(self, key: Value, value: Value) -> None:
+        if not isinstance(key, Number):
+            raise KeyError("attempted string access using non-number key")
+        index = float(key.data)
+        if not index.is_integer():
+            raise KeyError("attempted string access using non-integer number")
+        index = int(index)
+        if index < 0:
+            raise KeyError("attempted string access using a negative index")
+        if not (isinstance(value, String) and len(value.data) == 1):
+            raise KeyError(
+                f"attempted string assignment with non-character value {value}"
+            )
+        characters = list(self.data)
+        characters[index] = value.data
+        self.data = "".join(characters)
+
+    def __getitem__(self, key: Value) -> Value:
+        if not isinstance(key, Number):
+            raise KeyError("attempted string access using non-number key")
+        index = float(key.data)
+        if not index.is_integer():
+            raise KeyError("attempted string access using non-integer number")
+        index = int(index)
+        if index < 0:
+            raise KeyError("attempted string access using a negative index")
+        index = int(index)
+        return String(self.data[index])
+
     @staticmethod
     def type() -> str:
         return "string"
@@ -331,6 +360,8 @@ class Vector(Value):
         if not index.is_integer():
             raise KeyError("attempted vector access using non-integer number")
         index = int(index)
+        if index < 0:
+            raise KeyError("attempted vector access using a negative index")
         if self.data.uses > 1:
             self.data.uses -= 1
             self.data = self.data.copy()  # copy-on-write
@@ -344,6 +375,8 @@ class Vector(Value):
         if not index.is_integer():
             raise KeyError("attempted vector access using non-integer number")
         index = int(index)
+        if index < 0:
+            raise KeyError("attempted vector access using a negative index")
         return self.data.__getitem__(index)
 
     def __delitem__(self, key: Value) -> None:
@@ -491,6 +524,9 @@ class Set(Value):
             return "set{}"
         elements = ", ".join([f"{str(k)}" for k in self.data.keys()])
         return f"{{{elements}}}"
+
+    def __contains__(self, item) -> bool:
+        return item in self.data
 
     def insert(self, element: "Value") -> None:
         if self.data.uses > 1:
@@ -1875,7 +1911,7 @@ class AstFunctionCall(AstExpression):
         if not isinstance(function, (Function, Builtin)):
             return Error(
                 self.location,
-                f"attempted to call non-function type {function.type()}",
+                f"attempted to call non-function type `{function.type()}`",
             )
 
         arguments: list[Value] = list()
@@ -1903,6 +1939,13 @@ class AstAccessIndex(AstExpression):
         field = self.field.eval(env)
         if isinstance(field, Error):
             return field
+        if isinstance(store, String):
+            try:
+                return store[field]
+            except (NotImplementedError, IndexError, KeyError):
+                return Error(
+                    self.location, f"invalid string access with index {field}"
+                )
         if isinstance(store, Vector):
             try:
                 return store[field]
@@ -2241,14 +2284,12 @@ class AstStatementIfElifElse(AstStatement):
 @dataclass
 class AstStatementTry(AstStatement):
     location: Optional[SourceLocation]
-    operation: Union[AstBlock, AstExpression]
-    else_identifier: AstIdentifier
+    try_block: AstBlock
+    else_identifier: Optional[AstIdentifier]
     else_block: AstBlock
 
     def eval(self, env: Environment) -> Optional[ControlFlow]:
-        result = self.operation.eval(env)
-        if isinstance(result, Value):
-            return None
+        result = self.try_block.eval(env)
         if isinstance(result, Return):
             return result
         if isinstance(result, Break):
@@ -2257,7 +2298,8 @@ class AstStatementTry(AstStatement):
             return result
         if isinstance(result, Error):
             env = Environment(env)
-            env.let(self.else_identifier.name, result.value)
+            if self.else_identifier is not None:
+                env.let(self.else_identifier.name, result.value)
             return self.else_block.eval(env)
         return None
 
@@ -2352,17 +2394,17 @@ class AstStatementAssignment(AstStatement):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        if not isinstance(store, (Vector, Map)):
+        if not isinstance(store, (String, Vector, Map)):
             return Error(
                 self.location,
-                f"attempted to access into type `{store.type()}` with type `{field.type()}`",
+                f"attempted access into type `{store.type()}` with type `{field.type()}`",
             )
         try:
             store[field] = rhs.copy()
         except IndexError:
-            assert isinstance(store, Vector)
             return Error(
-                self.location, f"invalid vector access with index {field}"
+                self.location,
+                f"invalid {store.type()} access with index {field}",
             )
         return None
 
@@ -2801,16 +2843,15 @@ class Parser:
 
     def parse_statement_try(self) -> AstStatementTry:
         location = self._expect_current(TokenKind.TRY).location
-        operation: Union[AstBlock, AstExpression]
-        if self._check_current(TokenKind.LBRACE):
-            operation = self.parse_block()
-        else:
-            operation = self.parse_expression()
+        try_block = self.parse_block()
         self._expect_current(TokenKind.ELSE)
-        else_identifier = self.parse_identifier()
+        if self._check_current(TokenKind.IDENTIFIER):
+            else_identifier = self.parse_identifier()
+        else:
+            else_identifier = None
         else_block = self.parse_block()
         return AstStatementTry(
-            location, operation, else_identifier, else_block
+            location, try_block, else_identifier, else_block
         )
 
     def parse_statement_error(self) -> AstStatementError:
@@ -3141,6 +3182,47 @@ class BuiltinImport(Builtin):
         return result
 
 
+class BuiltinFsRead(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("read")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        arg0 = Builtin.typed_argument(arguments, 0, String)
+        with open(arg0.data, "r") as f:
+            data = f.read()
+        return String(data)
+
+
+class BuiltinFsWrite(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("write")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 2)
+        arg0 = Builtin.typed_argument(arguments, 0, String)
+        arg1 = Builtin.typed_argument(arguments, 1, String)
+        with open(arg0.data, "w") as f:
+            data = f.write(arg1.data)
+        return Null()
+
+
+class BuiltinFsAppend(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("append")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 2)
+        arg0 = Builtin.typed_argument(arguments, 0, String)
+        arg1 = Builtin.typed_argument(arguments, 1, String)
+        with open(arg0.data, "a") as f:
+            data = f.write(arg1.data)
+        return Null()
+
+
 class BuiltinNumberIsInf(Builtin):
     @staticmethod
     def name() -> String:
@@ -3274,6 +3356,53 @@ class BuiltinStringEndsWith(Builtin):
         return Boolean.new(arg0_data.data.endswith(arg1.data))
 
 
+class BuiltinStringTrim(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("trim")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        arg0, arg0_data = Builtin.typed_argument_reference(
+            arguments, 0, String
+        )
+        return String.new(arg0_data.data.strip())
+
+
+class BuiltinStringFind(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("rfind")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 2)
+        arg0, arg0_data = Builtin.typed_argument_reference(
+            arguments, 0, String
+        )
+        arg1 = Builtin.typed_argument(arguments, 1, String)
+        found = arg0_data.data.rfind(arg1.data)
+        if found == -1:
+            return Null()
+        return Number.new(found)
+
+
+class BuiltinStringRfind(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("find")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 2)
+        arg0, arg0_data = Builtin.typed_argument_reference(
+            arguments, 0, String
+        )
+        arg1 = Builtin.typed_argument(arguments, 1, String)
+        found = arg0_data.data.find(arg1.data)
+        if found == -1:
+            return Null()
+        return Number.new(found)
+
+
 class BuiltinStringJoin(Builtin):
     @staticmethod
     def name() -> String:
@@ -3298,6 +3427,39 @@ class BuiltinStringJoin(Builtin):
         return String.new(s)
 
 
+class BuiltinStringSlice(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("slice")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 3)
+        arg0, arg0_data = Builtin.typed_argument_reference(
+            arguments, 0, String
+        )
+        arg1 = Builtin.typed_argument(arguments, 1, Number)
+        if not float(arg1.data).is_integer():
+            return Error(None, f"expected integer index, received {arg1}")
+        arg2 = Builtin.typed_argument(arguments, 2, Number)
+        if not float(arg2.data).is_integer():
+            return Error(None, f"expected integer index, received {arg2}")
+        bgn = int(float(arg1.data))
+        end = int(float(arg2.data))
+        if bgn < 0:
+            return Error(None, f"slice begin is less than zero")
+        if bgn > len(arg0_data.data):
+            return Error(
+                None, f"slice begin is greater than the string length"
+            )
+        if end < 0:
+            return Error(None, f"slice end is less than zero")
+        if end > len(arg0_data.data):
+            return Error(None, f"slice end is greater than the string length")
+        if end < bgn:
+            return Error(None, f"slice end is less than slice begin")
+        return String(arg0_data.data[bgn:end])
+
+
 class BuiltinStringSplit(Builtin):
     @staticmethod
     def name() -> String:
@@ -3309,6 +3471,10 @@ class BuiltinStringSplit(Builtin):
             arguments, 0, String
         )
         arg1 = Builtin.typed_argument(arguments, 1, String)
+        if len(arg1.data) == 0:
+            return Vector.new(
+                SharedVectorData([String(x) for x in arg0_data.data])
+            )
         split = arg0_data.data.split(arg1.data)
         return Vector.new(SharedVectorData([String(x) for x in split]))
 
@@ -3352,23 +3518,49 @@ class BuiltinVectorCount(Builtin):
         return Number.new(len(arg0_data.data))
 
 
-class BuiltinVectorContains(BuiltinFromSource):
+class BuiltinVectorContains(Builtin):
     @staticmethod
     def name() -> String:
         return String("contains")
 
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 2)
+        arg0, arg0_data = Builtin.typed_argument_reference(
+            arguments, 0, Vector
+        )
+        return Boolean.new(arguments[1] in arg0_data)
+
+
+class BuiltinVectorFind(Builtin):
     @staticmethod
-    def source() -> str:
-        return """
-        return function(self, value) {
-            for element in self.* {
-                if element == value {
-                    return true;
-                }
-            }
-            return false;
-        };
-        """
+    def name() -> String:
+        return String("find")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 2)
+        arg0, arg0_data = Builtin.typed_argument_reference(
+            arguments, 0, Vector
+        )
+        for index, value in enumerate(arg0_data.data):
+            if value == arguments[1]:
+                return Number.new(index)
+        return Null()
+
+
+class BuiltinVectorRfind(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("rfind")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 2)
+        arg0, arg0_data = Builtin.typed_argument_reference(
+            arguments, 0, Vector
+        )
+        for index, value in reversed(list(enumerate(arg0_data.data))):
+            if value == arguments[1]:
+                return Number.new(index)
+        return Null()
 
 
 class BuiltinVectorPush(Builtin):
@@ -3461,8 +3653,14 @@ class BuiltinVectorSlice(Builtin):
         end = int(float(arg2.data))
         if bgn < 0:
             return Error(None, f"slice begin is less than zero")
+        if bgn > len(arg0_data.data):
+            return Error(
+                None, f"slice begin is greater than the vector length"
+            )
         if end < 0:
             return Error(None, f"slice end is less than zero")
+        if end > len(arg0_data.data):
+            return Error(None, f"slice end is greater than the vector length")
         if end < bgn:
             return Error(None, f"slice end is less than slice begin")
         # Copy underlying data as the update will alter all Python objects
@@ -3542,23 +3740,15 @@ class BuiltinMapCount(Builtin):
         return Number.new(len(arg0_data.data))
 
 
-class BuiltinMapContains(BuiltinFromSource):
+class BuiltinMapContains(Builtin):
     @staticmethod
     def name() -> String:
         return String("contains")
 
-    @staticmethod
-    def source() -> str:
-        return """
-        return function(self, value) {
-            for key in self.* {
-                if key == value {
-                    return true;
-                }
-            }
-            return false;
-        };
-        """
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 2)
+        arg0, arg0_data = Builtin.typed_argument_reference(arguments, 0, Map)
+        return Boolean.new(arguments[1] in arg0_data)
 
 
 class BuiltinMapInsert(Builtin):
@@ -3599,23 +3789,15 @@ class BuiltinSetCount(Builtin):
         return Number.new(len(arg0_data.data))
 
 
-class BuiltinSetContains(BuiltinFromSource):
+class BuiltinSetContains(Builtin):
     @staticmethod
     def name() -> String:
         return String("contains")
 
-    @staticmethod
-    def source() -> str:
-        return """
-        return function(self, value) {
-            for element in self.* {
-                if element == value {
-                    return true;
-                }
-            }
-            return false;
-        };
-        """
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 2)
+        arg0, arg0_data = Builtin.typed_argument_reference(arguments, 0, Set)
+        return Boolean.new(arguments[1] in arg0_data)
 
 
 class BuiltinSetInsert(Builtin):
@@ -3690,12 +3872,18 @@ let_builtin(NUMBER_META, BuiltinNumberCeil())
 let_builtin(STRING_META, BuiltinStringContains())
 let_builtin(STRING_META, BuiltinStringStartsWith())
 let_builtin(STRING_META, BuiltinStringEndsWith())
+let_builtin(STRING_META, BuiltinStringTrim())
+let_builtin(STRING_META, BuiltinStringFind())
+let_builtin(STRING_META, BuiltinStringRfind())
+let_builtin(STRING_META, BuiltinStringSlice())
 let_builtin(STRING_META, BuiltinStringSplit())
 let_builtin(STRING_META, BuiltinStringJoin())
 let_builtin(STRING_META, BuiltinStringCut())
 
 let_builtin(VECTOR_META, BuiltinVectorCount())
 let_builtin(VECTOR_META, BuiltinVectorContains())
+let_builtin(VECTOR_META, BuiltinVectorFind())
+let_builtin(VECTOR_META, BuiltinVectorRfind())
 let_builtin(VECTOR_META, BuiltinVectorPush())
 let_builtin(VECTOR_META, BuiltinVectorPop())
 let_builtin(VECTOR_META, BuiltinVectorInsert())
@@ -3730,6 +3918,18 @@ let_builtin(BASE_ENV.store, BuiltinString())
 let_builtin(BASE_ENV.store, BuiltinVector())
 let_builtin(BASE_ENV.store, BuiltinAssert())
 let_builtin(BASE_ENV.store, BuiltinImport())
+BASE_ENV.let(
+    String("fs"),
+    Map.new(
+        SharedMapData(
+            {
+                String("read"): BuiltinFsRead(),
+                String("write"): BuiltinFsWrite(),
+                String("append"): BuiltinFsAppend(),
+            }
+        )
+    ),
+)
 
 
 def repl(env: Optional[Environment] = None) -> None:

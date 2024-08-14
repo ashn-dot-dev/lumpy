@@ -1,0 +1,9 @@
+println("\", \".join([\"foo\", \"bar\", \"baz\"]) is " + repr(", ".join(["foo", "bar", "baz"])));
+println("\", \".join([]) is " + repr(", ".join([])));
+println("\"\".join([\"foo\", \"bar\", \"baz\"]) is " + repr("".join(["foo", "bar", "baz"])));
+println("\"\".join([]) is " + repr("".join([])));
+################################################################################
+# ", ".join(["foo", "bar", "baz"]) is "foo, bar, baz"
+# ", ".join([]) is ""
+# "".join(["foo", "bar", "baz"]) is "foobarbaz"
+# "".join([]) is ""

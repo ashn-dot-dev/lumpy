@@ -1,0 +1,8 @@
+try {                 } else     { println("error");               }
+try {                 } else err { println("error: " + repr(err)); }
+try { 1 + 1;          } else     { println("error");               }
+try { 1 + "foo";      } else err { println("error: " + repr(err)); }
+try { error "oopsie"; } else err { println("error: " + repr(err)); }
+################################################################################
+# error: "attempted + operation with types `number` and `string`"
+# error: "oopsie"

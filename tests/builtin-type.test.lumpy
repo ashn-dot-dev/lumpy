@@ -1,0 +1,21 @@
+println("type(null) is " + repr(type(null)));
+println("type(true) is " + repr(type(true)));
+println("type(123) is " + repr(type(123)));
+println("type(\"foo\") is " + repr(type("foo")));
+println("type([123, 456]) is " + repr(type([123, 456])));
+println("type({\"foo\": \"bar\"}) is " + repr(type({"foo": "bar"})));
+println("type({\"foo\", \"bar\"}) is " + repr(type({"foo", "bar"})));
+println("type(123.&) is " + repr(type(123.&)));
+println("type(function() {}) is " + repr(type(function() {})));
+println("type(println) is " + repr(type(println)));
+################################################################################
+# type(null) is "null"
+# type(true) is "boolean"
+# type(123) is "number"
+# type("foo") is "string"
+# type([123, 456]) is "vector"
+# type({"foo": "bar"}) is "map"
+# type({"foo", "bar"}) is "set"
+# type(123.&) is "reference"
+# type(function() {}) is "function"
+# type(println) is "function"

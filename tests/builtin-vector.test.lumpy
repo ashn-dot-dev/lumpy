@@ -1,0 +1,18 @@
+println("vector(\"foo\") is " + repr(vector("foo")));
+println("vector([123, 456, 789]) is " + repr(vector([123, 456, 789])));
+println("vector({\"foo\": 123, \"bar\": 456, \"baz\": 789}) is " + repr(vector({"foo": 123, "bar": 456, "baz": 789})));
+println("vector({\"foo\", \"bar\", \"baz\"}) is " + repr(vector({"foo", "bar", "baz"})));
+
+
+print("\n");
+
+try { vector(null); } else err { println("vector(null) produces " + repr(err)); }
+try { vector(123); } else err { println("vector(123) produces " + repr(err)); }
+################################################################################
+# vector("foo") is ["f", "o", "o"]
+# vector([123, 456, 789]) is [123, 456, 789]
+# vector({"foo": 123, "bar": 456, "baz": 789}) is [["foo", 123], ["bar", 456], ["baz", 789]]
+# vector({"foo", "bar", "baz"}) is ["foo", "bar", "baz"]
+#
+# vector(null) produces "cannot convert value null to vector"
+# vector(123) produces "cannot convert value 123 to vector"

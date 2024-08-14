@@ -7,9 +7,6 @@ let node = {
     "string": function(value) {
         return value.name;
     },
-    "==": function(lhs, rhs) {
-        return self.name == rhs.name;
-    },
 };
 
 let graph = {
@@ -24,7 +21,7 @@ let graph = {
             elements.push(string(node.*));
         }
         return "{" + ", ".join(elements) + "}";
-    }
+    },
 };
 
 let dfs = function(graph) {

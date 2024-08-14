@@ -1,0 +1,46 @@
+try { dumpln( null         or null         ); } else err { dumpln(err); }
+try { dumpln( true         or true         ); } else err { dumpln(err); }
+try { dumpln( 123          or 123          ); } else err { dumpln(err); }
+try { dumpln( "foo"        or "foo"        ); } else err { dumpln(err); }
+try { dumpln( []           or []           ); } else err { dumpln(err); }
+try { dumpln( map{}        or map{}        ); } else err { dumpln(err); }
+try { dumpln( set{}        or set{}        ); } else err { dumpln(err); }
+try { dumpln( 123.&        or 123.&        ); } else err { dumpln(err); }
+try { dumpln( function(){} or function(){} ); } else err { dumpln(err); }
+try { dumpln( println      or println      ); } else err { dumpln(err); }
+
+print("\n");
+
+dumpln(false or false);
+dumpln(false or true);
+dumpln(true or false);
+dumpln(true or true);
+
+print("\n");
+
+let meta = {"or": function(lhs, rhs) { println("overload"); return true; }};
+let x = 123;
+let y = 456;
+setmeta(x.&, meta);
+try { dumpln(x or y); } else err { dumpln(err); }
+try { dumpln(y or x); } else err { dumpln(err); }
+################################################################################
+# "attempted binary or operation with types `null` and `null`"
+# true
+# "attempted binary or operation with types `number` and `number`"
+# "attempted binary or operation with types `string` and `string`"
+# "attempted binary or operation with types `vector` and `vector`"
+# "attempted binary or operation with types `map` and `map`"
+# "attempted binary or operation with types `set` and `set`"
+# "attempted binary or operation with types `reference` and `reference`"
+# "attempted binary or operation with types `function` and `function`"
+# "attempted binary or operation with types `function` and `function`"
+#
+# false
+# true
+# true
+# true
+#
+# overload
+# true
+# "attempted binary or operation with types `number` and `number`"

@@ -1,7 +1,10 @@
 .POSIX:
-.PHONY: all lint format clean
+.PHONY: check lint format clean
 
-all: lint format
+all: lint format check
+
+check:
+	sh lumpy-test
 
 lint:
 	python3 -m mypy --check-untyped-defs lumpy

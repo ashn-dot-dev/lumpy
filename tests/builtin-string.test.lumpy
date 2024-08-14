@@ -1,0 +1,21 @@
+println("string(null) is " + repr(string(null)));
+println("string(true) is " + repr(string(true)));
+println("string(false) is " + repr(string(false)));
+println("string(123) is " + repr(string(123)));
+println("string(123.4) is " + repr(string(123.4)));
+println("string(Inf) is " + repr(string(Inf)));
+println("string(NaN) is " + repr(string(NaN)));
+println("string(\"foo\") is " + repr(string("foo")));
+println("string(map{}) is " + repr(string(map{})));
+println("string(set{}) is " + repr(string(set{})));
+################################################################################
+# string(null) is "null"
+# string(true) is "true"
+# string(false) is "false"
+# string(123) is "123"
+# string(123.4) is "123.4"
+# string(Inf) is "Inf"
+# string(NaN) is "NaN"
+# string("foo") is "foo"
+# string(map{}) is "map{}"
+# string(set{}) is "set{}"

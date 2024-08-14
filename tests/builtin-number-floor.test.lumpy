@@ -1,0 +1,9 @@
+println("(+123.45).floor() is " + repr((+123.45).floor()));
+println("(-123.45).floor() is " + repr((-123.45).floor()));
+try { Inf.floor(); } else err { println("Inf.floor() produced the error " + repr(err)); }
+try { NaN.floor(); } else err { println("NaN.floor() produced the error " + repr(err)); }
+################################################################################
+# (+123.45).floor() is 123
+# (-123.45).floor() is -124
+# Inf.floor() produced the error "cannot convert float infinity to integer"
+# NaN.floor() produced the error "cannot convert float NaN to integer"

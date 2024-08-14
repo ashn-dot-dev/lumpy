@@ -16,7 +16,8 @@ can be viewed by running:
 /path/to/lumpy$ python3 -m venv .venv-lumpy
 /path/to/lumpy$ . ./.venv-lumpy/bin/activate
 (.venv-lumpy) /path/to/lumpy$ python3 -m pip install -r requirements-dev.txt
-(.venv-lumpy) /path/to/lumpy$ make lint  # lint with mypy
+(.venv-lumpy) /path/to/lumpy$ make check   # run tests
+(.venv-lumpy) /path/to/lumpy$ make lint    # lint with mypy
 (.venv-lumpy) /path/to/lumpy$ make format  # format using black
 ```
 

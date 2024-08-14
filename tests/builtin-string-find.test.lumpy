@@ -1,0 +1,7 @@
+println("\"foo=bar\".find(\"=\") is " + repr("foo=bar".find("=")));
+println("\"foo=bar\".find(\"nope\") is " + repr("foo=bar".find("nope")));
+println("\"foo=foo\".find(\"foo\") is " + repr("foo=foo".find("foo")));
+################################################################################
+# "foo=bar".find("=") is 3
+# "foo=bar".find("nope") is null
+# "foo=foo".find("foo") is 0

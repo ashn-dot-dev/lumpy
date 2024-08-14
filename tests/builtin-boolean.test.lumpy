@@ -1,0 +1,27 @@
+println("boolean(true) is " + repr(boolean(true)));
+println("boolean(false) is " + repr(boolean(false)));
+println("boolean(123) is " + repr(boolean(123)));
+println("boolean(0) is " + repr(boolean(0)));
+println("boolean(Inf) is " + repr(boolean(Inf)));
+println("boolean(NaN) is " + repr(boolean(NaN)));
+println("boolean(\"true\") is " + repr(boolean("true")));
+println("boolean(\"false\") is " + repr(boolean("false")));
+
+print("\n");
+
+try { boolean(null); } else err { println("boolean(null) produces " + repr(err)); }
+try { boolean("foo"); } else err { println("boolean(\"foo\") produces " + repr(err)); }
+try { boolean(map{}); } else err { println("boolean(map{}) produces " + repr(err)); }
+################################################################################
+# boolean(true) is true
+# boolean(false) is false
+# boolean(123) is true
+# boolean(0) is false
+# boolean(Inf) is true
+# boolean(NaN) is false
+# boolean("true") is true
+# boolean("false") is false
+#
+# boolean(null) produces "cannot convert value null to boolean"
+# boolean("foo") produces "cannot convert value \"foo\" to boolean"
+# boolean(map{}) produces "cannot convert value map{} to boolean"

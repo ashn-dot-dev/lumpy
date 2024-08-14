@@ -1,0 +1,31 @@
+try { dumpln( not null         ); } else err { dumpln(err); }
+try { dumpln( not true         ); } else err { dumpln(err); }
+try { dumpln( not 123          ); } else err { dumpln(err); }
+try { dumpln( not "foo"        ); } else err { dumpln(err); }
+try { dumpln( not []           ); } else err { dumpln(err); }
+try { dumpln( not map{}        ); } else err { dumpln(err); }
+try { dumpln( not set{}        ); } else err { dumpln(err); }
+try { dumpln( not 123.&        ); } else err { dumpln(err); }
+try { dumpln( not function(){} ); } else err { dumpln(err); }
+try { dumpln( not println      ); } else err { dumpln(err); }
+
+print("\n");
+
+let meta = {"not": function(value) { println("overload"); return value; }};
+let x = 123;
+setmeta(x.&, meta);
+dumpln(not x);
+################################################################################
+# "attempted unary not operation with type `null`"
+# false
+# "attempted unary not operation with type `number`"
+# "attempted unary not operation with type `string`"
+# "attempted unary not operation with type `vector`"
+# "attempted unary not operation with type `map`"
+# "attempted unary not operation with type `set`"
+# "attempted unary not operation with type `reference`"
+# "attempted unary not operation with type `function`"
+# "attempted unary not operation with type `function`"
+#
+# overload
+# 123

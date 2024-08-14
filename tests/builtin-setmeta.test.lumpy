@@ -1,0 +1,11 @@
+let meta = {"dumpself": function(self) { dumpln(self.*); }};
+let x = 123;
+dumpln(getmeta(x));
+setmeta(x.&, meta);
+dumpln(getmeta(x));
+setmeta(x.&, null);
+dumpln(getmeta(x));
+################################################################################
+# {"is_inf": is_inf@builtin, "is_nan": is_nan@builtin, "is_integer": is_integer@builtin, "trunc": trunc@builtin, "round": round@builtin, "floor": floor@builtin, "ceil": ceil@builtin}
+# {"dumpself": dumpself@[builtin-setmeta.test.lumpy, line 1]}
+# null

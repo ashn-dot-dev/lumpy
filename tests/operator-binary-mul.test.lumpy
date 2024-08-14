@@ -1,0 +1,34 @@
+try { dumpln( null         * null         ); } else err { dumpln(err); }
+try { dumpln( true         * true         ); } else err { dumpln(err); }
+try { dumpln( 123          * 456          ); } else err { dumpln(err); }
+try { dumpln( "foo"        * "bar"        ); } else err { dumpln(err); }
+try { dumpln( []           * []           ); } else err { dumpln(err); }
+try { dumpln( map{}        * map{}        ); } else err { dumpln(err); }
+try { dumpln( set{}        * set{}        ); } else err { dumpln(err); }
+try { dumpln( 123.&        * 123.&        ); } else err { dumpln(err); }
+try { dumpln( function(){} * function(){} ); } else err { dumpln(err); }
+try { dumpln( println      * println      ); } else err { dumpln(err); }
+
+print("\n");
+
+let meta = {"*": function(lhs, rhs) { println("overload"); return 0; }};
+let x = "foo";
+let y = map{};
+setmeta(x.&, meta);
+try { dumpln(x * y); } else err { dumpln(err); }
+try { dumpln(y * x); } else err { dumpln(err); }
+################################################################################
+# "attempted * operation with types `null` and `null`"
+# "attempted * operation with types `boolean` and `boolean`"
+# 56088
+# "attempted * operation with types `string` and `string`"
+# "attempted * operation with types `vector` and `vector`"
+# "attempted * operation with types `map` and `map`"
+# "attempted * operation with types `set` and `set`"
+# "attempted * operation with types `reference` and `reference`"
+# "attempted * operation with types `function` and `function`"
+# "attempted * operation with types `function` and `function`"
+#
+# overload
+# 0
+# "attempted * operation with types `map` and `string`"

@@ -1,0 +1,37 @@
+println("number(true) is " + repr(number(true)));
+println("number(false) is " + repr(number(false)));
+println("number(123) is " + repr(number(123)));
+println("number(\"123\") is " + repr(number("123")));
+println("number(\"+123\") is " + repr(number("+123")));
+println("number(\"-123\") is " + repr(number("-123")));
+println("number(\"123.4\") is " + repr(number("123.4")));
+println("number(\"Inf\") is " + repr(number("Inf")));
+println("number(\"INF\") is " + repr(number("INF")));
+println("number(\"iNf\") is " + repr(number("iNf")));
+println("number(\"NaN\") is " + repr(number("NaN")));
+println("number(\"NAN\") is " + repr(number("NAN")));
+println("number(\"nan\") is " + repr(number("nan")));
+
+print("\n");
+
+try { number(null); } else err { println("number(null) produces " + repr(err)); }
+try { number("foo"); } else err { println("number(\"foo\") produces " + repr(err)); }
+try { number(map{}); } else err { println("number(map{}) produces " + repr(err)); }
+################################################################################
+# number(true) is 1
+# number(false) is 0
+# number(123) is 123
+# number("123") is 123
+# number("+123") is 123
+# number("-123") is -123
+# number("123.4") is 123.4
+# number("Inf") is Inf
+# number("INF") is Inf
+# number("iNf") is Inf
+# number("NaN") is NaN
+# number("NAN") is NaN
+# number("nan") is NaN
+#
+# number(null) produces "cannot convert value null to number"
+# number("foo") produces "cannot convert value \"foo\" to number"
+# number(map{}) produces "cannot convert value map{} to number"

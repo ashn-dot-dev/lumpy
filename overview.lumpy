@@ -1,9 +1,9 @@
 # This is a comment.
 # Comments begin with the # character and extend until the end of the line.
 
-println("======================");
-println("== Primitive Values ==");
-println("======================");
+println("====================");
+println("== Literal Values ==");
+println("====================");
 
 dumpln( null );
 
@@ -68,75 +68,123 @@ dumpln( println );
 
 print("\n");
 
-println("==========================");
-println("== Vector Copy-On-Write ==");
-println("==========================");
+println("===============");
+println("== Accessors ==");
+println("===============");
+
+let s = "hello world";
+println("s is " + repr(s));
+println("s[1] is " + repr(s[1]));
+println("set s[0] to \"y\"");
+s[0] = "y";
+println("s is " + repr(s));
+
+print("\n");
+
+let v = [123, 456, 789];
+println("v is " + repr(v));
+println("v[1] is " + repr(v[1]));
+try { v[3]; } else err { println("v[3] produces " + repr(err)); }
+try { v["foo"]; } else err { println("v[\"foo\"] produces " + repr(err)); }
+
+print("\n");
+
+let m = {"foo": "bar", 123: {456, 789}, {"key": "val"}: "baz"};
+println("m is " + repr(m));
+println("m[\"foo\"] is " + repr(m["foo"]));
+println("m[123] is " + repr(m[123]));
+println("m[{\"key\": \"val\"}] is " + repr(m[{"key": "val"}]));
+println("m::foo is " + repr(m::foo) + " (equivalent to m[\"foo\"])");
+println("m.foo is " + repr(m.foo) + " (equivalent to m[\"foo\"] for field access)");
+try { m["qux"]; } else err { println("m[\"qux\"] produces " + repr(err)); }
+
+print("\n");
+
+println("============================");
+println("== String Value Semantics ==");
+println("============================");
+
+let s1 = "foobar";
+println("s1 is " + repr(s1));
+let s2 = s1;
+println("let s2 be s1");
+println("s2 is " + repr(s2));
+println("set s2[1] to \"u\"");
+s2[1] = "u";
+println("s1 is " + repr(s1));
+println("s2 is " + repr(s2));
+
+print("\n");
+
+println("============================");
+println("== Vector Value Semantics ==");
+println("============================");
 
 let k = ["y", 456];
-println("k is " + string(k));
-println("declare v using k");
+println("k is " + repr(k));
+println("let v be [[\"x\", 123], k, [\"z\", 789]]");
 let v = [["x", 123], k, ["z", 789]];
-println("v is " + string(v));
+println("v is " + repr(v));
 println("set v[1][1] to \"foo\"");
 v[1][1] = "foo";
-println("k is " + string(k));
-println("v is " + string(v));
+println("k is " + repr(k));
+println("v is " + repr(v));
 
 print("\n");
 
 let v1 = [["x", 123], ["y", 456], ["z", 789]];
-println("v1 is " + string(v1));
+println("v1 is " + repr(v1));
 let v2 = v1;
 println("let v2 be v1");
-println("v2 is " + string(v2));
+println("v2 is " + repr(v2));
 println("set v2[1][1] to \"foo\"");
 v2[1][1] = "foo";
-println("v1 is " + string(v1));
-println("v2 is " + string(v2));
+println("v1 is " + repr(v1));
+println("v2 is " + repr(v2));
 
 print("\n");
 
-println("=======================");
-println("== Map Copy-On-Write ==");
-println("=======================");
+println("=========================");
+println("== Map Value Semantics ==");
+println("=========================");
 
 let k = {"y": 456};
-println("k is " + string(k));
-println("declare m using k");
+println("k is " + repr(k));
+println("let m be {\"a\": {\"x\": 123}, \"b\": k, \"c\": {\"z\": 789}}");
 let m = {"a": {"x": 123}, "b": k, "c": {"z": 789}};
-println("m is " + string(m));
+println("m is " + repr(m));
 println("set m[\"b\"][\"y\"] to \"foo\"");
 m["b"]["y"] = "foo";
-println("k is " + string(k));
-println("m is " + string(m));
+println("k is " + repr(k));
+println("m is " + repr(m));
 
 print("\n");
 
 let m1 = {"a": {"x": 123}, "b": {"y": 456}, "c": {"z": 789}};
-println("m1 is " + string(m1));
+println("m1 is " + repr(m1));
 println("let m2 be m1");
 let m2 = m1;
-println("m2 is " + string(m2));
+println("m2 is " + repr(m2));
 println("set m2[\"b\"][\"y\"] to \"foo\"");
 m2["b"]["y"] = "foo";
-println("m1 is " + string(m1));
-println("m2 is " + string(m2));
+println("m1 is " + repr(m1));
+println("m2 is " + repr(m2));
 
 print("\n");
 
-println("=======================");
-println("== Set Copy-On-Write ==");
-println("=======================");
+println("=========================");
+println("== Set Value Semantics ==");
+println("=========================");
 
 let k = {"b", 456};
-println("k is " + string(k));
-println("declare s using k");
+println("k is " + repr(k));
+println("let s be {{\"x\", 123}, k, {\"c\", 789}}");
 let s = {{"x", 123}, k, {"c", 789}};
-println("s is " + string(s));
+println("s is " + repr(s));
 println("insert \"foo\" into k");
 k.insert("foo");
-println("k = " + string(k));
-println("s = " + string(s));
+println("k = " + repr(k));
+println("s = " + repr(s));
 
 print("\n");
 
@@ -144,25 +192,25 @@ println("===============");
 println("== Operators ==");
 println("===============");
 
-println("Operator + (unary)");
+println("operator + (unary)");
 println("+123 is " + repr(+123));
 println("+-123 is " + repr(+-123));
 
 print("\n");
 
-println("Operator - (unary)");
+println("operator - (unary)");
 println("-123 is " + repr(-123));
 println("--123 is " + repr(--123));
 
 print("\n");
 
-println("Operator not");
+println("operator not");
 println("not true is " + repr(not true));
 println("not false is " + repr(not false));
 
 print("\n");
 
-println("Operator ==");
+println("operator ==");
 println("123 == 123 is " + repr(123 == 123));
 println("123 == 456 is " + repr(123 == 456));
 println("\"foo\" == \"foo\" is " + repr("foo" == "foo"));
@@ -171,7 +219,7 @@ println("123 == \"foo\" is " + repr(123 == "foo"));
 
 print("\n");
 
-println("Operator !=");
+println("operator !=");
 println("123 != 123 is " + repr(123 != 123));
 println("123 != 456 is " + repr(123 != 456));
 println("\"foo\" != \"foo\" is " + repr("foo" != "foo"));
@@ -180,7 +228,7 @@ println("123 != \"foo\" is " + repr(123 != "foo"));
 
 print("\n");
 
-println("Operator <=");
+println("operator <=");
 println("123 <= 123 is " + repr(123 <= 123));
 println("123 <= 456 is " + repr(123 <= 456));
 println("\"foo\" <= \"foo\" is " + repr("foo" <= "foo"));
@@ -188,7 +236,7 @@ println("\"foo\" <= \"bar\" is " + repr("foo" <= "bar"));
 
 print("\n");
 
-println("Operator >=");
+println("operator >=");
 println("123 >= 123 is " + repr(123 >= 123));
 println("123 >= 456 is " + repr(123 >= 456));
 println("\"foo\" >= \"foo\" is " + repr("foo" >= "foo"));
@@ -196,7 +244,7 @@ println("\"foo\" >= \"bar\" is " + repr("foo" >= "bar"));
 
 print("\n");
 
-println("Operator <");
+println("operator <");
 println("123 < 123 is " + repr(123 < 123));
 println("123 < 456 is " + repr(123 < 456));
 println("\"foo\" < \"foo\" is " + repr("foo" < "foo"));
@@ -204,7 +252,7 @@ println("\"foo\" < \"bar\" is " + repr("foo" < "bar"));
 
 print("\n");
 
-println("Operator >");
+println("operator >");
 println("123 > 123 is " + repr(123 > 123));
 println("123 > 456 is " + repr(123 > 456));
 println("\"foo\" > \"foo\" is " + repr("foo" > "foo"));
@@ -212,45 +260,45 @@ println("\"foo\" > \"bar\" is " + repr("foo" > "bar"));
 
 print("\n");
 
-println("Operator +");
+println("operator +");
 println("123 + 456 is " + repr(123 + 456));
 println("\"foo\" + \"bar\" is " + repr("foo" + "bar"));
 
 print("\n");
 
-println("Operator -");
+println("operator -");
 println("123 - 456 is " + repr(123 - 456));
 
 print("\n");
 
-println("Operator *");
+println("operator *");
 println("123 * 456 is " + repr(123 * 456));
 
 print("\n");
 
-println("Operator /");
+println("operator /");
 println("123 / 456 is " + repr(123 / 456));
-try { 123 / 0; } else err { println("123 / 0 produces the error " + repr(err)); }
+try { 123 / 0; } else err { println("123 / 0 produces " + repr(err)); }
 
 print("\n");
 
-println("Operator %");
+println("operator %");
 println("+7 % +3 is " + repr(+7 % +3));
 println("+7 % -3 is " + repr(+7 % -3));
 println("-7 % +3 is " + repr(-7 % +3));
 println("-7 % -3 is " + repr(-7 % -3));
 println("10 % 3.5 is " + repr(10 % 3.5));
 println("123 % Inf is " + repr(123 % Inf));
-try { 123 % 0; } else err { println("123 % 0 produces the error " + repr(err)); }
+try { 123 % 0; } else err { println("123 % 0 produces " + repr(err)); }
 
 print("\n");
 
-println("Operator .&");
+println("operator .&");
 println("123.& is " + repr(123.&));
 
 print("\n");
 
-println("Operator .*");
+println("operator .*");
 println("123.&.* is " + repr(123.&.*));
 println("let m be map{}");
 let x = map{};
@@ -262,7 +310,7 @@ println("x is " + repr(x));
 
 print("\n");
 
-println("Operator Precedence");
+println("operator Precedence");
 let tmp = (123 + 456) * 789 + map{"x": 3.14}["x"];
 println("(123 + 456) * 789 + map{\"x\": 3.14}[\"x\"] evaluates to " + repr(tmp));
 
@@ -279,23 +327,23 @@ let person = {
     },
     "unary+": function(value) {
         println("unary+ called with " + repr(value));
-        return alice;
+        return alice; # arbitrary
     },
     "unary-": function(value) {
         println("unary- called with " + repr(value));
-        return alice;
+        return alice; # arbitrary
     },
     "not": function(value) {
         println("not called with " + repr(value));
-        return alice;
+        return alice; # arbitrary
     },
     "and": function(lhs, rhs) {
         println("and called with " + repr(lhs) + " and " + repr(rhs));
-        return false;
+        return false; # arbitrary
     },
     "or": function(lhs, rhs) {
         println("or called with " + repr(lhs) + " and " + repr(rhs));
-        return false;
+        return false; # arbitrary
     },
     "==": function(lhs, rhs) {
         println("== called with " + repr(lhs) + " and " + repr(rhs));
@@ -307,19 +355,39 @@ let person = {
     },
     "<=": function(lhs, rhs) {
         println("<= called with " + repr(lhs) + " and " + repr(rhs));
-        return false;
+        return false; # arbitrary
     },
     ">=": function(lhs, rhs) {
         println(">= called with " + repr(lhs) + " and " + repr(rhs));
-        return false;
+        return false; # arbitrary
     },
     "<": function(lhs, rhs) {
         println("< called with " + repr(lhs) + " and " + repr(rhs));
-        return false;
+        return false; # arbitrary
     },
     ">": function(lhs, rhs) {
         println("> called with " + repr(lhs) + " and " + repr(rhs));
-        return false;
+        return false; # arbitrary
+    },
+    "+": function(lhs, rhs) {
+        println("+ called with " + repr(lhs) + " and " + repr(rhs));
+        return alice; # arbitrary
+    },
+    "-": function(lhs, rhs) {
+        println("- called with " + repr(lhs) + " and " + repr(rhs));
+        return alice; # arbitrary
+    },
+    "*": function(lhs, rhs) {
+        println("* called with " + repr(lhs) + " and " + repr(rhs));
+        return alice; # arbitrary
+    },
+    "/": function(lhs, rhs) {
+        println("/ called with " + repr(lhs) + " and " + repr(rhs));
+        return alice; # arbitrary
+    },
+    "%": function(lhs, rhs) {
+        println("% called with " + repr(lhs) + " and " + repr(rhs));
+        return alice; # arbitrary
     },
 };
 
@@ -353,6 +421,11 @@ alice <= bob;
 alice >= bob;
 alice < bob;
 alice > bob;
+alice + bob;
+alice - bob;
+alice * bob;
+alice / bob;
+alice % bob;
 
 print("\n");
 
@@ -400,7 +473,7 @@ println("getmeta(b) is " + repr(getmeta(b)));
 
 print("\n");
 
-println("calling overloadable operators on a and a");
+println("calling overloadable comparison operators on a and a");
 dumpln(a == a);
 dumpln(a != a);
 dumpln(a <= a);
@@ -410,7 +483,7 @@ dumpln(a > a);
 
 print("\n");
 
-println("calling overloadable operators on a and b");
+println("calling overloadable comparison operators on a and b");
 dumpln(a == b);
 dumpln(a != b);
 dumpln(a <= b);
@@ -420,59 +493,46 @@ dumpln(a > b);
 
 print("\n");
 
-println("===============");
-println("== Accessors ==");
-println("===============");
-
-let v = [123, 456, 789];
-println("v is " + repr(v));
-println("v[1] is " + repr(v[1]));
-try { v[3]; } else err { println("v[3] produces the error " + repr(err)); }
-try { v["foo"]; } else err { println("v[\"foo\"] produces the error " + repr(err)); }
-
-print("\n");
-
-let m = {"foo": "bar", 123: {456, 789}, {"key": "val"}: "baz"};
-println("m is " + repr(m));
-println("m[\"foo\"] is " + repr(m["foo"]));
-println("m[123] is " + repr(m[123]));
-println("m[{\"key\": \"val\"}] is " + repr(m[{"key": "val"}]));
-println("m::foo is " + repr(m::foo) + " (equivalent to m[\"foo\"])");
-println("m.foo is " + repr(m.foo) + " (equivalent to m[\"foo\"] for field access)");
-try { m["qux"]; } else err { println("m[\"qux\"] produces the error " + repr(err)); }
-
-print("\n");
-
 println("========================");
 println("== If, Elif, and Else ==");
 println("========================");
 
 if true {
-    println("if");
+    println("A (if)");
 }
 
 if false {
-    println("if");
+    println("X");
 }
 elif true {
-    println("elif");
+    println("B (elif)");
 }
 
 if false {
-    println("if");
+    println("X");
 }
 elif false {
-    println("elif");
+    println("X");
 }
 
 if false {
-    println("if");
+    println("X");
 }
 elif false {
-    println("elif");
+    println("X");
+}
+elif true {
+    println("C (second-elif)");
+}
+
+if false {
+    println("X");
+}
+elif false {
+    println("X");
 }
 else {
-    println("else");
+    println("D (else)");
 }
 
 print("\n");
@@ -514,7 +574,7 @@ print("\n");
 
 println("let x be 1");
 let x = 1;
-println("while x <= 5 print x and increment x by 1");
+println("while x <= 5 print x and then increment x by 1");
 while x <= 5 {
     println("x is " + repr(x));
     x = x + 1;
@@ -529,11 +589,11 @@ while true {
 
 print("\n");
 
-let v = ["1", "2", "3"];
-println("Continue: for x in " + repr(v) + " continue before an invalid add operation");
-for x in ["1", "2", "3"] {
+let v = ["foo", "bar", "baz"];
+println("Continue: for x in " + repr(v) + " continue before an error occurs");
+for x in v {
     continue;
-    x + 1;
+    error "oopsie";
 }
 
 print("\n");
@@ -591,9 +651,9 @@ let adder = function(x) {
     };
 };
 println("adder is " + repr(adder));
-println("set add1 to adder(1)");
+println("let add1 be adder(1)");
 let add1 = adder(1);
-println("add1 is + " + repr(add1));
+println("add1 is " + repr(add1));
 println("add1(2) is " + repr(add1(2)));
 
 print("\n");
@@ -620,10 +680,7 @@ println("==============");
 println("== Try-Else ==");
 println("==============");
 
-println("Try");
 try { println("inside try block"); } else err { println("inside try-else block: " + err); }
-try println("inside try expression") else err { println("inside try-else block: " + err); }
-try 1 + "foo" else err { println("inside try-else block: " + err); }
 try { error "some user defined error"; } else err { println("inside try-else block: " + err); }
 try { let x = []; x[1]; } else err { println("inside try-else block: " + err); }
 try { let x = []; x[1] = 123; } else err { println("inside try-else block: " + err); }
@@ -664,21 +721,27 @@ println("123.is_inf() is " + repr(123.is_inf()));
 println("(+Inf).is_inf() is " + repr((+Inf).is_inf()));
 println("(-Inf).is_inf() is " + repr((-Inf).is_inf()));
 println("NaN.is_inf() is " + repr(NaN.is_inf()));
+
 println("123.is_nan() is " + repr(123.is_nan()));
 println("Inf.is_nan() is " + repr(Inf.is_nan()));
 println("NaN.is_nan() is " + repr(NaN.is_nan()));
+
 println("123.is_integer() is " + repr(123.is_integer()));
 println("123.5.is_integer() is " + repr(123.5.is_integer()));
 println("Inf.is_integer() is " + repr(Inf.is_integer()));
 println("NaN.is_integer() is " + repr(NaN.is_integer()));
+
 println("(+123.45).trunc() is " + repr((+123.45).trunc()));
 println("(-123.45).trunc() is " + repr((-123.45).trunc()));
+
 println("(+123.45).round() is " + repr((+123.45).round()));
 println("(-123.45).round() is " + repr((-123.45).round()));
 println("(+123.54).round() is " + repr((+123.54).round()));
 println("(-123.54).round() is " + repr((-123.54).round()));
+
 println("(+123.45).floor() is " + repr((+123.45).floor()));
 println("(-123.45).floor() is " + repr((-123.45).floor()));
+
 println("(+123.45).ceil() is " + repr((+123.45).ceil()));
 println("(-123.45).ceil() is " + repr((-123.45).ceil()));
 
@@ -697,6 +760,20 @@ println("\"foobar\".ends_with(\"foo\") is " + repr("foobar".ends_with("foo")));
 println("\"foobar\".ends_with(\"bar\") is " + repr("foobar".ends_with("bar")));
 println("\"foobar\".ends_with(\"\") is " + repr("foobar".ends_with("")));
 
+println("\"foo\".trim() is " + repr("foo".trim()));
+println(repr("\t\n foo\t\n ") + ".trim() is " + repr("\t\n foo\t\n ".trim()));
+
+println("\"foo=bar\".find(\"=\") is " + repr("foo=bar".find("=")));
+println("\"foo=bar\".find(\"nope\") is " + repr("foo=bar".find("nope")));
+println("\"foo=foo\".find(\"foo\") is " + repr("foo=foo".find("foo")));
+
+println("\"foo=bar\".rfind(\"=\") is " + repr("foo=bar".rfind("=")));
+println("\"foo=bar\".rfind(\"nope\") is " + repr("foo=bar".rfind("nope")));
+println("\"foo=foo\".rfind(\"foo\") is " + repr("foo=foo".rfind("foo")));
+
+println("\"foo=bar\".slice(0, 3) is " + repr("foo=bar".slice(0, 3)));
+println("\"foo=bar\".slice(4, 7) is " + repr("foo=bar".slice(4, 7)));
+
 println("\"foo bar\".split(\" \") is " + repr("foo bar".split(" ")));
 println("\"f o o b a r\".split(\" \") is " + repr("f o o b a r".split(" ")));
 println("\"foobar\".split(\"oo\") is " + repr("foobar".split("oo")));
@@ -704,11 +781,16 @@ println("\"foobar\".split(\"o\") is " + repr("foobar".split("o")));
 println("\"foobar\".split(\"baz\") is " + repr("foobar".split("baz")));
 
 println("\", \".join([\"foo\", \"bar\", \"baz\"]) is " + repr(", ".join(["foo", "bar", "baz"])));
+println("\", \".join([]) is " + repr(", ".join([])));
+println("\"\".join([\"foo\", \"bar\", \"baz\"]) is " + repr("".join(["foo", "bar", "baz"])));
+println("\"\".join([]) is " + repr("".join([])));
 
 println("\"foo=bar\".cut(\"=\") is " + repr("foo=bar".cut("=")));
 println("\"foo=bar\".cut(\"foo\") is " + repr("foo=bar".cut("foo")));
 println("\"foo=bar\".cut(\"bar\") is " + repr("foo=bar".cut("bar")));
 println("\"foo=bar\".cut(\"\") is " + repr("foo=bar".cut("")));
+println("\"foo=bar\".cut(\"nope\") is " + repr("foo=bar".cut("nope")));
+println("\"\".cut(\"\") is " + repr("".cut("")));
 
 print("\n");
 
@@ -727,9 +809,15 @@ println("x after insert is " + repr(x));
 println("x.remove(1) ...");
 x.remove(1);
 println("x after remove is " + repr(x));
-println("x.slice(1, 4) is " + repr(x.slice(1, 4)));
+println("x.slice(1, 3) is " + repr(x.slice(1, 3)));
 println("x.contains(456) is " + repr(x.contains(456)));
 println("x.contains(\"abc\") is " + repr(x.contains("abc")));
+println("[\"foo\", \"bar\", \"baz\"].find(\"bar\") is " + repr(["foo", "bar", "baz"].find("bar")));
+println("[\"foo\", \"bar\", \"baz\"].find(\"nope\") is " + repr(["foo", "bar", "baz"].find("nope")));
+println("[\"foo\", \"bar\", \"foo\"].find(\"foo\") is " + repr(["foo", "bar", "foo"].find("foo")));
+println("[\"foo\", \"bar\", \"baz\"].rfind(\"bar\") is " + repr(["foo", "bar", "baz"].rfind("bar")));
+println("[\"foo\", \"bar\", \"baz\"].rfind(\"nope\") is " + repr(["foo", "bar", "baz"].rfind("nope")));
+println("[\"foo\", \"bar\", \"foo\"].rfind(\"foo\") is " + repr(["foo", "bar", "foo"].rfind("foo")));
 println("[\"foo\", \"bar\", \"baz\"].reversed() is " + repr(["foo", "bar", "baz"].reversed()));
 println("[\"foo\", \"bar\", \"baz\"].sorted() is " + repr(["foo", "bar", "baz"].sorted()));
 
@@ -767,11 +855,13 @@ println("boolean(true) is " + repr(boolean(true)));
 println("boolean(false) is " + repr(boolean(false)));
 println("boolean(123) is " + repr(boolean(123)));
 println("boolean(0) is " + repr(boolean(0)));
+println("boolean(Inf) is " + repr(boolean(Inf)));
 println("boolean(NaN) is " + repr(boolean(NaN)));
 println("boolean(\"true\") is " + repr(boolean("true")));
 println("boolean(\"false\") is " + repr(boolean("false")));
-try { boolean("foo"); } else err { println("boolean(\"foo\") is " + repr(err)); }
-try { boolean(map{}); } else err { println("boolean(map{}) is " + repr(err)); }
+try { boolean(null); } else err { println("boolean(null) produces " + repr(err)); }
+try { boolean("foo"); } else err { println("boolean(\"foo\") produces " + repr(err)); }
+try { boolean(map{}); } else err { println("boolean(map{}) produces " + repr(err)); }
 
 print("\n");
 
@@ -779,21 +869,32 @@ println("number(true) is " + repr(number(true)));
 println("number(false) is " + repr(number(false)));
 println("number(123) is " + repr(number(123)));
 println("number(\"123\") is " + repr(number("123")));
+println("number(\"+123\") is " + repr(number("+123")));
+println("number(\"-123\") is " + repr(number("-123")));
 println("number(\"123.4\") is " + repr(number("123.4")));
+println("number(\"Inf\") is " + repr(number("Inf")));
+println("number(\"INF\") is " + repr(number("INF")));
+println("number(\"iNF\") is " + repr(number("iNF")));
 println("number(\"NaN\") is " + repr(number("NaN")));
 println("number(\"NAN\") is " + repr(number("NAN")));
 println("number(\"nan\") is " + repr(number("nan")));
-try { number("foo"); } else err { println("number(\"foo\") is " + repr(err)); }
-try { number(map{}); } else err { println("number(map{}) is " + repr(err)); }
+try { number(null); } else err { println("number(null) produces " + repr(err)); }
+try { number("foo"); } else err { println("number(\"foo\") produces " + repr(err)); }
+try { number(map{}); } else err { println("number(map{}) produces " + repr(err)); }
 
 print("\n");
 
+println("string(null) is " + repr(string(null)));
 println("string(true) is " + repr(string(true)));
 println("string(false) is " + repr(string(false)));
 println("string(123) is " + repr(string(123)));
 println("string(123.4) is " + repr(string(123.4)));
+println("string(Inf) is " + repr(string(Inf)));
+println("string(NaN) is " + repr(string(NaN)));
 println("string(\"foo\") is " + repr(string("foo")));
 println("string(map{}) is " + repr(string(map{})));
+println("string(set{}) is " + repr(string(set{})));
+println("string(123.&) is " + repr(string(123.&)));
 
 print("\n");
 
@@ -801,6 +902,8 @@ println("vector(\"foo\") is " + repr(vector("foo")));
 println("vector([123, 456, 789]) is " + repr(vector([123, 456, 789])));
 println("vector({\"foo\": 123, \"bar\": 456, \"baz\": 789}) is " + repr(vector({"foo": 123, "bar": 456, "baz": 789})));
 println("vector({\"foo\", \"bar\", \"baz\"}) is " + repr(vector({"foo", "bar", "baz"})));
+try { vector(null); } else err { println("vector(null) produces " + repr(err)); }
+try { vector(123); } else err { println("vector(123) produces " + repr(err)); }
 
 print("\n");
 
@@ -814,6 +917,24 @@ println("import(\"examples/greeter.lumpy\") produces " + repr(greeter));
 let greet = greeter::new("Juliet");
 println("greeter::new(\"Juliet\") produces " + repr(greet));
 greet(); # Say hello to Juliet!
+
+print("\n");
+
+println("read the `examples/greeter.lumpy` file with `fs::read`");
+let module = fs::read("examples/greeter.lumpy");
+println("```");
+print(module);
+println("```");
+
+print("\n");
+
+println("writing to `/dev/stdout` with file with `fs::write`");
+let module = fs::write("/dev/stdout", "some text\n");
+
+print("\n");
+
+println("writing to `/dev/stdout` with file with `fs::append`");
+let module = fs::append("/dev/stdout", "some text\n");
 
 print("\n");
 
