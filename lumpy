@@ -1848,7 +1848,7 @@ class AstFunctionCall(AstExpression):
         self_argument: Optional[Value] = None
         if isinstance(self.function, AstAccessDot):
             # Special case when dot access is used for a function call. An
-            # implicit `self` argument is passed by reference to function.
+            # implicit `self` argument is passed by reference to the function.
             store = self.function.store.eval(env)
             if isinstance(store, Error):
                 return store
