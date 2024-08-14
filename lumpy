@@ -153,7 +153,8 @@ class Null(Value):
         return Null(self.meta.copy() if self.meta else None)
 
     def cow(self) -> None:
-        self.meta = self.meta.copy() if self.meta else None
+        if self.meta is not None:
+            self.meta.cow()
 
 
 @final
@@ -185,7 +186,8 @@ class Boolean(Value):
         return Boolean(self.data, self.meta.copy() if self.meta else None)
 
     def cow(self) -> None:
-        self.meta = self.meta.copy() if self.meta else None
+        if self.meta is not None:
+            self.meta.cow()
 
 
 @final
@@ -239,7 +241,8 @@ class Number(Value):
         return Number(self.data, self.meta.copy() if self.meta else None)
 
     def cow(self) -> None:
-        self.meta = self.meta.copy() if self.meta else None
+        if self.meta is not None:
+            self.meta.cow()
 
 
 @final
@@ -274,7 +277,8 @@ class String(Value):
         return String(self.data, self.meta.copy() if self.meta else None)
 
     def cow(self) -> None:
-        self.meta = self.meta.copy() if self.meta else None
+        if self.meta is not None:
+            self.meta.cow()
 
 
 @final
@@ -297,6 +301,7 @@ class Vector(Value):
         return Vector(data, VECTOR_META.copy())
 
     def __del__(self):
+        assert self.data.uses >= 1
         self.data.uses -= 1
 
     def __hash__(self) -> int:
@@ -327,7 +332,9 @@ class Vector(Value):
             raise KeyError("attempted vector access using non-integer number")
         index = int(index)
         if self.data.uses > 1:
+            self.data.uses -= 1
             self.data = self.data.copy()  # copy-on-write
+            self.data.uses += 1
         self.data.__setitem__(index, value)
 
     def __getitem__(self, key: Value) -> Value:
@@ -341,7 +348,9 @@ class Vector(Value):
 
     def __delitem__(self, key: Value) -> None:
         if self.data.uses > 1:
+            self.data.uses -= 1
             self.data = self.data.copy()  # copy-on-write
+            self.data.uses += 1
         return super().__delitem__(key)
 
     @staticmethod
@@ -352,8 +361,13 @@ class Vector(Value):
         return Vector(self.data, self.meta.copy() if self.meta else None)
 
     def cow(self) -> None:
+        if self.meta is not None:
+            self.meta.cow()
         self.meta = self.meta.copy() if self.meta else None
-        self.data = self.data.copy()
+        if self.data.uses > 1:
+            self.data.uses -= 1
+            self.data = self.data.copy()  # copy-on-write
+            self.data.uses += 1
 
 
 @final
@@ -376,6 +390,7 @@ class Map(Value):
         return Map(data, MAP_META.copy())
 
     def __del__(self):
+        assert self.data.uses >= 1
         self.data.uses -= 1
 
     def __hash__(self) -> int:
@@ -404,7 +419,9 @@ class Map(Value):
 
     def __setitem__(self, key: Value, value: Value) -> None:
         if self.data.uses > 1:
+            self.data.uses -= 1
             self.data = self.data.copy()  # copy-on-write
+            self.data.uses += 1
         self.data.__setitem__(key, value)
 
     def __getitem__(self, key: Value) -> Value:
@@ -412,7 +429,9 @@ class Map(Value):
 
     def __delitem__(self, key: Value) -> None:
         if self.data.uses > 1:
+            self.data.uses -= 1
             self.data = self.data.copy()  # copy-on-write
+            self.data.uses += 1
         return self.data.__delitem__(key)
 
     @staticmethod
@@ -423,8 +442,12 @@ class Map(Value):
         return Map(self.data, self.meta.copy() if self.meta else None)
 
     def cow(self) -> None:
-        self.meta = self.meta.copy() if self.meta else None
-        self.data = self.data.copy()
+        if self.meta is not None:
+            self.meta.cow()
+        if self.data.uses > 1:
+            self.data.uses -= 1
+            self.data = self.data.copy()  # copy-on-write
+            self.data.uses += 1
 
 
 @final
@@ -447,6 +470,7 @@ class Set(Value):
         return Set(data, SET_META.copy())
 
     def __del__(self):
+        assert self.data.uses >= 1
         self.data.uses -= 1
 
     def __hash__(self) -> int:
@@ -470,12 +494,16 @@ class Set(Value):
 
     def insert(self, element: "Value") -> None:
         if self.data.uses > 1:
+            self.data.uses -= 1
             self.data = self.data.copy()  # copy-on-write
+            self.data.uses += 1
         self.data.insert(element)
 
     def remove(self, element: "Value") -> None:
         if self.data.uses > 1:
+            self.data.uses -= 1
             self.data = self.data.copy()  # copy-on-write
+            self.data.uses += 1
         self.data.remove(element)
 
     @staticmethod
@@ -486,8 +514,12 @@ class Set(Value):
         return Set(self.data, self.meta.copy() if self.meta else None)
 
     def cow(self) -> None:
-        self.meta = self.meta.copy() if self.meta else None
-        self.data = self.data.copy()
+        if self.meta is not None:
+            self.meta.cow()
+        if self.data.uses > 1:
+            self.data.uses -= 1
+            self.data = self.data.copy()  # copy-on-write
+            self.data.uses += 1
 
 
 @final
@@ -519,8 +551,10 @@ class Reference(Value):
         return Reference(self.data, self.meta.copy() if self.meta else None)
 
     def cow(self) -> None:
-        self.meta = self.meta.copy() if self.meta else None
-        self.data = self.data.copy()
+        # We explicitly do *not* copy self.data as the copied data should still
+        # point to the original referenced value (the Python `Value` object).
+        if self.meta is not None:
+            self.meta.cow()
 
 
 @final
@@ -559,7 +593,8 @@ class Function(Value):
         )
 
     def cow(self) -> None:
-        self.meta = self.meta.copy() if self.meta else None
+        if self.meta is not None:
+            self.meta.cow()
 
 
 @dataclass
@@ -631,7 +666,8 @@ class Builtin(Value):
         raise NotImplementedError()
 
     def cow(self) -> None:
-        self.meta = self.meta.copy() if self.meta else None
+        if self.meta is not None:
+            self.meta.cow()
 
 
 @dataclass
