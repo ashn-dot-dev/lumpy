@@ -33,7 +33,7 @@ let dfs = function(graph) {
 
     let visit = function(node) {
         if visited.contains(node) {
-            return null; # TODO rm null
+            return;
         }
         visited.insert(node);
         for child in node.*.children {
@@ -55,7 +55,7 @@ let dfs_cycle_detecting = function(graph) {
 
     let visit = function(node) {
         if visited.contains(node) {
-            return null; # TODO rm null
+            return;
         }
         if visiting.contains(node) {
             error "cycle detected in graph " + string(graph);

@@ -2238,9 +2238,11 @@ class AstStatementError(AstStatement):
 @dataclass
 class AstStatementReturn(AstStatement):
     location: Optional[SourceLocation]
-    expression: AstExpression
+    expression: Optional[AstExpression]
 
     def eval(self, env: Environment) -> Optional[ControlFlow]:
+        if self.expression is None:
+            return Return(Null())
         result = self.expression.eval(env)
         if isinstance(result, Error):
             return result
@@ -2813,7 +2815,9 @@ class Parser:
 
     def parse_statement_return(self) -> AstStatementReturn:
         location = self._expect_current(TokenKind.RETURN).location
-        expression = self.parse_expression()
+        expression: Optional[AstExpression] = None
+        if not self._check_current(TokenKind.SEMICOLON):
+            expression = self.parse_expression()
         self._expect_current(TokenKind.SEMICOLON)
         return AstStatementReturn(location, expression)
 
