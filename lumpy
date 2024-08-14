@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from argparse import ArgumentParser
 from collections import UserDict, UserList
 from dataclasses import dataclass
-from string import digits, printable, whitespace
+from string import ascii_letters, digits, printable, whitespace
 from typing import (
     Callable,
     Iterable,
@@ -577,11 +577,12 @@ class Function(Value):
         return id(self.ast) == id(other.ast)
 
     def __str__(self):
-        if self.ast.location is not None and self.ast.name is not None:
-            return f"{self.ast.name.data}@[{self.ast.location}]"
+        name = self.ast.name.data if self.ast.name is not None else "function"
+        ugly = any(c not in ascii_letters + digits + "_" for c in name)
+        name = f'"{escape(name)}"' if ugly else name
         if self.ast.location is not None:
-            return f"function@[{self.ast.location}]"
-        return f"function"
+            return f"{name}@[{self.ast.location}]"
+        return f"{name}"
 
     @staticmethod
     def type() -> str:
