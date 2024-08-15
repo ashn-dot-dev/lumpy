@@ -1,0 +1,70 @@
+println("Hello, world!");
+
+print("\n");
+
+let x = ["foo", {"bar": 123}, "baz"];
+let y = x; # x is assigned to y by copy
+println("x is " + repr(x));
+println("y is " + repr(y));
+# x and y are separate values with structural equality
+println("x == y is " + repr(x == y));
+
+print("\n");
+
+# updates to x and y do not affect each other, because they are separate values
+println("set x[0] to \"abc\"");
+x[0] = "abc";
+println("set y[1][\"bar\"] to \"xyz\"");
+y[1]["bar"] = "xyz";
+println("x is " + repr(x));
+println("y is " + repr(y));
+# x and y are no longer structurally equal as their contents' now differ
+println("x == y is " + repr(x == y));
+
+print("\n");
+
+let z = ["foo", {"bar": "xyz"}, "baz"];
+println("z is " + repr(z));
+# y and z are separate values with structural equality
+println("y == z is " + repr(y == z));
+
+print("\n");
+
+# metamap overloading the "==" operator
+let meta = {
+    "==": function(lhs, rhs) {
+        return lhs.id == rhs.id;
+    },
+};
+let a = {"id": "bananna", "expiry date": "2024-08-24"};
+let b = {"id": "bananna", "expiry date": "2024-08-31"};
+setmeta(a.&, meta);
+setmeta(b.&, meta);
+println("a is " + repr(a));
+println("b is " + repr(b));
+# a and b are semantically equal according to the overloaded "==" operator even
+# though they are not structurally equal
+println("a == b is " + repr(a == b));
+
+print("\n");
+
+# function arguments are passed by (copied) value
+let f = function(person) {
+    println("[within function f] person is " + repr(person));
+    person["favorite color"] = "purple";
+    println("[within function f] person after modification is " + repr(person));
+};
+
+let alice = {"name": "alice", "age": 32};
+println("alice before calling f is " + repr(alice));
+f(alice); # pass a copy of alice
+println("alice after calling f is still " + repr(alice));
+
+print("\n");
+
+let birthday = function(person_reference) {
+    person_reference.*["age"] = person_reference.*["age"] + 1;
+};
+
+birthday(alice.&); # pass a refrence to alice
+println("alice after calling birthday is " + repr(alice));
