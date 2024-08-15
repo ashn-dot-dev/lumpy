@@ -1,0 +1,5 @@
+let greeter = import("../examples/greeter.lumpy");
+let greet = greeter::new("Juliet");
+greet();
+################################################################################
+# Hello, Juliet!

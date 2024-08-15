@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from argparse import ArgumentParser
 from collections import UserDict, UserList
 from dataclasses import dataclass
+from pathlib import Path
 from string import ascii_letters, digits, printable, whitespace
 from typing import (
     Callable,
@@ -3166,19 +3167,22 @@ class BuiltinImport(Builtin):
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         arg0 = Builtin.typed_argument(arguments, 0, String)
-        result = eval_file(arg0.data)
+        paths = ["."]  # Always search the current directory first
+        LUMPY_SEARCH_PATH = os.environ.get("LUMPY_SEARCH_PATH")
+        if LUMPY_SEARCH_PATH is not None:
+            paths += LUMPY_SEARCH_PATH.split(":")
+        for path in paths:
+            try:
+                result = eval_file(Path(path + "/" + arg0.data))
+                break
+            except FileNotFoundError:
+                pass
+        else:
+            result = Error(None, f"module {arg0} not found")
         if isinstance(result, Error):
             return result
         if result is None:
-            return Error(
-                None,
-                f"imported module `{arg0.data}` did not return a value",
-            )
-        if not isinstance(result, Map):
-            return Error(
-                None,
-                f"imported module `{arg0.data}` did not return a map",
-            )
+            return Null()
         return result
 
 

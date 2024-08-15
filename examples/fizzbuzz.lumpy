@@ -1,16 +1,17 @@
-let N = 100;
-for i in N+1 {
-    if i % 3 == 0 and i % 5 == 0 {
+let N = 30;
+for i in N {
+    let n = i + 1;
+    if n % 3 == 0 and n % 5 == 0 {
         println("fizzbuzz");
         continue;
     }
-    if i % 3 == 0 {
+    if n % 3 == 0 {
         println("fizz");
         continue;
     }
-    if i % 5 == 0 {
+    if n % 5 == 0 {
         println("buzz");
         continue;
     }
-    println(string(i));
+    println(string(n));
 }
