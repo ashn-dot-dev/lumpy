@@ -1,2 +1,3 @@
 mypy==1.*
 black==24.*
+pygame==2.6.0

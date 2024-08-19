@@ -1,0 +1,13 @@
+let x = {"running": true};
+
+println("init");
+while x.running {
+    dumpln(x);
+    dumpln(x.running);
+    println("TICK");
+    x.running = false;
+    dumpln(x);
+    dumpln(x.running);
+}
+println("FINI");
+dumpln(x);

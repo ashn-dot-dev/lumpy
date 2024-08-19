@@ -19,6 +19,17 @@ dumpln( "hello\tworld" );
 dumpln( "hello\nworld" );
 dumpln( "hello\\world" );
 dumpln( "hello\"world" );
+dumpln( `hello world`  );
+dumpln(
+`hello
+world`
+);
+dumpln(
+```
+hello
+world
+```
+);
 
 print("\n");
 
@@ -74,6 +85,9 @@ dumpln( println );
 # "hello\nworld"
 # "hello\\world"
 # "hello\"world"
+# "hello world"
+# "hello\nworld"
+# "hello\nworld\n"
 #
 # []
 # ["foo", "bar", "baz"]
@@ -94,9 +108,9 @@ dumpln( println );
 # reference
 # reference
 #
-# named_function@[values.test.lumpy, line 52]
-# function@[values.test.lumpy, line 54]
-# function@[values.test.lumpy, line 55]
+# named_function@[values.test.lumpy, line 63]
+# function@[values.test.lumpy, line 65]
+# function@[values.test.lumpy, line 66]
 #
 # dumpln@builtin
 # println@builtin

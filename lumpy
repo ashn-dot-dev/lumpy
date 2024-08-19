@@ -23,6 +23,7 @@ import math
 import os
 import re
 import sys
+import traceback
 
 
 def escape(text: str) -> str:
@@ -219,6 +220,12 @@ class Number(Value):
         if type(self) is not type(other):
             return False
         return self.data == other.data
+
+    def __int__(self) -> int:
+        return int(float(self.data))
+
+    def __float__(self) -> float:
+        return float(self.data)
 
     def __str__(self) -> str:
         if math.isinf(self.data):
@@ -958,68 +965,99 @@ class Lexer:
         self.position += len(text)
         return self._new_token(TokenKind.NUMBER, text, number=float(text))
 
+    def _lex_string_character(self) -> str:
+        if self._is_eof():
+            raise ParseError(
+                self.location,
+                "expected character, found end-of-file",
+            )
+
+        if not self._current_character() in printable:
+            raise ParseError(
+                self.location,
+                f"expected printable character, found ASCII {hex(ord(self._current_character()))}",
+            )
+
+        if self._current_character() == "\n":
+            raise ParseError(
+                self.location,
+                "expected character, found newline",
+            )
+
+        if self._current_character() == "\\" and self._peek_character() == "t":
+            self._advance_character()
+            self._advance_character()
+            return "\t"
+
+        if self._current_character() == "\\" and self._peek_character() == "n":
+            self._advance_character()
+            self._advance_character()
+            return "\n"
+
+        if self._current_character() == "\\" and self._peek_character() == '"':
+            self._advance_character()
+            self._advance_character()
+            return '"'
+
+        if (
+            self._current_character() == "\\"
+            and self._peek_character() == "\\"
+        ):
+            self._advance_character()
+            self._advance_character()
+            return "\\"
+
+        if self._current_character() == "\\":
+            sequence = escape(
+                self._current_character() + self._peek_character()
+            )
+            raise ParseError(
+                self.location,
+                f'expected escape sequence, found "{sequence}"',
+            )
+
+        character = self._current_character()
+        self._advance_character()
+        return character
+
     def _lex_string(self) -> Token:
         start = self.position
         self._expect_character('"')
         string = ""
         while not self._is_eof() and self._current_character() != '"':
-            if not self._current_character() in printable:
-                raise ParseError(
-                    self.location,
-                    f"expected printable character, found ASCII {hex(ord(self._current_character()))}",
-                )
-
-            if self._current_character() == "\n":
-                raise ParseError(
-                    self.location,
-                    "expected character, found newline",
-                )
-
-            if (
-                self._current_character() == "\\"
-                and self._peek_character() == "t"
-            ):
-                string += "\t"
-                self._advance_character()
-                self._advance_character()
-                continue
-
-            if (
-                self._current_character() == "\\"
-                and self._peek_character() == "n"
-            ):
-                string += "\n"
-                self._advance_character()
-                self._advance_character()
-                continue
-            if (
-                self._current_character() == "\\"
-                and self._peek_character() == '"'
-            ):
-                string += '"'
-                self._advance_character()
-                self._advance_character()
-                continue
-            if (
-                self._current_character() == "\\"
-                and self._peek_character() == "\\"
-            ):
-                string += "\\"
-                self._advance_character()
-                self._advance_character()
-                continue
-            if self._current_character() == "\\":
-                sequence = escape(
-                    self._current_character() + self._peek_character()
-                )
-                raise ParseError(
-                    self.location,
-                    f'expected escape sequence, found "{sequence}"',
-                )
-            string += self._current_character()
-            self._advance_character()
+            string += self._lex_string_character()
         self._expect_character('"')
         literal = self.source[start : self.position]
+        return self._new_token(TokenKind.STRING, literal, string=string)
+
+    def _lex_raw_string(self) -> Token:
+        start = self.position
+        self._expect_character("`")
+        string = ""
+        if self._current_character() == "`" and self._peek_character() == "`":
+            self._advance_character()
+            self._advance_character()
+            current = self._current_character()
+            escaped = escape(current)
+            if not self._current_character() == "\n":
+                raise ParseError(
+                    self.location,
+                    f"expected newline, found {escaped}",
+                )
+            self._advance_character()
+            while not self._is_eof() and self._current_character() != "`":
+                string += self._current_character()
+                self._advance_character()
+            self._expect_character("`")
+            self._expect_character("`")
+            self._expect_character("`")
+            literal = self.source[start + 4 : self.position - 3]
+        else:
+            while not self._is_eof() and self._current_character() != "`":
+                string += self._current_character()
+                self._advance_character()
+            self._expect_character("`")
+            literal = self.source[start : self.position]
         return self._new_token(TokenKind.STRING, literal, string=string)
 
     def next_token(self) -> Token:
@@ -1039,6 +1077,8 @@ class Lexer:
             return self._lex_number()
         if self._current_character() == '"':
             return self._lex_string()
+        if self._current_character() == "`":
+            return self._lex_raw_string()
 
         # Operators
         if self._current_character() == "+":
@@ -3186,6 +3226,21 @@ class BuiltinImport(Builtin):
         return result
 
 
+class BuiltinExtend(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("extend")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        source = Builtin.typed_argument(arguments, 0, String).data
+        try:
+            exec(source, globals())
+        except:
+            return Error(None, String.new(traceback.format_exc()))
+        return Null()
+
+
 class BuiltinFsRead(Builtin):
     @staticmethod
     def name() -> String:
@@ -3922,6 +3977,7 @@ let_builtin(BASE_ENV.store, BuiltinString())
 let_builtin(BASE_ENV.store, BuiltinVector())
 let_builtin(BASE_ENV.store, BuiltinAssert())
 let_builtin(BASE_ENV.store, BuiltinImport())
+let_builtin(BASE_ENV.store, BuiltinExtend())
 BASE_ENV.let(
     String("fs"),
     Map.new(

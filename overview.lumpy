@@ -26,6 +26,17 @@ dumpln( "hello\tworld" );
 dumpln( "hello\nworld" );
 dumpln( "hello\\world" );
 dumpln( "hello\"world" );
+dumpln( `hello world`  );
+dumpln(
+`hello
+world`
+);
+dumpln(
+```
+hello
+world
+```
+);
 
 print("\n");
 

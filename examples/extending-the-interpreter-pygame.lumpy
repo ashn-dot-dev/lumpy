@@ -1,0 +1,129 @@
+# Extend the interpreter with dynamically generated bindings to Pygame.
+
+let source =
+```
+from dataclasses import dataclass
+import pygame
+
+@dataclass
+class Vec2:
+    x: float
+    y: float
+
+    @staticmethod
+    def from_lumpy(value):
+        return Vec2(float(value[String("x")]), float(value[String("y")]))
+
+    def into_lumpy(self):
+        return Map.new(SharedMapData({
+            String("x"): Number.new(self.x),
+            String("y"): Number.new(self.y),
+        }))
+
+SCREEN_W=640
+SCREEN_H=480
+screen = None
+clock = None
+
+class BuiltinGameInit(Builtin):
+    @staticmethod
+    def name():
+        return String("init")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 0)
+        pygame.init()
+        pygame.display.set_caption("Game")
+        global screen, clock
+        screen = pygame.display.set_mode((SCREEN_W, SCREEN_H))
+        clock = pygame.time.Clock()
+        game[String("running")] = Boolean.new(True)
+
+
+class BuiltinGameQuit(Builtin):
+    @staticmethod
+    def name():
+        return String("quit")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 0)
+        pygame.quit()
+        game[String("running")] = Boolean.new(False)
+
+
+class BuiltinGameTick(Builtin):
+    @staticmethod
+    def name():
+        return String("tick")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 0)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                game.data[String("running")] = Boolean.new(False)
+        screen.fill((0xCC, 0xCC, 0xCC))
+        position = Vec2.from_lumpy(game[String("position")])
+        pygame.draw.circle(
+            surface=screen,
+            color=(0x70, 0x00, 0x00),
+            center=(position.x, position.y),
+            radius=64)
+        pygame.display.flip()
+        clock.tick(60)
+
+
+class BuiltinGameIsHeld(Builtin):
+    @staticmethod
+    def name():
+        return String("is_held")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 1)
+        key = Builtin.typed_argument(arguments, 0, String).data.upper()
+        keys = pygame.key.get_pressed()
+        if key == "UP":
+            return Boolean.new(keys[pygame.K_UP])
+        if key == "DOWN":
+            return Boolean.new(keys[pygame.K_DOWN])
+        if key == "LEFT":
+            return Boolean.new(keys[pygame.K_LEFT])
+        if key == "RIGHT":
+            return Boolean.new(keys[pygame.K_RIGHT])
+        return Boolean.new(False)
+
+
+game = Map.new(
+    SharedMapData(
+        {
+            String("position"): Vec2(SCREEN_W / 2, SCREEN_H / 2).into_lumpy(),
+            String("running"): Boolean.new(False),
+            BuiltinGameInit.name(): BuiltinGameInit(),
+            BuiltinGameQuit.name(): BuiltinGameQuit(),
+            BuiltinGameTick.name(): BuiltinGameTick(),
+            BuiltinGameIsHeld.name(): BuiltinGameIsHeld(),
+        }
+    )
+)
+BASE_ENV.let(String("game"), game)
+```;
+extend(source);
+
+game::init();
+while game.running {
+    let move = {"x": 0, "y": 0};
+    if game::is_held("UP") {
+        game::position.y = game::position.y - 2;
+    }
+    if game::is_held("DOWN") {
+        game::position.y = game::position.y + 2;
+    }
+    if game::is_held("LEFT") {
+        game::position.x = game::position.x - 2;
+    }
+    if game::is_held("RIGHT") {
+        game::position.x = game::position.x + 2;
+    }
+
+    game::tick();
+}
+game::quit();

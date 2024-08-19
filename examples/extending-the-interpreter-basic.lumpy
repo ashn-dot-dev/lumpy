@@ -1,0 +1,18 @@
+# Extend the interpreter with a new builtin function named `scream`.
+
+let source =
+```
+class BuiltinScream(Builtin):
+    @staticmethod
+    def name():
+        return String("scream")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 0)
+        print('AAAAHHHH')
+        return Null()
+
+let_builtin(BASE_ENV.store, BuiltinScream())
+```;
+extend(source);
+scream();
