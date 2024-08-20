@@ -17,10 +17,10 @@ class Vec2:
         return Vec2(float(value[String("x")]), float(value[String("y")]))
 
     def into_lumpy(self):
-        return Map.new(SharedMapData({
+        return Map.new({
             String("x"): Number.new(self.x),
             String("y"): Number.new(self.y),
-        }))
+        })
 
 SCREEN_W=640
 SCREEN_H=480
@@ -99,18 +99,14 @@ class BuiltinGameIsHeld(Builtin):
         return Boolean.new(False)
 
 
-game = Map.new(
-    SharedMapData(
-        {
-            String("position"): Vec2(SCREEN_W / 2, SCREEN_H / 2).into_lumpy(),
-            String("running"): Boolean.new(False),
-            BuiltinGameInit.name(): BuiltinGameInit(),
-            BuiltinGameQuit.name(): BuiltinGameQuit(),
-            BuiltinGameTick.name(): BuiltinGameTick(),
-            BuiltinGameIsHeld.name(): BuiltinGameIsHeld(),
-        }
-    )
-)
+game = Map.new({
+    String("position"): Vec2(SCREEN_W / 2, SCREEN_H / 2).into_lumpy(),
+    String("running"): Boolean.new(False),
+    BuiltinGameInit.name(): BuiltinGameInit(),
+    BuiltinGameQuit.name(): BuiltinGameQuit(),
+    BuiltinGameTick.name(): BuiltinGameTick(),
+    BuiltinGameIsHeld.name(): BuiltinGameIsHeld(),
+})
 BASE_ENV.let(String("game"), game)
 ```;
 extend(source);

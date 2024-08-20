@@ -423,15 +423,19 @@ class Map(Value):
 
     def __init__(
         self,
-        data: Optional[SharedMapData] = None,
+        data: Optional[Union[SharedMapData, dict[Value, Value]]] = None,
         meta: Optional["Map"] = None,
     ) -> None:
+        if data is not None and not isinstance(data, SharedMapData):
+            data = SharedMapData(data)
         self.data = data if data is not None else SharedMapData()
         self.data.uses += 1
         self.meta = meta
 
     @staticmethod
-    def new(data: Optional[SharedMapData] = None) -> "Map":
+    def new(
+        data: Optional[Union[SharedMapData, dict[Value, Value]]] = None
+    ) -> "Map":
         return Map(data, MAP_META.copy())
 
     def __del__(self):
@@ -1401,7 +1405,7 @@ class AstMap(AstExpression):
                 assert isinstance(v_result, Function)
                 v.name = String(k.data)
             elements[k_result.copy()] = v_result.copy()
-        return Map.new(SharedMapData(elements))
+        return Map.new(elements)
 
 
 @final
@@ -3549,12 +3553,10 @@ class BuiltinStringCut(Builtin):
         prefix = String(arg0_data.data[0:found])
         suffix = String(arg0_data.data[found + len(arg1.data) :])
         return Map.new(
-            SharedMapData(
-                {
-                    String("prefix"): prefix,
-                    String("suffix"): suffix,
-                }
-            )
+            {
+                String("prefix"): prefix,
+                String("suffix"): suffix,
+            }
         )
 
 
@@ -3977,13 +3979,11 @@ let_builtin(BASE_ENV.store, BuiltinExtend())
 BASE_ENV.let(
     String("fs"),
     Map.new(
-        SharedMapData(
-            {
-                String("read"): BuiltinFsRead(),
-                String("write"): BuiltinFsWrite(),
-                String("append"): BuiltinFsAppend(),
-            }
-        )
+        {
+            String("read"): BuiltinFsRead(),
+            String("write"): BuiltinFsWrite(),
+            String("append"): BuiltinFsAppend(),
+        }
     ),
 )
 
