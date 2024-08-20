@@ -326,7 +326,7 @@ class Vector(Value):
 
     def __init__(
         self,
-        data: Optional[Union[SharedVectorData, list[Value]]] = None,
+        data: Optional[Union[SharedVectorData, Iterable[Value]]] = None,
         meta: Optional["Map"] = None,
     ) -> None:
         if data is not None and not isinstance(data, SharedVectorData):
@@ -337,7 +337,7 @@ class Vector(Value):
 
     @staticmethod
     def new(
-        data: Optional[Union[SharedVectorData, list[Value]]] = None
+        data: Optional[Union[SharedVectorData, Iterable[Value]]] = None
     ) -> "Vector":
         return Vector(data, VECTOR_META.copy())
 
@@ -507,7 +507,7 @@ class Set(Value):
 
     def __init__(
         self,
-        data: Optional[Union[SharedSetData, list[Value]]] = None,
+        data: Optional[Union[SharedSetData, Iterable[Value]]] = None,
         meta: Optional["Map"] = None,
     ) -> None:
         if data is not None and not isinstance(data, SharedSetData):
@@ -517,7 +517,9 @@ class Set(Value):
         self.meta = meta
 
     @staticmethod
-    def new(data: Optional[Union[SharedSetData, list[Value]]] = None) -> "Set":
+    def new(
+        data: Optional[Union[SharedSetData, Iterable[Value]]] = None
+    ) -> "Set":
         return Set(data, SET_META.copy())
 
     def __del__(self):
