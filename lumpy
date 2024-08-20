@@ -25,6 +25,7 @@ import re
 import sys
 import traceback
 
+
 def escape(text: str) -> str:
     MAPPING = {
         "\t": "\\t",
@@ -3908,7 +3909,9 @@ def eval_source(
 
 
 def eval_file(
-    path: Union[str, os.PathLike], env: Optional[Environment] = None
+    path: Union[str, os.PathLike],
+    env: Optional[Environment] = None,
+    argv: Optional[list[str]] = None,
 ) -> Optional[Union[Value, Error]]:
     with open(path, "r") as f:
         source = f.read()
@@ -4013,11 +4016,16 @@ def main() -> None:
     description = "The Lumpy Programming Language"
     parser = ArgumentParser(description=description)
     parser.add_argument("file", type=str, nargs="?", default=None)
-    args = parser.parse_args()
+    args, argv = parser.parse_known_args()
 
     if args.file is not None:
+        env = Environment(BASE_ENV)
+        env.let(
+            String("argv"),
+            Vector(SharedVectorData([String.new(x) for x in argv])),
+        )
         try:
-            result = eval_file(args.file)
+            result = eval_file(args.file, env)
         except Exception as e:
             print(e, file=sys.stderr)
             return
