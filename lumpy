@@ -326,15 +326,19 @@ class Vector(Value):
 
     def __init__(
         self,
-        data: Optional[SharedVectorData] = None,
+        data: Optional[Union[SharedVectorData, list[Value]]] = None,
         meta: Optional["Map"] = None,
     ) -> None:
+        if data is not None and not isinstance(data, SharedVectorData):
+            data = SharedVectorData(data)
         self.data = data if data is not None else SharedVectorData()
         self.data.uses += 1
         self.meta = meta
 
     @staticmethod
-    def new(data: Optional[SharedVectorData] = None) -> "Vector":
+    def new(
+        data: Optional[Union[SharedVectorData, list[Value]]] = None
+    ) -> "Vector":
         return Vector(data, VECTOR_META.copy())
 
     def __del__(self):
@@ -1374,7 +1378,7 @@ class AstVector(AstExpression):
             if isinstance(result, Error):
                 return result
             values.append(result.copy())
-        return Vector.new(SharedVectorData(values))
+        return Vector.new(values)
 
 
 @final
@@ -3160,23 +3164,15 @@ class BuiltinVector(Builtin):
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if isinstance(arguments[0], String):
-            return Vector(
-                SharedVectorData([String(x) for x in arguments[0].data])
-            )
+            return Vector([String(x) for x in arguments[0].data])
         if isinstance(arguments[0], Vector):
             return arguments[0]
         if isinstance(arguments[0], Map):
-            kv = lambda k, v: Vector(SharedVectorData([k.copy(), v.copy()]))
-            return Vector(
-                SharedVectorData(
-                    [kv(k, v) for k, v in arguments[0].data.items()]
-                )
-            )
+            kv = lambda k, v: Vector([k.copy(), v.copy()])
+            return Vector([kv(k, v) for k, v in arguments[0].data.items()])
         if isinstance(arguments[0], Set):
-            kv = lambda k, v: Vector(SharedVectorData([k.copy(), v.copy()]))
-            return Vector(
-                SharedVectorData([x.copy() for x in arguments[0].data])
-            )
+            kv = lambda k, v: Vector([k.copy(), v.copy()])
+            return Vector([x.copy() for x in arguments[0].data])
         return Error(None, f"cannot convert value {arguments[0]} to vector")
 
 
@@ -3531,11 +3527,9 @@ class BuiltinStringSplit(Builtin):
         )
         arg1 = Builtin.typed_argument(arguments, 1, String)
         if len(arg1.data) == 0:
-            return Vector.new(
-                SharedVectorData([String(x) for x in arg0_data.data])
-            )
+            return Vector.new([String(x) for x in arg0_data.data])
         split = arg0_data.data.split(arg1.data)
-        return Vector.new(SharedVectorData([String(x) for x in split]))
+        return Vector.new([String(x) for x in split])
 
 
 class BuiltinStringCut(Builtin):
@@ -4022,7 +4016,7 @@ def main() -> None:
         env = Environment(BASE_ENV)
         env.let(
             String("argv"),
-            Vector(SharedVectorData([String.new(x) for x in argv])),
+            Vector([String.new(x) for x in argv]),
         )
         try:
             result = eval_file(args.file, env)
