@@ -507,15 +507,17 @@ class Set(Value):
 
     def __init__(
         self,
-        data: Optional[SharedSetData] = None,
+        data: Optional[Union[SharedSetData, list[Value]]] = None,
         meta: Optional["Map"] = None,
     ) -> None:
+        if data is not None and not isinstance(data, SharedSetData):
+            data = SharedSetData(data)
         self.data = data if data is not None else SharedSetData()
         self.data.uses += 1
         self.meta = meta
 
     @staticmethod
-    def new(data: Optional[SharedSetData] = None) -> "Set":
+    def new(data: Optional[Union[SharedSetData, list[Value]]] = None) -> "Set":
         return Set(data, SET_META.copy())
 
     def __del__(self):
@@ -1421,7 +1423,7 @@ class AstSet(AstExpression):
             if isinstance(result, Error):
                 return result
             elements.append(result.copy())
-        return Set.new(SharedSetData(elements))
+        return Set.new(elements)
 
 
 @final
