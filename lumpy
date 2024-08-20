@@ -101,12 +101,6 @@ class Value(ABC):
     def __delitem__(self, key: "Value") -> None:
         raise NotImplementedError()  # optionally overridden by subclasses
 
-    def insert(self, element: "Value") -> None:
-        raise NotImplementedError()  # optionally overridden by subclasses
-
-    def remove(self, element: "Value") -> None:
-        raise NotImplementedError()  # optionally overridden by subclasses
-
     def metafunction(
         self, name: "Value"
     ) -> Optional[Union["Function", "Builtin"]]:
