@@ -1,4 +1,6 @@
-# Greeter module - used for explaining imports.
+# examples/greeter.lumpy
+#
+# Greeter module used for explaining imports.
 #
 # let greeter = import("/path/to/greeter.lumpy");
 # let greet = greeter::new("Juliet");

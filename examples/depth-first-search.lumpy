@@ -1,3 +1,5 @@
+# examples/depth-first-search.lumpy
+
 let node = {
     "new": function(name) {
         let self = {"name": name, "children": set{}};

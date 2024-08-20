@@ -1,0 +1,33 @@
+# examples/pass-by-value-and-pass-by-reference.lumpy
+
+let f = function(person) {
+    println("[within function f] person is " + repr(person));
+    person["favorite color"] = "purple";
+    println("[within function f] person after modification is " + repr(person));
+};
+
+let alice = {"name": "alice", "age": 32};
+println("alice before calling f is " + repr(alice));
+f(alice); # pass a copy of alice
+println("alice after calling f is still " + repr(alice));
+
+print("\n");
+
+let birthday = function(person_ref) {
+    # dereference `person_ref` and add one to their `"age"` field.
+    person_ref.*.age = person_ref.*.age + 1;
+};
+
+birthday(alice.&); # pass a refrence to alice
+println("alice after calling birthday is " + repr(alice));
+
+print("\n");
+
+let meta = {
+    "birthday": function(self) {
+        self.*.age = self.*["age"] + 1;
+    },
+};
+setmeta(alice.&, meta);
+alice.birthday(); # alice.& is implicitly passed as the first parameter
+println("alice after calling birthday (again) is " + repr(alice));

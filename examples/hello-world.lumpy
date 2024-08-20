@@ -1,1 +1,3 @@
+# examples/hello-world.lumpy
+
 println("Hello, world!");

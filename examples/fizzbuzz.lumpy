@@ -1,3 +1,5 @@
+# examples/fizzbuzz.lumpy
+
 let N = 30;
 for i in N {
     let n = i + 1;

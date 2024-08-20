@@ -1,3 +1,5 @@
+# examples/extending-the-interpreter-pygame.lumpy
+#
 # Extend the interpreter with dynamically generated bindings to Pygame.
 
 let source =

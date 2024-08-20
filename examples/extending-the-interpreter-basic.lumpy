@@ -1,3 +1,5 @@
+# examples/extending-the-interpreter-basic.lumpy
+#
 # Extend the interpreter with a new builtin function named `scream`.
 
 let source =
