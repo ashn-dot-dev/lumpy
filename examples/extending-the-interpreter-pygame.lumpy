@@ -26,6 +26,7 @@ SCREEN_W=640
 SCREEN_H=480
 screen = None
 clock = None
+font = None
 
 class BuiltinGameInit(Builtin):
     @staticmethod
@@ -36,9 +37,10 @@ class BuiltinGameInit(Builtin):
         Builtin.expect_argument_count(arguments, 0)
         pygame.init()
         pygame.display.set_caption("Game")
-        global screen, clock
+        global screen, clock, font
         screen = pygame.display.set_mode((SCREEN_W, SCREEN_H))
         clock = pygame.time.Clock()
+        font = pygame.font.Font(None, size=32)
         game[String("running")] = Boolean.new(True)
 
 
@@ -70,6 +72,9 @@ class BuiltinGameTick(Builtin):
             color=(0x70, 0x00, 0x00),
             center=(position.x, position.y),
             radius=64)
+        fps = f"FPS: {int(clock.get_fps())}"
+        fps = font.render(fps, True, pygame.Color("DARKGREEN"))
+        screen.blit(fps, (2, 2))
         pygame.display.flip()
         clock.tick(60)
 
