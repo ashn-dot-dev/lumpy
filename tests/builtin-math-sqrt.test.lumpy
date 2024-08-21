@@ -1,0 +1,12 @@
+dumpln(math::sqrt(NaN));
+dumpln(math::sqrt(+Inf));
+try { dumpln(math::sqrt(-Inf)); } else err { dumpln(err); }
+
+dumpln(math::sqrt(+4));
+try { dumpln(math::sqrt(-4)); } else err { dumpln(err); }
+################################################################################
+# NaN
+# Inf
+# "math domain error"
+# 2
+# "math domain error"

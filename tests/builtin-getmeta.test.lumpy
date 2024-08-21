@@ -2,4 +2,4 @@ dumpln(getmeta(null));
 dumpln(getmeta(123));
 ################################################################################
 # null
-# {"is_inf": is_inf@builtin, "is_nan": is_nan@builtin, "is_integer": is_integer@builtin, "trunc": trunc@builtin, "round": round@builtin, "floor": floor@builtin, "ceil": ceil@builtin}
+# {"is_nan": is_nan@builtin, "is_inf": is_inf@builtin, "is_integer": is_integer@builtin, "fixed": fixed@builtin, "trunc": trunc@builtin, "round": round@builtin, "floor": floor@builtin, "ceil": ceil@builtin}

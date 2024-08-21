@@ -222,10 +222,12 @@ class Number(Value):
         return float(self.data)
 
     def __str__(self) -> str:
-        if math.isinf(self.data):
-            return "Inf"
         if math.isnan(self.data):
             return "NaN"
+        if self.data == +math.inf:
+            return "Inf"
+        if self.data == -math.inf:
+            return "-Inf"
         string = str(self.data)
         dot = string.find(".")
         end = len(string)
@@ -3280,17 +3282,148 @@ class BuiltinFsAppend(Builtin):
         return Null()
 
 
-class BuiltinNumberIsInf(Builtin):
+class BuiltinMathIsNaN(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("is_nan")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        arg0 = Builtin.typed_argument(arguments, 0, Number)
+        return Boolean.new(math.isnan(arg0.data))
+
+
+class BuiltinMathIsInf(Builtin):
     @staticmethod
     def name() -> String:
         return String("is_inf")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
-        arg0, arg0_data = Builtin.typed_argument_reference(
-            arguments, 0, Number
-        )
-        return Boolean.new(math.isinf(arg0_data.data))
+        arg0 = Builtin.typed_argument(arguments, 0, Number)
+        return Boolean.new(math.isinf(arg0.data))
+
+
+class BuiltinMathIsInteger(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("is_integer")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        arg0 = Builtin.typed_argument(arguments, 0, Number)
+        return Boolean.new(float(arg0.data).is_integer())
+
+
+class BuiltinMathTrunc(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("trunc")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        arg0 = Builtin.typed_argument(arguments, 0, Number)
+        return Number.new(math.trunc(float(arg0.data)))
+
+
+class BuiltinMathRound(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("round")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        arg0 = Builtin.typed_argument(arguments, 0, Number)
+        return Number.new(round(float(arg0.data)))
+
+
+class BuiltinMathFloor(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("floor")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        arg0 = Builtin.typed_argument(arguments, 0, Number)
+        return Number.new(math.floor(float(arg0.data)))
+
+
+class BuiltinMathCeil(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("ceil")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        arg0 = Builtin.typed_argument(arguments, 0, Number)
+        return Number.new(math.ceil(float(arg0.data)))
+
+
+class BuiltinMathAbs(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("abs")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        arg0 = Builtin.typed_argument(arguments, 0, Number)
+        return Number.new(math.fabs(arg0.data))
+
+
+class BuiltinMathPow(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("pow")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 2)
+        arg0 = Builtin.typed_argument(arguments, 0, Number)
+        arg1 = Builtin.typed_argument(arguments, 1, Number)
+        return Number.new(math.pow(arg0.data, arg1.data))
+
+
+class BuiltinMathSqrt(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("sqrt")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        arg0 = Builtin.typed_argument(arguments, 0, Number)
+        return Number.new(math.sqrt(arg0.data))
+
+
+class BuiltinMathSin(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("sin")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        arg0 = Builtin.typed_argument(arguments, 0, Number)
+        return Number.new(math.sin(arg0.data))
+
+
+class BuiltinMathCos(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("cos")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        arg0 = Builtin.typed_argument(arguments, 0, Number)
+        return Number.new(math.cos(arg0.data))
+
+
+class BuiltinMathTan(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("tan")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        arg0 = Builtin.typed_argument(arguments, 0, Number)
+        return Number.new(math.tan(arg0.data))
 
 
 class BuiltinNumberIsNaN(Builtin):
@@ -3306,6 +3439,19 @@ class BuiltinNumberIsNaN(Builtin):
         return Boolean.new(math.isnan(arg0_data.data))
 
 
+class BuiltinNumberIsInf(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("is_inf")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        arg0, arg0_data = Builtin.typed_argument_reference(
+            arguments, 0, Number
+        )
+        return Boolean.new(math.isinf(arg0_data.data))
+
+
 class BuiltinNumberIsInteger(Builtin):
     @staticmethod
     def name() -> String:
@@ -3317,6 +3463,24 @@ class BuiltinNumberIsInteger(Builtin):
             arguments, 0, Number
         )
         return Boolean.new(float(arg0_data.data).is_integer())
+
+
+class BuiltinNumberFixed(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("fixed")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 2)
+        arg0, arg0_data = Builtin.typed_argument_reference(
+            arguments, 0, Number
+        )
+        arg1 = Builtin.typed_argument(arguments, 1, Number)
+        if not float(arg1.data).is_integer():
+            return Error(None, f"expected integer, received {arg1}")
+        return Number.new(
+            round(float(arg0_data.data), ndigits=int(float(arg1.data)))
+        )
 
 
 class BuiltinNumberTrunc(Builtin):
@@ -3916,9 +4080,10 @@ def let_builtin(map: Map, builtin: Builtin) -> None:
     map[builtin.name()] = builtin
 
 
-let_builtin(NUMBER_META, BuiltinNumberIsInf())
 let_builtin(NUMBER_META, BuiltinNumberIsNaN())
+let_builtin(NUMBER_META, BuiltinNumberIsInf())
 let_builtin(NUMBER_META, BuiltinNumberIsInteger())
+let_builtin(NUMBER_META, BuiltinNumberFixed())
 let_builtin(NUMBER_META, BuiltinNumberTrunc())
 let_builtin(NUMBER_META, BuiltinNumberRound())
 let_builtin(NUMBER_META, BuiltinNumberFloor())
@@ -3957,8 +4122,8 @@ let_builtin(SET_META, BuiltinSetContains())
 let_builtin(SET_META, BuiltinSetInsert())
 let_builtin(SET_META, BuiltinSetRemove())
 
-BASE_ENV.let(String("Inf"), Number.new(float("Inf")))
 BASE_ENV.let(String("NaN"), Number.new(float("NaN")))
+BASE_ENV.let(String("Inf"), Number.new(float("Inf")))
 let_builtin(BASE_ENV.store, BuiltinSetmeta())
 let_builtin(BASE_ENV.store, BuiltinGetmeta())
 let_builtin(BASE_ENV.store, BuiltinType())
@@ -3981,6 +4146,27 @@ BASE_ENV.let(
             String("read"): BuiltinFsRead(),
             String("write"): BuiltinFsWrite(),
             String("append"): BuiltinFsAppend(),
+        }
+    ),
+)
+BASE_ENV.let(
+    String("math"),
+    Map.new(
+        {
+            String("pi"): Number.new(math.pi),
+            String("is_nan"): BuiltinMathIsNaN(),
+            String("is_inf"): BuiltinMathIsInf(),
+            String("is_integer"): BuiltinMathIsInteger(),
+            String("trunc"): BuiltinMathTrunc(),
+            String("round"): BuiltinMathRound(),
+            String("floor"): BuiltinMathFloor(),
+            String("ceil"): BuiltinMathCeil(),
+            String("abs"): BuiltinMathAbs(),
+            String("pow"): BuiltinMathPow(),
+            String("sqrt"): BuiltinMathSqrt(),
+            String("sin"): BuiltinMathSin(),
+            String("cos"): BuiltinMathCos(),
+            String("tan"): BuiltinMathTan(),
         }
     ),
 )
