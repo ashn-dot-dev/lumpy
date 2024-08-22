@@ -23,7 +23,10 @@ case "${arg}" in
 esac
 done
 
-LUMPY_HOME=$(pwd)
+if [ -z "${LUMPY_HOME}" ]; then
+    LUMPY_HOME=$(pwd)
+fi
+
 TESTSRUN=0
 FAILURES=0
 
