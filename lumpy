@@ -101,9 +101,7 @@ class Value(ABC):
     def __delitem__(self, key: "Value") -> None:
         raise NotImplementedError()  # optionally overridden by subclasses
 
-    def metavalue(
-        self, name: "Value"
-    ) -> Optional["Value"]:
+    def metavalue(self, name: "Value") -> Optional["Value"]:
         if self.meta is None:
             return None
         if name not in self.meta:
@@ -179,6 +177,9 @@ class Boolean(Value):
         if type(self) is not type(other):
             return False
         return self.data == other.data
+
+    def __bool__(self) -> bool:
+        return self.data
 
     def __str__(self) -> str:
         return "true" if self.data else "false"
