@@ -8,6 +8,10 @@ println("type({\"foo\", \"bar\"}) is " + repr(type({"foo", "bar"})));
 println("type(123.&) is " + repr(type(123.&)));
 println("type(function() {}) is " + repr(type(function() {})));
 println("type(println) is " + repr(type(println)));
+let meta = {"type": "foo"};
+let custom = {"custom": "type"};
+setmeta(custom.&, meta);
+println("type(custom) is " + repr(type(custom)));
 ################################################################################
 # type(null) is "null"
 # type(true) is "boolean"
@@ -19,3 +23,4 @@ println("type(println) is " + repr(type(println)));
 # type(123.&) is "reference"
 # type(function() {}) is "function"
 # type(println) is "function"
+# type(custom) is "foo"

@@ -101,6 +101,15 @@ class Value(ABC):
     def __delitem__(self, key: "Value") -> None:
         raise NotImplementedError()  # optionally overridden by subclasses
 
+    def metavalue(
+        self, name: "Value"
+    ) -> Optional["Value"]:
+        if self.meta is None:
+            return None
+        if name not in self.meta:
+            return None
+        return self.meta[name]
+
     def metafunction(
         self, name: "Value"
     ) -> Optional[Union["Function", "Builtin"]]:
@@ -3037,6 +3046,9 @@ class BuiltinType(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
+        metavalue = arguments[0].metavalue(String("type"))
+        if metavalue is not None:
+            return metavalue
         return String(arguments[0].type())
 
 
