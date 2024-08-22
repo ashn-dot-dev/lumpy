@@ -1274,6 +1274,15 @@ class Error:
 ControlFlow = Union[Return, Break, Continue, Error]
 
 
+def typename(value: Value) -> str:
+    metavalue = value.metavalue(String("type"))
+    if metavalue is None:
+        return value.type()
+    if isinstance(metavalue, String):
+        return metavalue.data
+    return str(metavalue)
+
+
 class AstNode(ABC):
     location: Optional[SourceLocation]
 
@@ -1473,7 +1482,7 @@ class AstPositive(AstExpression):
             return Number.new(+float(result.data))
         return Error(
             self.location,
-            f"attempted unary + operation with type `{result.type()}`",
+            f"attempted unary + operation with type `{typename(result)}`",
         )
 
 
@@ -1493,7 +1502,7 @@ class AstNegative(AstExpression):
         if not isinstance(result, Number):
             return Error(
                 self.location,
-                f"attempted unary - operation with type `{result.type()}`",
+                f"attempted unary - operation with type `{typename(result)}`",
             )
         return Number.new(-float(result.data))
 
@@ -1514,7 +1523,7 @@ class AstNot(AstExpression):
         if not isinstance(result, Boolean):
             return Error(
                 self.location,
-                f"attempted unary not operation with type `{result.type()}`",
+                f"attempted unary not operation with type `{typename(result)}`",
             )
         return Boolean.new(not result.data)
 
@@ -1540,7 +1549,7 @@ class AstAnd(AstExpression):
             return Boolean.new(lhs.data and rhs.data)
         return Error(
             self.location,
-            f"attempted binary and operation with types `{lhs.type()}` and `{rhs.type()}`",
+            f"attempted binary and operation with types `{typename(lhs)}` and `{typename(rhs)}`",
         )
 
 
@@ -1565,7 +1574,7 @@ class AstOr(AstExpression):
             return Boolean.new(lhs.data or rhs.data)
         return Error(
             self.location,
-            f"attempted binary or operation with types `{lhs.type()}` and `{rhs.type()}`",
+            f"attempted binary or operation with types `{typename(lhs)}` and `{typename(rhs)}`",
         )
 
 
@@ -1671,7 +1680,7 @@ class AstLe(AstExpression):
             return Boolean.new(lhs.data <= rhs.data)
         return Error(
             self.location,
-            f"attempted <= operation with types `{lhs.type()}` and `{rhs.type()}`",
+            f"attempted <= operation with types `{typename(lhs)}` and `{typename(rhs)}`",
         )
 
 
@@ -1711,7 +1720,7 @@ class AstGe(AstExpression):
             return Boolean.new(lhs.data >= rhs.data)
         return Error(
             self.location,
-            f"attempted >= operation with types `{lhs.type()}` and `{rhs.type()}`",
+            f"attempted >= operation with types `{typename(lhs)}` and `{typename(rhs)}`",
         )
 
 
@@ -1751,7 +1760,7 @@ class AstLt(AstExpression):
             return Boolean.new(lhs.data < rhs.data)
         return Error(
             self.location,
-            f"attempted < operation with types `{lhs.type()}` and `{rhs.type()}`",
+            f"attempted < operation with types `{typename(lhs)}` and `{typename(rhs)}`",
         )
 
 
@@ -1791,7 +1800,7 @@ class AstGt(AstExpression):
             return Boolean.new(lhs.data > rhs.data)
         return Error(
             self.location,
-            f"attempted > operation with types `{lhs.type()}` and `{rhs.type()}`",
+            f"attempted > operation with types `{typename(lhs)}` and `{typename(rhs)}`",
         )
 
 
@@ -1818,7 +1827,7 @@ class AstAdd(AstExpression):
             return String(lhs.data + rhs.data)
         return Error(
             self.location,
-            f"attempted + operation with types `{lhs.type()}` and `{rhs.type()}`",
+            f"attempted + operation with types `{typename(lhs)}` and `{typename(rhs)}`",
         )
 
 
@@ -1842,7 +1851,7 @@ class AstSub(AstExpression):
         if not (isinstance(lhs, Number) and isinstance(rhs, Number)):
             return Error(
                 self.location,
-                f"attempted - operation with types `{lhs.type()}` and `{rhs.type()}`",
+                f"attempted - operation with types `{typename(lhs)}` and `{typename(rhs)}`",
             )
         return Number.new(float(lhs.data) - float(rhs.data))
 
@@ -1867,7 +1876,7 @@ class AstMul(AstExpression):
         if not (isinstance(lhs, Number) and isinstance(rhs, Number)):
             return Error(
                 self.location,
-                f"attempted * operation with types `{lhs.type()}` and `{rhs.type()}`",
+                f"attempted * operation with types `{typename(lhs)}` and `{typename(rhs)}`",
             )
         return Number.new(float(lhs.data) * float(rhs.data))
 
@@ -1892,7 +1901,7 @@ class AstDiv(AstExpression):
         if not (isinstance(lhs, Number) and isinstance(rhs, Number)):
             return Error(
                 self.location,
-                f"attempted / operation with types `{lhs.type()}` and `{rhs.type()}`",
+                f"attempted / operation with types `{typename(lhs)}` and `{typename(rhs)}`",
             )
         if float(rhs.data) == 0.0:
             return Error(self.location, "division by zero")
@@ -1919,7 +1928,7 @@ class AstRem(AstExpression):
         if not (isinstance(lhs, Number) and isinstance(rhs, Number)):
             return Error(
                 self.location,
-                f"attempted % operation with types `{lhs.type()}` and `{rhs.type()}`",
+                f"attempted % operation with types `{typename(lhs)}` and `{typename(rhs)}`",
             )
         if float(rhs.data) == 0.0:
             return Error(self.location, "remainder with divisor zero")
@@ -1970,7 +1979,7 @@ class AstFunctionCall(AstExpression):
         if not isinstance(function, (Function, Builtin)):
             return Error(
                 self.location,
-                f"attempted to call non-function type `{function.type()}`",
+                f"attempted to call non-function type `{typename(function)}`",
             )
 
         arguments: list[Value] = list()
@@ -2021,7 +2030,7 @@ class AstAccessIndex(AstExpression):
                 )
         return Error(
             self.location,
-            f"attempted to access field of type `{store.type()}` with type `{field.type()}`",
+            f"attempted to access field of type `{typename(store)}` with type `{typename(field)}`",
         )
 
 
@@ -2040,7 +2049,7 @@ class AstAccessScope(AstExpression):
         if not isinstance(store, Map):
             return Error(
                 self.location,
-                f"attempted to access field of type `{store.type()}`",
+                f"attempted to access field of type `{typename(store)}`",
             )
         try:
             return store[field]
@@ -2102,7 +2111,7 @@ class AstDeref(AstExpression):
         if not isinstance(result, Reference):
             return Error(
                 self.location,
-                f"attempted dereference of non-reference type `{result.type()}`",
+                f"attempted dereference of non-reference type `{typename(result)}`",
             )
         return result.data
 
@@ -2143,7 +2152,7 @@ class AstConditional(AstNode):
             return (
                 Error(
                     self.location,
-                    f"conditional with non-boolean type `{result.type()}`",
+                    f"conditional with non-boolean type `{typename(result)}`",
                 ),
                 False,
             )
@@ -2191,7 +2200,7 @@ class AstStatementFor(AstStatement):
             if self.identifier_v is not None:
                 return Error(
                     self.location,
-                    f"attempted key-value iteration over type `{collection.type()}`",
+                    f"attempted key-value iteration over type `{typename(collection)}`",
                 )
             if not float(collection.data).is_integer():
                 return Error(
@@ -2213,7 +2222,7 @@ class AstStatementFor(AstStatement):
             if self.identifier_v is not None:
                 return Error(
                     self.location,
-                    f"attempted key-value iteration over type `{collection.type()}`",
+                    f"attempted key-value iteration over type `{typename(collection)}`",
                 )
             for x in collection.data:
                 loop_env.let(self.identifier_k.name, x.copy())
@@ -2244,7 +2253,7 @@ class AstStatementFor(AstStatement):
             if self.identifier_v is not None:
                 return Error(
                     self.location,
-                    f"attempted key-value iteration over type `{collection.type()}`",
+                    f"attempted key-value iteration over type `{typename(collection)}`",
                 )
             for x in collection.data:
                 loop_env.let(self.identifier_k.name, x.copy())
@@ -2260,7 +2269,7 @@ class AstStatementFor(AstStatement):
         else:
             return Error(
                 self.location,
-                f"attempted iteration over type `{collection.type()}`",
+                f"attempted iteration over type `{typename(collection)}`",
             )
         return None
 
@@ -2280,7 +2289,7 @@ class AstStatementWhile(AstStatement):
             if not isinstance(expression, Boolean):
                 return Error(
                     self.location,
-                    f"conditional with non-boolean type `{expression.type()}`",
+                    f"conditional with non-boolean type `{typename(expression)}`",
                 )
             if not expression.data:
                 break
@@ -2456,7 +2465,7 @@ class AstStatementAssignment(AstStatement):
         if not isinstance(store, (String, Vector, Map)):
             return Error(
                 self.location,
-                f"attempted access into type `{store.type()}` with type `{field.type()}`",
+                f"attempted access into type `{typename(store)}` with type `{typename(field)}`",
             )
         try:
             store[field] = rhs.copy()
@@ -3047,10 +3056,7 @@ class BuiltinType(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
-        metavalue = arguments[0].metavalue(String("type"))
-        if metavalue is not None:
-            return metavalue
-        return String(arguments[0].type())
+        return String(typename(arguments[0]))
 
 
 class BuiltinRepr(Builtin):
