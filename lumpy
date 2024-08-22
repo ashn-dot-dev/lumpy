@@ -1283,6 +1283,18 @@ def typename(value: Value) -> str:
     return str(metavalue)
 
 
+def binary_operator_metafunction(
+    lhs: Value, rhs: Value, name: Value
+) -> Optional[Union[Function, Builtin]]:
+    metafunction = lhs.metafunction(name)
+    if metafunction is not None:
+        return metafunction
+    metafunction = rhs.metafunction(name)
+    if metafunction is not None:
+        return metafunction
+    return None
+
+
 class AstNode(ABC):
     location: Optional[SourceLocation]
 
@@ -1542,7 +1554,7 @@ class AstAnd(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = lhs.metafunction(String("and"))
+        metafunction = binary_operator_metafunction(lhs, rhs, String("and"))
         if metafunction is not None:
             return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         if isinstance(lhs, Boolean) and isinstance(rhs, Boolean):
@@ -1567,7 +1579,7 @@ class AstOr(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = lhs.metafunction(String("or"))
+        metafunction = binary_operator_metafunction(lhs, rhs, String("or"))
         if metafunction is not None:
             return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         if isinstance(lhs, Boolean) and isinstance(rhs, Boolean):
@@ -1592,10 +1604,12 @@ class AstEq(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = lhs.metafunction(String("=="))
+        metafunction = binary_operator_metafunction(lhs, rhs, String("=="))
         if metafunction is not None:
             return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
-        metafunction = lhs.metafunction(String("compare"))
+        metafunction = binary_operator_metafunction(
+            lhs, rhs, String("compare")
+        )
         if metafunction is not None:
             result = call(
                 self.location, metafunction, [lhs.copy(), rhs.copy()]
@@ -1625,10 +1639,12 @@ class AstNe(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = lhs.metafunction(String("!="))
+        metafunction = binary_operator_metafunction(lhs, rhs, String("!="))
         if metafunction is not None:
             return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
-        metafunction = lhs.metafunction(String("compare"))
+        metafunction = binary_operator_metafunction(
+            lhs, rhs, String("compare")
+        )
         if metafunction is not None:
             result = call(
                 self.location, metafunction, [lhs.copy(), rhs.copy()]
@@ -1658,10 +1674,12 @@ class AstLe(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = lhs.metafunction(String("<="))
+        metafunction = binary_operator_metafunction(lhs, rhs, String("<="))
         if metafunction is not None:
             return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
-        metafunction = lhs.metafunction(String("compare"))
+        metafunction = binary_operator_metafunction(
+            lhs, rhs, String("compare")
+        )
         if metafunction is not None:
             result = call(
                 self.location, metafunction, [lhs.copy(), rhs.copy()]
@@ -1698,10 +1716,12 @@ class AstGe(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = lhs.metafunction(String(">="))
+        metafunction = binary_operator_metafunction(lhs, rhs, String(">="))
         if metafunction is not None:
             return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
-        metafunction = lhs.metafunction(String("compare"))
+        metafunction = binary_operator_metafunction(
+            lhs, rhs, String("compare")
+        )
         if metafunction is not None:
             result = call(
                 self.location, metafunction, [lhs.copy(), rhs.copy()]
@@ -1738,10 +1758,12 @@ class AstLt(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = lhs.metafunction(String("<"))
+        metafunction = binary_operator_metafunction(lhs, rhs, String("<"))
         if metafunction is not None:
             return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
-        metafunction = lhs.metafunction(String("compare"))
+        metafunction = binary_operator_metafunction(
+            lhs, rhs, String("compare")
+        )
         if metafunction is not None:
             result = call(
                 self.location, metafunction, [lhs.copy(), rhs.copy()]
@@ -1778,10 +1800,12 @@ class AstGt(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = lhs.metafunction(String(">"))
+        metafunction = binary_operator_metafunction(lhs, rhs, String(">"))
         if metafunction is not None:
             return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
-        metafunction = lhs.metafunction(String("compare"))
+        metafunction = binary_operator_metafunction(
+            lhs, rhs, String("compare")
+        )
         if metafunction is not None:
             result = call(
                 self.location, metafunction, [lhs.copy(), rhs.copy()]
@@ -1818,7 +1842,7 @@ class AstAdd(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = lhs.metafunction(String("+"))
+        metafunction = binary_operator_metafunction(lhs, rhs, String("+"))
         if metafunction is not None:
             return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         if isinstance(lhs, Number) and isinstance(rhs, Number):
@@ -1845,7 +1869,7 @@ class AstSub(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = lhs.metafunction(String("-"))
+        metafunction = binary_operator_metafunction(lhs, rhs, String("-"))
         if metafunction is not None:
             return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         if not (isinstance(lhs, Number) and isinstance(rhs, Number)):
@@ -1870,7 +1894,7 @@ class AstMul(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = lhs.metafunction(String("*"))
+        metafunction = binary_operator_metafunction(lhs, rhs, String("*"))
         if metafunction is not None:
             return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         if not (isinstance(lhs, Number) and isinstance(rhs, Number)):
@@ -1895,7 +1919,7 @@ class AstDiv(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = lhs.metafunction(String("/"))
+        metafunction = binary_operator_metafunction(lhs, rhs, String("/"))
         if metafunction is not None:
             return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         if not (isinstance(lhs, Number) and isinstance(rhs, Number)):
@@ -1922,7 +1946,7 @@ class AstRem(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = lhs.metafunction(String("%"))
+        metafunction = binary_operator_metafunction(lhs, rhs, String("%"))
         if metafunction is not None:
             return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         if not (isinstance(lhs, Number) and isinstance(rhs, Number)):

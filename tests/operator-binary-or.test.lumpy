@@ -22,8 +22,8 @@ let meta = {"or": function(lhs, rhs) { println("overload"); return true; }};
 let x = 123;
 let y = 456;
 setmeta(x.&, meta);
-try { dumpln(x or y); } else err { dumpln(err); }
-try { dumpln(y or x); } else err { dumpln(err); }
+try { x or y; } else err { dumpln(err); }
+try { y or x; } else err { dumpln(err); }
 ################################################################################
 # "attempted binary or operation with types `null` and `null`"
 # true
@@ -42,5 +42,4 @@ try { dumpln(y or x); } else err { dumpln(err); }
 # true
 #
 # overload
-# true
-# "attempted binary or operation with types `number` and `number`"
+# overload

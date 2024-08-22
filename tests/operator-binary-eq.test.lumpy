@@ -28,8 +28,8 @@ let meta = {"==": function(lhs, rhs) { println("overload"); return true; }};
 let x = "foo";
 let y = map{};
 setmeta(x.&, meta);
-try { dumpln(x == y); } else err { dumpln(err); }
-try { dumpln(y == x); } else err { dumpln(err); }
+try { x == y; } else err { dumpln(err); }
+try { y == x; } else err { dumpln(err); }
 ################################################################################
 # true
 # true
@@ -52,5 +52,4 @@ try { dumpln(y == x); } else err { dumpln(err); }
 # false
 #
 # overload
-# true
-# false
+# overload

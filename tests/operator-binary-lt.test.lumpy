@@ -30,8 +30,8 @@ let meta = {"<": function(lhs, rhs) { println("overload"); return true; }};
 let x = "foo";
 let y = map{};
 setmeta(x.&, meta);
-try { dumpln(x < y); } else err { dumpln(err); }
-try { dumpln(y < x); } else err { dumpln(err); }
+try { x < y; } else err { dumpln(err); }
+try { y < x; } else err { dumpln(err); }
 ################################################################################
 # "attempted < operation with types `null` and `null`"
 # "attempted < operation with types `boolean` and `boolean`"
@@ -56,5 +56,4 @@ try { dumpln(y < x); } else err { dumpln(err); }
 # "attempted < operation with types `function` and `function`"
 #
 # overload
-# true
-# "attempted < operation with types `map` and `string`"
+# overload
