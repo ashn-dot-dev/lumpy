@@ -1,0 +1,19 @@
+dumpln(min(123, 456));
+dumpln(min(456, 123));
+
+let meta = {
+    "compare": function(lhs, rhs) {
+        # always say that lhs == rhs
+        return 0;
+    },
+};
+let a = {"foo"};
+let b = {"bar"};
+setmeta(a.&, meta);
+setmeta(b.&, meta);
+# min should select a when min(a, b) are equal
+dumpln(min(a, b));
+################################################################################
+# 123
+# 123
+# {"foo"}

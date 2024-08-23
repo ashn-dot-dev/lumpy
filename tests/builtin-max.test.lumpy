@@ -1,0 +1,19 @@
+dumpln(max(123, 456));
+dumpln(max(456, 123));
+
+let meta = {
+    "compare": function(lhs, rhs) {
+        # always say that lhs == rhs
+        return 0;
+    },
+};
+let a = {"foo"};
+let b = {"bar"};
+setmeta(a.&, meta);
+setmeta(b.&, meta);
+# max should select a when max(a, b) are equal
+dumpln(max(a, b));
+################################################################################
+# 456
+# 456
+# {"foo"}

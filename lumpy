@@ -3282,6 +3282,42 @@ class BuiltinAssert(BuiltinFromSource):
         """
 
 
+class BuiltinMin(BuiltinFromSource):
+    @staticmethod
+    def name() -> String:
+        return String("min")
+
+    @staticmethod
+    def source() -> str:
+        return """
+        let min = function(a, b) {
+            if a <= b {
+                return a;
+            }
+            return b;
+        };
+        return min;
+        """
+
+
+class BuiltinMax(BuiltinFromSource):
+    @staticmethod
+    def name() -> String:
+        return String("max")
+
+    @staticmethod
+    def source() -> str:
+        return """
+        let max = function(a, b) {
+            if a >= b {
+                return a;
+            }
+            return b;
+        };
+        return max;
+        """
+
+
 class BuiltinImport(Builtin):
     @staticmethod
     def name() -> String:
@@ -3474,6 +3510,27 @@ class BuiltinMathSqrt(Builtin):
         Builtin.expect_argument_count(arguments, 1)
         arg0 = Builtin.typed_argument(arguments, 0, Number)
         return Number.new(math.sqrt(arg0.data))
+
+
+class BuiltinMathClamp(BuiltinFromSource):
+    @staticmethod
+    def name() -> String:
+        return String("clamp")
+
+    @staticmethod
+    def source() -> str:
+        return """
+        let clamp = function(value, min, max) {
+            if value < min {
+                return min;
+            }
+            if value > max {
+                return max;
+            }
+            return value;
+        };
+        return clamp;
+        """
 
 
 class BuiltinMathSin(Builtin):
@@ -4220,6 +4277,8 @@ let_builtin(BASE_ENV.store, BuiltinNumber())
 let_builtin(BASE_ENV.store, BuiltinString())
 let_builtin(BASE_ENV.store, BuiltinVector())
 let_builtin(BASE_ENV.store, BuiltinAssert())
+let_builtin(BASE_ENV.store, BuiltinMin())
+let_builtin(BASE_ENV.store, BuiltinMax())
 let_builtin(BASE_ENV.store, BuiltinImport())
 let_builtin(BASE_ENV.store, BuiltinExtend())
 BASE_ENV.let(
@@ -4247,6 +4306,7 @@ BASE_ENV.let(
             String("abs"): BuiltinMathAbs(),
             String("pow"): BuiltinMathPow(),
             String("sqrt"): BuiltinMathSqrt(),
+            String("clamp"): BuiltinMathClamp(),
             String("sin"): BuiltinMathSin(),
             String("cos"): BuiltinMathCos(),
             String("tan"): BuiltinMathTan(),
