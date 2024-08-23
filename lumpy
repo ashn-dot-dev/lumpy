@@ -685,7 +685,8 @@ class Builtin(Value):
 
     def call(self, arguments: list[Value]) -> Union[Value, "Error"]:
         try:
-            return self.function(arguments)
+            result = self.function(arguments)
+            return Null() if result is None else result
         except Exception as e:
             return Error(None, f"{e}")
 
