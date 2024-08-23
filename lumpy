@@ -2250,6 +2250,8 @@ class AstStatementFor(AstStatement):
     location: Optional[SourceLocation]
     identifier_k: AstIdentifier
     identifier_v: Optional[AstIdentifier]
+    k_is_reference: bool
+    v_is_reference: bool
     collection: AstExpression
     block: AstBlock
 
@@ -2265,6 +2267,11 @@ class AstStatementFor(AstStatement):
                 return Error(
                     self.location,
                     f"attempted key-value iteration over type `{typename(collection)}`",
+                )
+            if self.k_is_reference:
+                return Error(
+                    self.location,
+                    f"cannot use a key-reference over type `{typename(collection)}`",
                 )
             if not float(collection.data).is_integer():
                 return Error(
@@ -2289,7 +2296,10 @@ class AstStatementFor(AstStatement):
                     f"attempted key-value iteration over type `{typename(collection)}`",
                 )
             for x in collection.data:
-                loop_env.let(self.identifier_k.name, x.copy())
+                loop_env.let(
+                    self.identifier_k.name,
+                    Reference.new(x) if self.k_is_reference else x.copy(),
+                )
                 result = self.block.eval(loop_env)
                 if isinstance(result, Return):
                     return result
@@ -2300,10 +2310,18 @@ class AstStatementFor(AstStatement):
                 if isinstance(result, Error):
                     return result
         elif isinstance(collection, Map):
+            if self.k_is_reference:
+                return Error(
+                    self.location,
+                    f"cannot use a key-reference over type `{typename(collection)}`",
+                )
             for k, v in collection.data.items():
                 loop_env.let(self.identifier_k.name, k.copy())
                 if self.identifier_v is not None:
-                    loop_env.let(self.identifier_v.name, v.copy())
+                    loop_env.let(
+                        self.identifier_v.name,
+                        Reference.new(v) if self.v_is_reference else v.copy(),
+                    )
                 result = self.block.eval(loop_env)
                 if isinstance(result, Return):
                     return result
@@ -2318,6 +2336,11 @@ class AstStatementFor(AstStatement):
                 return Error(
                     self.location,
                     f"attempted key-value iteration over type `{typename(collection)}`",
+                )
+            if self.k_is_reference:
+                return Error(
+                    self.location,
+                    f"cannot use a key-reference over type `{typename(collection)}`",
                 )
             for x in collection.data:
                 loop_env.let(self.identifier_k.name, x.copy())
@@ -2997,10 +3020,18 @@ class Parser:
     def parse_statement_for(self) -> AstStatementFor:
         location = self._expect_current(TokenKind.FOR).location
         identifier_k = self.parse_identifier()
+        k_is_reference = False
+        v_is_reference = False
+        if self._check_current(TokenKind.MKREF):
+            self._expect_current(TokenKind.MKREF)
+            k_is_reference = True
         identifier_v: Optional[AstIdentifier] = None
         if self._check_current(TokenKind.COMMA):
             self._expect_current(TokenKind.COMMA)
             identifier_v = self.parse_identifier()
+            if self._check_current(TokenKind.MKREF):
+                self._expect_current(TokenKind.MKREF)
+                v_is_reference = True
         self._expect_current(TokenKind.IN)
         collection = self.parse_expression()
         block = self.parse_block()
@@ -3010,7 +3041,13 @@ class Parser:
                 f"duplicate iterator name `{identifier_k.name.data}`",
             )
         return AstStatementFor(
-            location, identifier_k, identifier_v, collection, block
+            location,
+            identifier_k,
+            identifier_v,
+            k_is_reference,
+            v_is_reference,
+            collection,
+            block,
         )
 
     def parse_statement_while(self) -> AstStatementWhile:

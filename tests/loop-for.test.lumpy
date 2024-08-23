@@ -4,10 +4,29 @@ for x in 3 {
 
 print("\n");
 
+try {
+    for x.& in 3 { }
+} else err {
+    dumpln(err);
+}
+
+print("\n");
+
 let v = ["a", "b", "c"];
 for x in v {
     println("x is " + repr(x));
 }
+
+print("\n");
+
+let v = [{"foo"}, {"bar"}, {"baz"}];
+let i = 1;
+dumpln(v);
+for x.& in v {
+    x.*.insert(i);
+    i = i + 1;
+}
+dumpln(v);
 
 print("\n");
 
@@ -18,23 +37,62 @@ for k, v in m {
 
 print("\n");
 
+try {
+    for k.& in m { }
+} else err {
+    dumpln(err);
+}
+
+print("\n");
+
+let m = {"a": {"foo"}, "b": {"bar"}, "c": {"baz"}};
+let i = 1;
+dumpln(m);
+for _, v.& in m {
+    v.*.insert(i);
+    i = i + 1;
+}
+dumpln(m);
+
+print("\n");
+
 let s = set{"a", "b", "c"};
 for x in s {
     println("x is " + repr(x));
+}
+
+print("\n");
+
+try {
+    for x.& in s { }
+} else err {
+    dumpln(err);
 }
 ################################################################################
 # x is 0
 # x is 1
 # x is 2
 #
+# "cannot use a key-reference over type `number`"
+#
 # x is "a"
 # x is "b"
 # x is "c"
+#
+# [{"foo"}, {"bar"}, {"baz"}]
+# [{"foo", 1}, {"bar", 2}, {"baz", 3}]
 #
 # k is "a", v is 123
 # k is "b", v is 456
 # k is "c", v is 789
 #
+# "cannot use a key-reference over type `map`"
+#
+# {"a": {"foo"}, "b": {"bar"}, "c": {"baz"}}
+# {"a": {"foo", 1}, "b": {"bar", 2}, "c": {"baz", 3}}
+#
 # x is "a"
 # x is "b"
 # x is "c"
+#
+# "cannot use a key-reference over type `set`"

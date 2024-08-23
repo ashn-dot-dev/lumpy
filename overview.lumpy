@@ -560,11 +560,30 @@ for x in 3 {
 
 print("\n");
 
+println("Integer Loops With References Are Not Permitted: for reference x in 3");
+try {
+    for k.& in 3 { }
+}
+else err {
+    println("error: " + string(err));
+}
+
+print("\n");
+
 let v = ["a", "b", "c"];
 println("Vector Loop: for x in " + repr(v));
 for x in v {
     println("x is " + repr(x));
 }
+
+print("\n");
+
+let v = [{"value": 123}, {"value": 456}, {"value": 789}];
+println("Vector Loop With References: for reference x in vector " + repr(v) + " increment x.*.value by one");
+for x.& in v {
+    x.*.value = x.*.value + 1;
+}
+println("vector post-loop is " + repr(v));
 
 print("\n");
 
@@ -576,10 +595,41 @@ for k, v in m {
 
 print("\n");
 
+let m = {{"id": 123}: "foo", {"id": 456}: "bar", {"id": 789}: "baz"};
+println("Map Loops With Key References Are Not Permitted: for reference k in set " + repr(m));
+try {
+    for k.& in m { }
+}
+else err {
+    println("error: " + string(err));
+}
+
+print("\n");
+
+let m = {"foo": {"value": 123}, "bar": {"value": 456}, "baz": {"value": 789}};
+println("Map Loops With Value References: for k, reference v in set " + repr(m) + " increment v.*.value by one");
+for k, v.& in m {
+    v.*.value = v.*.value + 1;
+}
+println("map post-loop is " + repr(m));
+
+print("\n");
+
 let s = set{"a", "b", "c"};
 println("Set Loop: for x in " + repr(s));
 for x in s {
     println("x is " + repr(x));
+}
+
+print("\n");
+
+let s = {{"value": 123}, {"value": 456}, {"value": 789}};
+println("Set Loops With References Are Not Permitted: for reference x in set " + repr(s));
+try {
+    for x.& in s { }
+}
+else err {
+    println("error: " + string(err));
 }
 
 print("\n");
