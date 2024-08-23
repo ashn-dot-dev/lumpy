@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from string import ascii_letters, digits, printable, whitespace
 from typing import (
+    Any,
     Callable,
     Iterable,
     Optional,
@@ -152,7 +153,7 @@ class Null(Value):
     def type() -> str:
         return "null"
 
-    def copy(self) -> Self:
+    def copy(self) -> "Null":
         return Null(self.meta.copy() if self.meta else None)
 
     def cow(self) -> None:
@@ -188,7 +189,7 @@ class Boolean(Value):
     def type() -> str:
         return "boolean"
 
-    def copy(self) -> Self:
+    def copy(self) -> "Boolean":
         return Boolean(self.data, self.meta.copy() if self.meta else None)
 
     def cow(self) -> None:
@@ -251,7 +252,7 @@ class Number(Value):
     def type() -> str:
         return "number"
 
-    def copy(self) -> Self:
+    def copy(self) -> "Number":
         return Number(self.data, self.meta.copy() if self.meta else None)
 
     def cow(self) -> None:
@@ -316,7 +317,7 @@ class String(Value):
     def type() -> str:
         return "string"
 
-    def copy(self) -> Self:
+    def copy(self) -> "String":
         return String(self.data, self.meta.copy() if self.meta else None)
 
     def cow(self) -> None:
@@ -408,7 +409,7 @@ class Vector(Value):
     def type() -> str:
         return "vector"
 
-    def copy(self) -> Self:
+    def copy(self) -> "Vector":
         return Vector(self.data, self.meta.copy() if self.meta else None)
 
     def cow(self) -> None:
@@ -493,7 +494,7 @@ class Map(Value):
     def type() -> str:
         return "map"
 
-    def copy(self) -> Self:
+    def copy(self) -> "Map":
         return Map(self.data, self.meta.copy() if self.meta else None)
 
     def cow(self) -> None:
@@ -572,7 +573,7 @@ class Set(Value):
     def type() -> str:
         return "set"
 
-    def copy(self) -> Self:
+    def copy(self) -> "Set":
         return Set(self.data, self.meta.copy() if self.meta else None)
 
     def cow(self) -> None:
@@ -609,7 +610,7 @@ class Reference(Value):
     def type() -> str:
         return "reference"
 
-    def copy(self) -> Self:
+    def copy(self) -> "Reference":
         return Reference(self.data, self.meta.copy() if self.meta else None)
 
     def cow(self) -> None:
@@ -650,7 +651,7 @@ class Function(Value):
     def type() -> str:
         return "function"
 
-    def copy(self) -> Self:
+    def copy(self) -> "Function":
         return Function(
             self.ast, self.env, self.meta.copy() if self.meta else None
         )
@@ -679,7 +680,7 @@ class Builtin(Value):
     def type() -> str:
         return "function"
 
-    def copy(self) -> Self:
+    def copy(self) -> "Builtin":
         return self
 
     def call(self, arguments: list[Value]) -> Union[Value, "Error"]:
@@ -757,6 +758,36 @@ class BuiltinFromSource(Builtin):
     @abstractmethod
     def source() -> str:
         raise NotImplementedError()
+
+
+@dataclass
+class External(Value):
+    data: Any
+    meta: Optional["Map"] = None
+
+    def __hash__(self) -> int:
+        return hash(id(self.data))
+
+    def __eq__(self, other) -> bool:
+        if type(self) is not type(other):
+            return False
+        return id(self.data) == id(other.data)
+
+    def __str__(self):
+        return f"external({repr(self.data)})"
+
+    @staticmethod
+    def type() -> str:
+        return f"external"
+
+    def copy(self) -> "External":
+        return External(self.data, self.meta.copy() if self.meta else None)
+
+    def cow(self) -> None:
+        # We explicitly do *not* copy self.data as the copied data should still
+        # point to the original external Python object.
+        if self.meta is not None:
+            self.meta.cow()
 
 
 @dataclass
