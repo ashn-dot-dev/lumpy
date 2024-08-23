@@ -17,6 +17,7 @@ print("\n");
 dumpln( 123    );
 dumpln( 123.0  );
 dumpln( 123.45 );
+dumpln( 0xdeadbeef );
 
 print("\n");
 

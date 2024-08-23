@@ -10,6 +10,7 @@ print("\n");
 dumpln( 123    );
 dumpln( 123.0  );
 dumpln( 123.45 );
+dumpln( 0xdeadbeef );
 
 print("\n");
 
@@ -78,6 +79,7 @@ dumpln( println );
 # 123
 # 123
 # 123.45
+# 3735928559
 #
 # "hello"
 # "hello world"
@@ -108,9 +110,9 @@ dumpln( println );
 # reference
 # reference
 #
-# named_function@[values.test.lumpy, line 63]
-# function@[values.test.lumpy, line 65]
+# named_function@[values.test.lumpy, line 64]
 # function@[values.test.lumpy, line 66]
+# function@[values.test.lumpy, line 67]
 #
 # dumpln@builtin
 # println@builtin

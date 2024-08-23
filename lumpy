@@ -922,7 +922,8 @@ class Token:
 class Lexer:
     EOF_LITERAL = ""
     RE_IDENTIFIER = re.compile(r"^[a-zA-Z_]\w*", re.ASCII)
-    RE_NUMBER = re.compile(r"^\d+(\.\d+)?", re.ASCII)
+    RE_NUMBER_HEX = re.compile(r"^0x[0-9a-fA-F]+", re.ASCII)
+    RE_NUMBER_DEC = re.compile(r"^\d+(\.\d+)?", re.ASCII)
     RE_STRING = re.compile(r'^"(\S| |\\\\|\\n|\\")*"', re.ASCII)
 
     def __init__(
@@ -1008,7 +1009,14 @@ class Lexer:
 
     def _lex_number(self) -> Token:
         assert self._current_character() in digits
-        match = Lexer.RE_NUMBER.match(self.source[self.position :])
+        match = Lexer.RE_NUMBER_HEX.match(self.source[self.position :])
+        if match is not None:
+            text = match[0]
+            self.position += len(text)
+            return self._new_token(
+                TokenKind.NUMBER, text, number=float(int(text, 16))
+            )
+        match = Lexer.RE_NUMBER_DEC.match(self.source[self.position :])
         assert match is not None  # guaranteed by regex
         text = match[0]
         self.position += len(text)
