@@ -3365,18 +3365,30 @@ class BuiltinImport(Builtin):
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         arg0 = Builtin.typed_argument(arguments, 0, String)
-        paths = ["."]  # Always search the current directory first
+        env = Environment(BASE_ENV)
+        module = env.get(String("module"))
+        assert module is not None
+        module_directory = module[String("directory")]
+        assert isinstance(module_directory, String)
+        # Always search the current module directory first
+        paths = [module_directory.data]
         LUMPY_SEARCH_PATH = os.environ.get("LUMPY_SEARCH_PATH")
         if LUMPY_SEARCH_PATH is not None:
             paths += LUMPY_SEARCH_PATH.split(":")
-        for path in paths:
+        for p in paths:
+            path = Path(p + "/" + arg0.data)
+            module[String("directory")] = String(
+                os.path.dirname(os.path.realpath(path))
+            )
             try:
-                result = eval_file(Path(path + "/" + arg0.data))
+                result = eval_file(path, env)
                 break
             except FileNotFoundError:
                 pass
         else:
             result = Error(None, f"module {arg0} not found")
+        # Always restore module fields
+        module[String("directory")] = module_directory
         if isinstance(result, Error):
             return result
         if result is None:
@@ -4352,6 +4364,14 @@ BASE_ENV.let(
         }
     ),
 )
+BASE_ENV.let(
+    String("module"),
+    Map.new(
+        {
+            String("directory"): Null(),
+        }
+    ),
+)
 
 
 def repl(env: Optional[Environment] = None) -> None:
@@ -4380,6 +4400,11 @@ def main() -> None:
 
     if args.file is not None:
         env = Environment(BASE_ENV)
+        module = env.get(String("module"))
+        assert module is not None
+        module[String("directory")] = String(
+            os.path.dirname(os.path.realpath(args.file))
+        )
         env.let(
             String("argv"),
             Vector([String.new(x) for x in argv]),
