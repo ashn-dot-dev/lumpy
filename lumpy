@@ -22,6 +22,7 @@ from typing import (
 import enum
 import math
 import os
+import random
 import re
 import sys
 import traceback
@@ -3629,6 +3630,18 @@ class BuiltinMathTan(Builtin):
         return Number.new(math.tan(arg0.data))
 
 
+class BuiltinRandomNumber(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("number")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 2)
+        arg0 = Builtin.typed_argument(arguments, 0, Number)
+        arg1 = Builtin.typed_argument(arguments, 1, Number)
+        return Number.new(random.uniform(float(arg0.data), float(arg1.data)))
+
+
 class BuiltinNumberIsNaN(Builtin):
     @staticmethod
     def name() -> String:
@@ -4381,6 +4394,14 @@ BASE_ENV.let(
     Map.new(
         {
             String("directory"): Null(),
+        }
+    ),
+)
+BASE_ENV.let(
+    String("random"),
+    Map.new(
+        {
+            String("number"): BuiltinRandomNumber(),
         }
     ),
 )
