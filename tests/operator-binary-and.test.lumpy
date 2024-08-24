@@ -18,6 +18,13 @@ dumpln(true and true);
 
 print("\n");
 
+# short circuiting
+let f = function(s) { println(s); error "oopsie"; };
+false and f("false and f()");
+try { true and f("true and f()"); } else { println("error"); }
+
+print("\n");
+
 let meta = {"and": function(lhs, rhs) { println("overload"); return true; }};
 let x = 123;
 let y = 456;
@@ -40,6 +47,9 @@ try { y and x; } else err { dumpln(err); }
 # false
 # false
 # true
+#
+# true and f()
+# error
 #
 # overload
 # overload

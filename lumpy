@@ -1591,9 +1591,15 @@ class AstAnd(AstExpression):
         lhs = self.lhs.eval(env)
         if isinstance(lhs, Error):
             return lhs
+        if isinstance(lhs, Boolean) and not lhs.data:
+            return Boolean.new(False)  # short circuit
+
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
+        if isinstance(rhs, Boolean) and not rhs.data:
+            return Boolean.new(False)  # short circuit
+
         metafunction = binary_operator_metafunction(lhs, rhs, String("and"))
         if metafunction is not None:
             return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
@@ -1616,9 +1622,15 @@ class AstOr(AstExpression):
         lhs = self.lhs.eval(env)
         if isinstance(lhs, Error):
             return lhs
+        if isinstance(lhs, Boolean) and lhs.data:
+            return Boolean.new(True)  # short circuit
+
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
+        if isinstance(rhs, Boolean) and rhs.data:
+            return Boolean.new(True)  # short circuit
+
         metafunction = binary_operator_metafunction(lhs, rhs, String("or"))
         if metafunction is not None:
             return call(self.location, metafunction, [lhs.copy(), rhs.copy()])

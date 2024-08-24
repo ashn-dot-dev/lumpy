@@ -18,6 +18,13 @@ dumpln(true or true);
 
 print("\n");
 
+# short circuiting
+let f = function(s) { println(s); error "oopsie"; };
+try { false or f("false or f()"); } else { println("error"); }
+true or f("true and f()");
+
+print("\n");
+
 let meta = {"or": function(lhs, rhs) { println("overload"); return true; }};
 let x = 123;
 let y = 456;
@@ -40,6 +47,9 @@ try { y or x; } else err { dumpln(err); }
 # true
 # true
 # true
+#
+# false or f()
+# error
 #
 # overload
 # overload
