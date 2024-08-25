@@ -1,0 +1,11 @@
+let vec2 = import("../mingf/vec2.lumpy");
+
+dumpln(vec2::new(0, 0).magnitude().fixed(3));
+dumpln(vec2::new(+1, +1).magnitude().fixed(3));
+dumpln(vec2::new(-1, -1).magnitude().fixed(3));
+dumpln(vec2::new(math::cos(math::pi / 4), math::sin(math::pi / 4)).magnitude().fixed(3));
+################################################################################
+# 0
+# 1.414
+# 1.414
+# 1

@@ -172,12 +172,19 @@ A brief language overview with more information can be found in
 /path/to/lumpy$ ./lumpy overview.lumpy
 ```
 
+An example game built in Lumpy using Pygame can be found under the
+`examples/minimalist-game-framework` directory, and may be played by running:
+
+```sh
+/path/to/lumpy$ ./lumpy examples/minimalist-game-framework/game.lumpy
+```
+
 ## Development Setup
 
 ```sh
 /path/to/lumpy$ python3 -m venv .venv-lumpy
 /path/to/lumpy$ . .venv-lumpy/bin/activate
-(.venv-lumpy) /path/to/lumpy$ python3 -m pip install -r requirements-dev.txt
+(.venv-lumpy) /path/to/lumpy$ python3 -m pip install -r requirements.txt
 (.venv-lumpy) /path/to/lumpy$ make check   # run tests
 (.venv-lumpy) /path/to/lumpy$ make lint    # lint with mypy
 (.venv-lumpy) /path/to/lumpy$ make format  # format using black

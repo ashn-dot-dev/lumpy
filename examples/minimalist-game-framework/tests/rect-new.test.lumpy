@@ -1,0 +1,11 @@
+let rect = import("../mingf/rect.lumpy");
+
+dumpln(rect::new(123, 456, 3, 5));
+dumpln(rect::new(123, 456, 0, 0));
+try { dumpln(rect::new(123, 456, -1, 0)); } else err { dumpln(err); }
+try { dumpln(rect::new(123, 456, 0, -1)); } else err { dumpln(err); }
+################################################################################
+# {"x": 123, "y": 456, "w": 3, "h": 5}
+# {"x": 123, "y": 456, "w": 0, "h": 0}
+# "rect with w < 0 (w is -1)"
+# "rect with h < 0 (h is -1)"

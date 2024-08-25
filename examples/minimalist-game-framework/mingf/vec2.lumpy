@@ -1,0 +1,58 @@
+let vec2 = {
+    "type": "vec2",
+    "new": function(x, y) {
+        let self = {
+            "x": x,
+            "y": y,
+        };
+        setmeta(self.&, vec2);
+        return self;
+    },
+    "fixed": function(self, ndigits) {
+        return vec2::new(self.*.x.fixed(ndigits), self.*.y.fixed(ndigits));
+    },
+    "magnitude": function(self) {
+        return math::sqrt(self.*.x * self.*.x + self.*.y * self.*.y);
+    },
+    "normalized": function(self) {
+        let magnitude = vec2::magnitude(self);
+        if magnitude == 0 {
+            return vec2::new(0, 0);
+        }
+        return self.* / magnitude;
+    },
+    "dot": function(lhs, rhs) {
+        return lhs.x * rhs.x + lhs.y * rhs.y;
+    },
+    "cross": function(lhs, rhs) {
+        return lhs.x * rhs.y - lhs.y * rhs.x;
+    },
+    "+": function(lhs, rhs) {
+        return vec2::new(lhs.x + rhs.x, lhs.y + rhs.y);
+    },
+    "-": function(lhs, rhs) {
+        return vec2::new(lhs.x - rhs.x, lhs.y - rhs.y);
+    },
+    "*": function(lhs, rhs) {
+        if type(lhs) == "number" {
+            return vec2::new(lhs * rhs.x, lhs * rhs.y);
+        }
+        if type(rhs) == "number" {
+            return vec2::new(lhs.x * rhs, lhs.y * rhs);
+        }
+        return vec2::new(lhs.x * rhs.x, lhs.y * rhs.y);
+    },
+    "/": function(lhs, rhs) {
+        if type(rhs) == "number" {
+            return vec2::new(lhs.x / rhs, lhs.y / rhs);
+        }
+        return vec2::new(lhs.x / rhs.x, lhs.y / rhs.y);
+    },
+    "distance": function(a, b) {
+        let xdiff = a.x - b.x;
+        let ydiff = a.y - b.y;
+        return math::sqrt(xdiff * xdiff + ydiff * ydiff);
+    },
+};
+
+return vec2;

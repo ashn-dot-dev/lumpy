@@ -1,6 +1,8 @@
 # examples/extending-the-interpreter-pygame.lumpy
 #
 # Extend the interpreter with dynamically generated bindings to Pygame.
+# A more sophisticated version of this concept can be found under the
+# examples/minimalist-game-framework directory.
 
 let source =
 ```

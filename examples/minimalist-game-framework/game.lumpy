@@ -1,0 +1,322 @@
+# examples/minimalist-game-framework/game.lumpy
+#
+# An example game made with Lumpy and Pygame.
+
+let gf = import("mingf/main.lumpy");
+
+let SCREEN_W = 640;
+let SCREEN_H = 480;
+gf::init(SCREEN_W, SCREEN_H, "Game");
+
+let frame = 1;
+let VOLUME_SCALE = 0.2;
+
+let earth = gf::texture::load(module::directory + "/assets/earth.png");
+let player_ship = gf::texture::load(module::directory + "/assets/shuttle2.png");
+let enemy_ship = gf::texture::load(module::directory + "/assets/shuttle.png");
+let font = gf::font::load(module::directory + "/assets/Unispace-Bold.otf", 36);
+let laser = gf::sound::load(module::directory + "/assets/laser.ogg");
+let explosion = gf::sound::load(module::directory + "/assets/explosion.ogg");
+let music = gf::sound::load(module::directory + "/assets/One-Man-Symphony-Wreckage-01-Black-Holes.ogg");
+gf::sound::play_ex(music, VOLUME_SCALE, {"loop": true});
+
+let PLAYER_W = player_ship.w();
+let PLAYER_H = player_ship.h();
+let PLAYER_HITBOX_W = PLAYER_W / 3;
+let PLAYER_HITBOX_H = PLAYER_H;
+let player = {
+    "alive": true,
+    "scale": 1.0,
+    "position": gf::vec2::new(
+        SCREEN_W / 2 - PLAYER_W / 2,
+        SCREEN_H / 2 - PLAYER_H / 2,
+    ),
+};
+let score = 0;
+
+let LASER_W = 8;
+let LASER_H = 16;
+let lasers = [];
+
+let ENEMY_W = enemy_ship.w();
+let ENEMY_H = enemy_ship.h();
+let enemies = [];
+
+let overlapping = function(a, b) {
+    if a.x + a.w < b.x {
+        return false;
+    }
+    if a.x > b.x + b.w {
+        return false;
+    }
+    if a.y + a.h < b.y {
+        return false;
+    }
+    if a.y > b.y + b.h {
+        return false;
+    }
+    return true;
+};
+
+while gf::running() {
+    let KEYS = {
+        "UARROW", # or "UP"
+        "DARROW", # or "DOWN"
+        "LARROW", # or "LEFT"
+        "RARROW", # or "RIGHT"
+        "LSHIFT",
+        "RSHIFT",
+        "LCTRL",
+        "RCTRL",
+        "RSHIFT",
+        "BACKSPACE",
+        "SPACE",
+        "ENTER", # or "RETURN"
+        "TAB",
+        "F1", "F2", "F3", "F4",  "F5",  "F6",
+        "F7", "F8", "F9", "F10", "F11", "F12",
+        "0", "1", "2", "3", "4", "4", "6", "7", "8", "9",
+        "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
+        "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+    };
+    let keys_held = [];
+    let keys_pressed = [];
+    let keys_released = [];
+    for k in KEYS {
+        if gf::key::held(k) { keys_held.push(k); }
+        if gf::key::pressed(k) { keys_pressed.push(k); }
+        if gf::key::released(k) { keys_released.push(k); }
+    }
+
+    let MOUSE_BUTTONS = {
+        "LBUTTON", # or "LEFT"
+        "RBUTTON", # or "RIGHT"
+        "MBUTTON", # or "MIDDLE"
+    };
+    let mouse_buttons_held = [];
+    let mouse_buttons_pressed = [];
+    let mouse_buttons_released = [];
+    for b in MOUSE_BUTTONS {
+        if gf::mouse::held(b) { mouse_buttons_held.push(b); }
+        if gf::mouse::pressed(b) { mouse_buttons_pressed.push(b); }
+        if gf::mouse::released(b) { mouse_buttons_released.push(b); }
+    }
+
+    if frame != 1 { print("\n"); }
+    println("Mouse Position: " + repr(gf::mouse::position()));
+    println("Mouse Buttons Held: " + repr(mouse_buttons_held));
+    println("Mouse Buttons Pressed This Frame: " + repr(mouse_buttons_pressed));
+    println("Mouse Buttons Released This Frame: " + repr(mouse_buttons_released));
+    println("Keys Held: " + repr(keys_held));
+    println("Keys Pressed This Frame: " + repr(keys_pressed));
+    println("Keys Released This Frame: " + repr(keys_released));
+
+    let delta = gf::vec2::new(0, 0);
+    if gf::key::held("UARROW") {
+        delta.y = delta.y - 1;
+    }
+    if gf::key::held("DARROW") {
+        delta.y = delta.y + 1;
+    }
+    if gf::key::held("LARROW") {
+        delta.x = delta.x - 1;
+    }
+    if gf::key::held("RARROW") {
+        delta.x = delta.x + 1;
+    }
+    delta = delta.normalized() * 4;
+    if player.alive {
+        player.position.x = math::clamp(player.position.x + delta.x, 0, SCREEN_W - PLAYER_W);
+        player.position.y = math::clamp(player.position.y + delta.y, 0, SCREEN_H - PLAYER_H);
+    }
+
+    for laser.& in lasers {
+        laser.*.position.y = laser.*.position.y - 8;
+    }
+    for enemy.& in enemies {
+        enemy.*.position.y = enemy.*.position.y + 4;
+    }
+    if player.alive and gf::key::pressed("SPACE") {
+        gf::sound::play(laser, VOLUME_SCALE * 0.25);
+        lasers.push({
+            "alive": true,
+            "position": gf::vec2::new(
+                player.position.x + PLAYER_W / 2 - LASER_W / 2,
+                player.position.y - LASER_H,
+            ),
+        });
+    }
+
+    if frame % 60 == 0 {
+        enemies.push({
+            "alive": true,
+            "scale": 1.0,
+            "position": gf::vec2::new(
+                random::number(0, SCREEN_W - ENEMY_W),
+                -ENEMY_H
+            ),
+        });
+    }
+
+    for enemy.& in enemies {
+        if not enemy.*.alive {
+            continue;
+        }
+        for laser.& in lasers {
+            if not overlapping(
+                gf::rect::new(
+                    laser.*.position.x,
+                    laser.*.position.y,
+                    LASER_W,
+                    LASER_H,
+                ),
+                gf::rect::new(
+                    enemy.*.position.x,
+                    enemy.*.position.y,
+                    ENEMY_W,
+                    ENEMY_H,
+                ),
+            ) {
+                continue;
+            }
+            laser.*.alive = false;
+            enemy.*.alive = false;
+            score = score + 1;
+            let distance = gf::vec2::distance(
+                gf::rect::new(
+                    player.position.x,
+                    player.position.y,
+                    PLAYER_W,
+                    PLAYER_H
+                ).center(),
+                gf::rect::new(
+                    enemy.*.position.x,
+                    enemy.*.position.y,
+                    ENEMY_W,
+                    ENEMY_H
+                ).center(),
+            );
+            let volume = VOLUME_SCALE * (1 - (distance / max(SCREEN_W, SCREEN_H)));
+            gf::sound::play(explosion, volume);
+        }
+        let player_center = gf::rect::new(
+            player.position.x,
+            player.position.y,
+            PLAYER_W,
+            PLAYER_H,
+        ).center();
+        let player_hitbox = gf::rect::new(
+            player_center.x - PLAYER_HITBOX_W / 2,
+            player_center.y - PLAYER_HITBOX_H / 2,
+            PLAYER_HITBOX_W,
+            PLAYER_HITBOX_H,
+        );
+        if player.alive and overlapping(
+            player_hitbox,
+            gf::rect::new(
+                enemy.*.position.x,
+                enemy.*.position.y,
+                ENEMY_W,
+                ENEMY_H
+            ),
+        ) {
+            player.alive = false;
+            enemy.*.alive = false;
+            gf::sound::play(explosion, VOLUME_SCALE);
+        }
+    }
+
+    let should_remove_laser = function(laser) {
+        return not laser.alive or laser.position.y + LASER_H < 0;
+    };
+    while lasers.count() != 0 and should_remove_laser(lasers[0]) {
+        lasers.remove(0);
+    }
+
+    let should_remove_enemy = function(enemy) {
+        return (not enemy.alive and enemy.scale <= 0) or enemy.position.y > SCREEN_H;
+    };
+    while enemies.count() != 0 and should_remove_enemy(enemies[0]) {
+        enemies.remove(0);
+    }
+
+    if not player.alive {
+        player.scale = player.scale - 0.20;
+    }
+    for enemy.& in enemies {
+        if not enemy.*.alive {
+            enemy.*.scale = enemy.*.scale - 0.20;
+        }
+    }
+
+    gf::draw::texture_ex(
+        earth,
+        gf::vec2::new(SCREEN_W - 160, SCREEN_H - 160),
+        {"scale": 2},
+    );
+    for laser in lasers {
+        if not laser.alive {
+            continue;
+        }
+        let rect = gf::rect::new(
+            laser.position.x,
+            laser.position.y,
+            LASER_W,
+            LASER_H
+        );
+        gf::draw::rect_solid(
+            rect,
+            gf::color::new(0x70, 0x00, 0x70, null),
+        );
+        gf::draw::rect_empty(
+            rect,
+            gf::color::new(0x70, 0x50, 0x00, null),
+            1,
+        );
+    }
+    for enemy in enemies {
+        if enemy.scale > 0 {
+            gf::draw::texture_ex(
+                enemy_ship,
+                enemy.position,
+                {
+                    "scale": gf::vec2::new(1.0, enemy.scale),
+                    "flip-y": true,
+                },
+            );
+        }
+    }
+    if player.scale > 0 {
+        let center = gf::rect::new(
+            player.position.x,
+            player.position.y,
+            PLAYER_W,
+            PLAYER_H
+        ).center();
+        let diff = center - player.position;
+        gf::draw::texture_ex(
+            player_ship,
+            player.position + diff * (1 - player.scale),
+            {"scale": player.scale},
+        );
+    }
+    let text = "Score: " + string(score);
+    let size = font.measure(text);
+    gf::draw::text(
+        font,
+        gf::vec2::new(SCREEN_W - size.x - 2, 2),
+        gf::color::new(0xFF, 0xFF, 0xFF, null),
+        text,
+    );
+    gf::draw::text(
+        font,
+        gf::vec2::new(2, 2),
+        gf::color::new(0x00, 0x80, 0x00, null),
+        "FPS: " + string(gf::fps().fixed(0)),
+    );
+
+    gf::tick();
+    frame = frame + 1;
+}
+
+gf::fini();

@@ -1,0 +1,26 @@
+let vec2 = import("vec2.lumpy");
+
+let rect = {
+    "type": "rect",
+    "new": function(x, y, w, h) {
+        if w < 0 { error "rect with w < 0 (w is " + repr(w) + ")"; }
+        if h < 0 { error "rect with h < 0 (h is " + repr(h) + ")"; }
+        let self = {
+            "x": x,
+            "y": y,
+            "w": w,
+            "h": h,
+        };
+        setmeta(self.&, rect);
+        return self;
+    },
+    "center": function(self) {
+        return vec2::new(
+            self.*.x + self.*.w / 2,
+            self.*.y + self.*.h / 2,
+        );
+    },
+};
+
+return rect;
+

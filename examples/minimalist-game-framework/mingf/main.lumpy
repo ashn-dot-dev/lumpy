@@ -1,0 +1,744 @@
+let source =
+```
+from dataclasses import dataclass
+import os
+
+import pygame
+
+
+_MINGF_COLOR = BASE_ENV.get(String("_MINGF_COLOR"))
+_MINGF_RECT = BASE_ENV.get(String("_MINGF_RECT"));
+_MINGF_VEC2 = BASE_ENV.get(String("_MINGF_VEC2"));
+_MINGF_TARGET_FPS = 60
+
+
+@dataclass
+class MinGFPressState:
+    held: bool = False
+    pressed: bool = False
+    released: bool = False
+
+
+_MOUSE_LBUTTON = MinGFPressState()
+_MOUSE_RBUTTON = MinGFPressState()
+_MOUSE_MBUTTON = MinGFPressState()
+
+_PYGAME_MOUSEMAP = {
+    1: _MOUSE_LBUTTON,
+    3: _MOUSE_RBUTTON,
+    2: _MOUSE_MBUTTON,
+}
+_STRING_MOUSEMAP = {
+    "LBUTTON": _MOUSE_LBUTTON, "LEFT": _MOUSE_LBUTTON,
+    "RBUTTON": _MOUSE_RBUTTON, "RIGHT": _MOUSE_RBUTTON,
+    "MBUTTON": _MOUSE_MBUTTON, "MIDDLE": _MOUSE_MBUTTON,
+}
+
+_KEY_UARROW = MinGFPressState()
+_KEY_DARROW = MinGFPressState()
+_KEY_LARROW = MinGFPressState()
+_KEY_RARROW = MinGFPressState()
+_KEY_LSHIFT = MinGFPressState()
+_KEY_RSHIFT = MinGFPressState()
+_KEY_LCTRL = MinGFPressState()
+_KEY_RCTRL = MinGFPressState()
+_KEY_LALT = MinGFPressState()
+_KEY_RALT = MinGFPressState()
+_KEY_BACKSPACE = MinGFPressState()
+_KEY_SPACE = MinGFPressState()
+_KEY_ENTER = MinGFPressState()
+_KEY_TAB = MinGFPressState()
+_KEY_F1 = MinGFPressState()
+_KEY_F2 = MinGFPressState()
+_KEY_F3 = MinGFPressState()
+_KEY_F4 = MinGFPressState()
+_KEY_F5 = MinGFPressState()
+_KEY_F6 = MinGFPressState()
+_KEY_F7 = MinGFPressState()
+_KEY_F8 = MinGFPressState()
+_KEY_F9 = MinGFPressState()
+_KEY_F10 = MinGFPressState()
+_KEY_F11 = MinGFPressState()
+_KEY_F12 = MinGFPressState()
+_KEY_0 = MinGFPressState()
+_KEY_1 = MinGFPressState()
+_KEY_2 = MinGFPressState()
+_KEY_3 = MinGFPressState()
+_KEY_4 = MinGFPressState()
+_KEY_5 = MinGFPressState()
+_KEY_6 = MinGFPressState()
+_KEY_7 = MinGFPressState()
+_KEY_8 = MinGFPressState()
+_KEY_9 = MinGFPressState()
+_KEY_A = MinGFPressState()
+_KEY_B = MinGFPressState()
+_KEY_C = MinGFPressState()
+_KEY_D = MinGFPressState()
+_KEY_E = MinGFPressState()
+_KEY_F = MinGFPressState()
+_KEY_G = MinGFPressState()
+_KEY_H = MinGFPressState()
+_KEY_I = MinGFPressState()
+_KEY_J = MinGFPressState()
+_KEY_K = MinGFPressState()
+_KEY_L = MinGFPressState()
+_KEY_M = MinGFPressState()
+_KEY_N = MinGFPressState()
+_KEY_O = MinGFPressState()
+_KEY_P = MinGFPressState()
+_KEY_Q = MinGFPressState()
+_KEY_R = MinGFPressState()
+_KEY_S = MinGFPressState()
+_KEY_T = MinGFPressState()
+_KEY_U = MinGFPressState()
+_KEY_V = MinGFPressState()
+_KEY_W = MinGFPressState()
+_KEY_X = MinGFPressState()
+_KEY_Y = MinGFPressState()
+_KEY_Z = MinGFPressState()
+
+_PYGAME_KEYMAP = {
+    pygame.K_UP: _KEY_UARROW,
+    pygame.K_DOWN: _KEY_DARROW,
+    pygame.K_LEFT: _KEY_LARROW,
+    pygame.K_RIGHT: _KEY_RARROW,
+    pygame.K_LSHIFT: _KEY_LSHIFT,
+    pygame.K_RSHIFT: _KEY_RSHIFT,
+    pygame.K_LCTRL: _KEY_LCTRL,
+    pygame.K_RCTRL: _KEY_RCTRL,
+    pygame.K_LALT: _KEY_LALT,
+    pygame.K_RALT: _KEY_RALT,
+    pygame.K_BACKSPACE: _KEY_BACKSPACE,
+    pygame.K_SPACE: _KEY_SPACE,
+    pygame.K_RETURN: _KEY_ENTER,
+    pygame.K_TAB: _KEY_TAB,
+    pygame.K_F1: _KEY_F1,
+    pygame.K_F2: _KEY_F2,
+    pygame.K_F3: _KEY_F3,
+    pygame.K_F4: _KEY_F4,
+    pygame.K_F5: _KEY_F5,
+    pygame.K_F6: _KEY_F6,
+    pygame.K_F7: _KEY_F7,
+    pygame.K_F8: _KEY_F8,
+    pygame.K_F9: _KEY_F9,
+    pygame.K_F10: _KEY_F10,
+    pygame.K_F11: _KEY_F11,
+    pygame.K_F12: _KEY_F12,
+    pygame.K_0: _KEY_0,
+    pygame.K_1: _KEY_1,
+    pygame.K_2: _KEY_2,
+    pygame.K_3: _KEY_3,
+    pygame.K_4: _KEY_4,
+    pygame.K_5: _KEY_5,
+    pygame.K_6: _KEY_6,
+    pygame.K_7: _KEY_7,
+    pygame.K_8: _KEY_8,
+    pygame.K_9: _KEY_9,
+    pygame.K_a: _KEY_A,
+    pygame.K_b: _KEY_B,
+    pygame.K_c: _KEY_C,
+    pygame.K_d: _KEY_D,
+    pygame.K_e: _KEY_E,
+    pygame.K_f: _KEY_F,
+    pygame.K_g: _KEY_G,
+    pygame.K_h: _KEY_H,
+    pygame.K_i: _KEY_I,
+    pygame.K_j: _KEY_J,
+    pygame.K_k: _KEY_K,
+    pygame.K_l: _KEY_L,
+    pygame.K_m: _KEY_M,
+    pygame.K_n: _KEY_N,
+    pygame.K_o: _KEY_O,
+    pygame.K_p: _KEY_P,
+    pygame.K_q: _KEY_Q,
+    pygame.K_r: _KEY_R,
+    pygame.K_s: _KEY_S,
+    pygame.K_t: _KEY_T,
+    pygame.K_u: _KEY_U,
+    pygame.K_v: _KEY_V,
+    pygame.K_w: _KEY_W,
+    pygame.K_x: _KEY_X,
+    pygame.K_y: _KEY_Y,
+    pygame.K_z: _KEY_Z,
+}
+
+_STRING_KEYMAP = {
+    "UARROW": _KEY_UARROW, "UP": _KEY_UARROW,
+    "DARROW": _KEY_DARROW, "DOWN": _KEY_DARROW,
+    "LARROW": _KEY_LARROW, "LEFT": _KEY_LARROW,
+    "RARROW": _KEY_RARROW, "RIGHT": _KEY_RARROW,
+    "LSHIFT": _KEY_LSHIFT,
+    "RSHIFT": _KEY_RSHIFT,
+    "LCTRL": _KEY_LCTRL,
+    "RCTRL": _KEY_RCTRL,
+    "LALT": _KEY_LALT,
+    "RALT": _KEY_RALT,
+    "BACKSPACE": _KEY_BACKSPACE,
+    "SPACE": _KEY_SPACE,
+    "ENTER": _KEY_ENTER, "RETURN": _KEY_ENTER,
+    "TAB": _KEY_TAB,
+    "F1": _KEY_F1,
+    "F2": _KEY_F2,
+    "F3": _KEY_F3,
+    "F4": _KEY_F4,
+    "F5": _KEY_F5,
+    "F6": _KEY_F6,
+    "F7": _KEY_F7,
+    "F8": _KEY_F8,
+    "F9": _KEY_F9,
+    "F10": _KEY_F10,
+    "F11": _KEY_F11,
+    "F12": _KEY_F12,
+    "0": _KEY_0,
+    "1": _KEY_1,
+    "2": _KEY_2,
+    "3": _KEY_3,
+    "4": _KEY_4,
+    "5": _KEY_5,
+    "6": _KEY_6,
+    "7": _KEY_7,
+    "8": _KEY_8,
+    "9": _KEY_9,
+    "A": _KEY_A,
+    "B": _KEY_B,
+    "C": _KEY_C,
+    "D": _KEY_D,
+    "E": _KEY_E,
+    "F": _KEY_F,
+    "G": _KEY_G,
+    "H": _KEY_H,
+    "I": _KEY_I,
+    "J": _KEY_J,
+    "K": _KEY_K,
+    "L": _KEY_L,
+    "M": _KEY_M,
+    "N": _KEY_N,
+    "O": _KEY_O,
+    "P": _KEY_P,
+    "Q": _KEY_Q,
+    "R": _KEY_R,
+    "S": _KEY_S,
+    "T": _KEY_T,
+    "U": _KEY_U,
+    "V": _KEY_V,
+    "W": _KEY_W,
+    "X": _KEY_X,
+    "Y": _KEY_Y,
+    "Z": _KEY_Z,
+}
+
+_running = False
+_screen = None
+_clock = None
+
+
+class BuiltinMinGFInit(Builtin):
+    @staticmethod
+    def name():
+        return String("init")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 3)
+        w = Builtin.typed_argument(arguments, 0, Number)
+        h = Builtin.typed_argument(arguments, 1, Number)
+        title = Builtin.typed_argument(arguments, 2, String)
+
+        pygame.init()
+
+        pygame.display.set_caption(title.data)
+
+        global _running, _screen, _clock
+        _running = True
+        _screen = pygame.display.set_mode((int(w), int(h)))
+        _clock = pygame.time.Clock()
+        return Null()
+
+
+class BuiltinMinGFFini(Builtin):
+    @staticmethod
+    def name():
+        return String("fini")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 0)
+
+        global _running
+        _running = False
+        pygame.quit()
+        return Null()
+
+
+class BuiltinMinGFTick(Builtin):
+    @staticmethod
+    def name():
+        return String("tick")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 0)
+
+        # End of the Current Frame
+        pygame.display.flip()
+        _clock.tick(_MINGF_TARGET_FPS)
+
+        # Start of the Following Frame
+        _screen.fill((0x00, 0x00, 0x00))
+        for key in _PYGAME_KEYMAP.values():
+            key.pressed = False
+            key.released = False
+        for button in _PYGAME_MOUSEMAP.values():
+            button.pressed = False
+            button.released = False
+        for event in pygame.event.get():
+            global _running
+            if event.type == pygame.QUIT:
+                _running = False
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                _running = False
+            if event.type == pygame.KEYDOWN and event.key in _PYGAME_KEYMAP:
+                _PYGAME_KEYMAP[event.key].held = True
+                _PYGAME_KEYMAP[event.key].pressed = True
+            if event.type == pygame.KEYUP and event.key in _PYGAME_KEYMAP:
+                _PYGAME_KEYMAP[event.key].held = False
+                _PYGAME_KEYMAP[event.key].released = True
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button in _PYGAME_MOUSEMAP:
+                print(event.button)
+                _PYGAME_MOUSEMAP[event.button].held = True
+                _PYGAME_MOUSEMAP[event.button].pressed = True
+            if event.type == pygame.MOUSEBUTTONUP and event.button in _PYGAME_MOUSEMAP:
+                _PYGAME_MOUSEMAP[event.button].held = False
+                _PYGAME_MOUSEMAP[event.button].released = True
+
+        return Null()
+
+
+class BuiltinMinGFRunning(Builtin):
+    @staticmethod
+    def name():
+        return String("running")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 0)
+        return Boolean.new(_running)
+
+
+class BuiltinMinGFFps(Builtin):
+    @staticmethod
+    def name():
+        return String("fps")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 0)
+        return Number.new(_clock.get_fps())
+
+
+class BuiltinMinGFTextureLoad(Builtin):
+    @staticmethod
+    def name():
+        return String("load")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 1)
+        path = Builtin.typed_argument(arguments, 0, String).data
+        texture = pygame.image.load(path).convert_alpha()
+        return External(texture, _MINGF_TEXTURE_META.copy())
+
+
+class BuiltinMinGFTextureW(Builtin):
+    @staticmethod
+    def name():
+        return String("w")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 1)
+        ref, ext = Builtin.typed_argument_reference(arguments, 0, External)
+        texture = ext.data
+        return Number.new(texture.get_width())
+
+
+class BuiltinMinGFTextureH(Builtin):
+    @staticmethod
+    def name():
+        return String("h")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 1)
+        ref, ext = Builtin.typed_argument_reference(arguments, 0, External)
+        texture = ext.data
+        return Number.new(texture.get_height())
+
+
+class BuiltinMinGFFontLoad(Builtin):
+    @staticmethod
+    def name():
+        return String("load")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 2)
+        path = Builtin.typed_argument(arguments, 0, String).data
+        size = Builtin.typed_argument(arguments, 1, Number).data
+        font = pygame.font.Font(path, size=int(size))
+        return External(font, _MINGF_FONT_META.copy())
+
+
+class BuiltinMinGFFontMeasure(Builtin):
+    @staticmethod
+    def name():
+        return String("measure")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 2)
+        ref, ext = Builtin.typed_argument_reference(arguments, 0, External)
+        font = ext.data
+        text = Builtin.typed_argument(arguments, 1, String).data
+        size = font.size(text)
+        return Map({
+            String("x"): Number.new(size[0]),
+            String("y"): Number.new(size[1]),
+        }, _MINGF_VEC2.copy())
+
+
+class BuiltinMinGFSoundLoad(Builtin):
+    @staticmethod
+    def name():
+        return String("load")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 1)
+        path = Builtin.typed_argument(arguments, 0, String).data
+        sound = pygame.mixer.Sound(path)
+        return External(sound)
+
+
+class BuiltinMinGFSoundPlay(Builtin):
+    @staticmethod
+    def name():
+        return String("play")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 2)
+        sound = arguments[0].data
+        volume = float(Builtin.typed_argument(arguments, 1, Number).data)
+        if volume < 0.0:
+            volume = 0.0
+        if volume > 1.0:
+            volume = 1.0
+
+        channel = sound.play()
+        if channel is not None:
+            channel.set_volume(volume)
+        return Null()
+
+
+class BuiltinMinGFSoundPlayEx(Builtin):
+    @staticmethod
+    def name():
+        return String("play_ex")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 3)
+        sound = arguments[0].data
+        volume = float(Builtin.typed_argument(arguments, 1, Number).data)
+        if volume < 0.0:
+            volume = 0.0
+        if volume > 1.0:
+            volume = 1.0
+        extras = Builtin.typed_argument(arguments, 2, Map)
+        loop = False
+        if String("loop") in extras:
+            loop = bool(extras[String("loop")])
+
+        channel = sound.play(loops=-1 if loop else 0)
+        if channel is not None:
+            channel.set_volume(volume)
+        return Null()
+
+
+class BuiltinMinGFMousePosition(Builtin):
+    @staticmethod
+    def name():
+        return String("position")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 0)
+        position = pygame.mouse.get_pos()
+        return Map({
+            String("x"): Number.new(position[0]),
+            String("y"): Number.new(position[1]),
+        }, _MINGF_VEC2.copy())
+
+
+class BuiltinMinGFMouseHeld(Builtin):
+    @staticmethod
+    def name():
+        return String("held")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 1)
+        key = Builtin.typed_argument(arguments, 0, String).data.upper()
+        if not key in _STRING_MOUSEMAP:
+            return Boolean.new(False)
+        return Boolean.new(_STRING_MOUSEMAP[key].held)
+
+
+class BuiltinMinGFMousePressed(Builtin):
+    @staticmethod
+    def name():
+        return String("pressed")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 1)
+        key = Builtin.typed_argument(arguments, 0, String).data.upper()
+        if not key in _STRING_MOUSEMAP:
+            return Boolean.new(False)
+        return Boolean.new(_STRING_MOUSEMAP[key].pressed)
+
+
+class BuiltinMinGFMouseReleased(Builtin):
+    @staticmethod
+    def name():
+        return String("released")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 1)
+        key = Builtin.typed_argument(arguments, 0, String).data.upper()
+        if not key in _STRING_MOUSEMAP:
+            return Boolean.new(False)
+        return Boolean.new(_STRING_MOUSEMAP[key].released)
+
+
+class BuiltinMinGFKeyHeld(Builtin):
+    @staticmethod
+    def name():
+        return String("held")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 1)
+        key = Builtin.typed_argument(arguments, 0, String).data.upper()
+        if not key in _STRING_KEYMAP:
+            return Boolean.new(False)
+        return Boolean.new(_STRING_KEYMAP[key].held)
+
+
+class BuiltinMinGFKeyPressed(Builtin):
+    @staticmethod
+    def name():
+        return String("pressed")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 1)
+        key = Builtin.typed_argument(arguments, 0, String).data.upper()
+        if not key in _STRING_KEYMAP:
+            return Boolean.new(False)
+        return Boolean.new(_STRING_KEYMAP[key].pressed)
+
+
+class BuiltinMinGFKeyReleased(Builtin):
+    @staticmethod
+    def name():
+        return String("released")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 1)
+        key = Builtin.typed_argument(arguments, 0, String).data.upper()
+        if not key in _STRING_KEYMAP:
+            return Boolean.new(False)
+        return Boolean.new(_STRING_KEYMAP[key].released)
+
+
+class BuiltinMinGFDrawRectEmpty(Builtin):
+    @staticmethod
+    def name():
+        return String("rect_empty")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 3)
+        rect = arguments[0]
+        color = arguments[1]
+        width = arguments[2]
+        pygame.draw.rect(
+            _screen,
+            pygame.Color(
+                int(color[String("r")]),
+                int(color[String("g")]),
+                int(color[String("b")]),
+                int(color[String("a")]),
+            ),
+            pygame.Rect(
+                float(rect[String("x")]),
+                float(rect[String("y")]),
+                float(rect[String("w")]),
+                float(rect[String("h")]),
+            ),
+            width = int(width)
+        )
+        return Null()
+
+
+class BuiltinMinGFDrawRectSolid(Builtin):
+    @staticmethod
+    def name():
+        return String("rect_solid")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 2)
+        rect = arguments[0]
+        color = arguments[1]
+        pygame.draw.rect(
+            _screen,
+            pygame.Color(
+                int(color[String("r")]),
+                int(color[String("g")]),
+                int(color[String("b")]),
+                int(color[String("a")]),
+            ),
+            pygame.Rect(
+                float(rect[String("x")]),
+                float(rect[String("y")]),
+                float(rect[String("w")]),
+                float(rect[String("h")]),
+            )
+        )
+        return Null()
+
+
+class BuiltinMinGFDrawTexture(Builtin):
+    @staticmethod
+    def name():
+        return String("texture")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 2)
+        texture = arguments[0].data
+        vec2 = arguments[1]
+
+        _screen.blit(
+            texture,
+            (float(vec2[String("x")]), float(vec2[String("y")]))
+        )
+        return Null()
+
+
+class BuiltinMinGFDrawTextureEx(Builtin):
+    @staticmethod
+    def name():
+        return String("texture_ex")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 3)
+        texture = arguments[0].data
+        vec2 = arguments[1]
+        extras = Builtin.typed_argument(arguments, 2, Map)
+        flip_x = False
+        if String("flip-x") in extras:
+            flip_x = bool(extras[String("flip-x")])
+        flip_y = False
+        if String("flip-y") in extras:
+            flip_y = bool(extras[String("flip-y")])
+        scale_x = 1.0
+        scale_y = 1.0
+        if String("scale") in extras:
+            scale = extras[String("scale")]
+            if isinstance(scale, Number):
+                scale_x = float(scale)
+                scale_y = float(scale)
+            else:
+                scale_x = float(scale[String("x")])
+                scale_y = float(scale[String("y")])
+
+        resized_x = max(0.0, scale_x * texture.get_width())
+        resized_y = max(0.0, scale_y * texture.get_height())
+        texture = pygame.transform.flip(texture, flip_x=flip_x, flip_y=flip_y)
+        texture = pygame.transform.scale(texture, size=(resized_x, resized_y))
+        _screen.blit(
+            texture,
+            (float(vec2[String("x")]), float(vec2[String("y")]))
+        )
+        return Null()
+
+
+class BuiltinMinGFDrawText(Builtin):
+    @staticmethod
+    def name():
+        return String("text")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 4)
+        font = arguments[0].data
+        vec2 = arguments[1]
+        color = arguments[2]
+        text = Builtin.typed_argument(arguments, 3, String).data
+        text = font.render(
+            text,
+            antialias=True,
+            color=pygame.Color(
+                int(color[String("r")]),
+                int(color[String("g")]),
+                int(color[String("b")]),
+                int(color[String("a")]),
+            )
+        )
+        _screen.blit(
+            text,
+            (float(vec2[String("x")]), float(vec2[String("y")]))
+        )
+        return Null()
+
+
+_MINGF_TEXTURE_META = Map.new({
+    BuiltinMinGFTextureW.name(): BuiltinMinGFTextureW(),
+    BuiltinMinGFTextureH.name(): BuiltinMinGFTextureH(),
+})
+_MINGF_FONT_META = Map.new({
+    BuiltinMinGFFontMeasure.name(): BuiltinMinGFFontMeasure(),
+})
+_MINGF = Map.new({
+    String("color"): _MINGF_COLOR.copy(),
+    String("vec2"): _MINGF_VEC2.copy(),
+    String("rect"): _MINGF_RECT.copy(),
+    BuiltinMinGFInit.name(): BuiltinMinGFInit(),
+    BuiltinMinGFFini.name(): BuiltinMinGFFini(),
+    BuiltinMinGFTick.name(): BuiltinMinGFTick(),
+    BuiltinMinGFRunning.name(): BuiltinMinGFRunning(),
+    BuiltinMinGFFps.name(): BuiltinMinGFFps(),
+    String("texture"): Map.new({
+        BuiltinMinGFTextureLoad.name(): BuiltinMinGFTextureLoad(),
+    }),
+    String("font"): Map.new({
+        BuiltinMinGFFontLoad.name(): BuiltinMinGFFontLoad(),
+    }),
+    String("sound"): Map.new({
+        BuiltinMinGFSoundLoad.name(): BuiltinMinGFSoundLoad(),
+        BuiltinMinGFSoundPlay.name(): BuiltinMinGFSoundPlay(),
+        BuiltinMinGFSoundPlayEx.name(): BuiltinMinGFSoundPlayEx(),
+    }),
+    String("mouse"): Map.new({
+        BuiltinMinGFMousePosition.name(): BuiltinMinGFMousePosition(),
+        BuiltinMinGFMouseHeld.name(): BuiltinMinGFMouseHeld(),
+        BuiltinMinGFMousePressed.name(): BuiltinMinGFMousePressed(),
+        BuiltinMinGFMouseReleased.name(): BuiltinMinGFMouseReleased(),
+    }),
+    String("key"): Map.new({
+        BuiltinMinGFKeyHeld.name(): BuiltinMinGFKeyHeld(),
+        BuiltinMinGFKeyPressed.name(): BuiltinMinGFKeyPressed(),
+        BuiltinMinGFKeyReleased.name(): BuiltinMinGFKeyReleased(),
+    }),
+    String("draw"): Map.new({
+        BuiltinMinGFDrawRectEmpty.name(): BuiltinMinGFDrawRectEmpty(),
+        BuiltinMinGFDrawRectSolid.name(): BuiltinMinGFDrawRectSolid(),
+        BuiltinMinGFDrawTexture.name(): BuiltinMinGFDrawTexture(),
+        BuiltinMinGFDrawTextureEx.name(): BuiltinMinGFDrawTextureEx(),
+        BuiltinMinGFDrawText.name(): BuiltinMinGFDrawText(),
+    }),
+})
+BASE_ENV.let(String("_MINGF"), _MINGF)
+```;
+
+extend(`BASE_ENV.let(String("_MINGF_COLOR"), Null())`);
+extend(`BASE_ENV.let(String("_MINGF_RECT"), Null())`);
+extend(`BASE_ENV.let(String("_MINGF_VEC2"), Null())`);
+_MINGF_COLOR = import("color.lumpy");
+_MINGF_RECT = import("rect.lumpy");
+_MINGF_VEC2 = import("vec2.lumpy");
+extend(source);
+
+return _MINGF;
