@@ -757,246 +757,32 @@ println("=======================");
 println("== Builtin Functions ==");
 println("=======================");
 
-println("setmeta: set the metamap of a value (passed by reference)");
-println("getmeta: get the metamap of a value (passed by value)");
-let x = [123];
-dumpln(getmeta(x));
-setmeta(x.&, null);
-dumpln(getmeta(x));
+# Lumpy ships with a number of useful builtin functions.
+#
+# For example, most numbers (including number literals) may call the builtin
+# `is_integer` metafunction to test if the number is an integer.
 
-print("\n");
-
-println("type(null) is " + repr(type(null)));
-println("type(true) is " + repr(type(true)));
-println("type(123) is " + repr(type(123)));
-println("type(\"foo\") is " + repr(type("foo")));
-println("type([123, 456]) is " + repr(type([123, 456])));
-println("type({\"foo\": \"bar\"}) is " + repr(type({"foo": "bar"})));
-println("type({\"foo\", \"bar\"}) is " + repr(type({"foo", "bar"})));
-println("type(123.&) is " + repr(type(123.&)));
-println("type(function() {}) is " + repr(type(function() {})));
-println("type(println) is " + repr(type(println)));
-
-print("\n");
-
-println("123.is_inf() is " + repr(123.is_inf()));
-println("(+Inf).is_inf() is " + repr((+Inf).is_inf()));
-println("(-Inf).is_inf() is " + repr((-Inf).is_inf()));
-println("NaN.is_inf() is " + repr(NaN.is_inf()));
-
-println("123.is_nan() is " + repr(123.is_nan()));
-println("Inf.is_nan() is " + repr(Inf.is_nan()));
-println("NaN.is_nan() is " + repr(NaN.is_nan()));
-
-println("123.is_integer() is " + repr(123.is_integer()));
-println("123.5.is_integer() is " + repr(123.5.is_integer()));
-println("Inf.is_integer() is " + repr(Inf.is_integer()));
 println("NaN.is_integer() is " + repr(NaN.is_integer()));
-
-println("(+123.45).trunc() is " + repr((+123.45).trunc()));
-println("(-123.45).trunc() is " + repr((-123.45).trunc()));
-
-println("(+123.45).round() is " + repr((+123.45).round()));
-println("(-123.45).round() is " + repr((-123.45).round()));
-println("(+123.54).round() is " + repr((+123.54).round()));
-println("(-123.54).round() is " + repr((-123.54).round()));
-
-println("(+123.45).floor() is " + repr((+123.45).floor()));
-println("(-123.45).floor() is " + repr((-123.45).floor()));
-
-println("(+123.45).ceil() is " + repr((+123.45).ceil()));
-println("(-123.45).ceil() is " + repr((-123.45).ceil()));
+println("Inf.is_integer() is " + repr(Inf.is_integer()));
+println("(+123).is_integer() is " + repr(123.is_integer()));
+println("(-123).is_integer() is " + repr(123.is_integer()));
+println("123.5.is_integer() is " + repr(123.5.is_integer()));
 
 print("\n");
 
-println("\"foobar\".contains(\"foo\") is " + repr("foobar".contains("foo")));
-println("\"foobar\".contains(\"bar\") is " + repr("foobar".contains("bar")));
-println("\"foobar\".contains(\"baz\") is " + repr("foobar".contains("baz")));
-println("\"foobar\".contains(\"\") is " + repr("foobar".contains("")));
-
-println("\"foobar\".starts_with(\"foo\") is " + repr("foobar".starts_with("foo")));
-println("\"foobar\".starts_with(\"bar\") is " + repr("foobar".starts_with("bar")));
-println("\"foobar\".starts_with(\"\") is " + repr("foobar".starts_with("")));
-
-println("\"foobar\".ends_with(\"foo\") is " + repr("foobar".ends_with("foo")));
-println("\"foobar\".ends_with(\"bar\") is " + repr("foobar".ends_with("bar")));
-println("\"foobar\".ends_with(\"\") is " + repr("foobar".ends_with("")));
-
-println("\"foo\".trim() is " + repr("foo".trim()));
-println(repr("\t\n foo\t\n ") + ".trim() is " + repr("\t\n foo\t\n ".trim()));
-
-println("\"foo=bar\".find(\"=\") is " + repr("foo=bar".find("=")));
-println("\"foo=bar\".find(\"nope\") is " + repr("foo=bar".find("nope")));
-println("\"foo=foo\".find(\"foo\") is " + repr("foo=foo".find("foo")));
-
-println("\"foo=bar\".rfind(\"=\") is " + repr("foo=bar".rfind("=")));
-println("\"foo=bar\".rfind(\"nope\") is " + repr("foo=bar".rfind("nope")));
-println("\"foo=foo\".rfind(\"foo\") is " + repr("foo=foo".rfind("foo")));
-
-println("\"foo=bar\".slice(0, 3) is " + repr("foo=bar".slice(0, 3)));
-println("\"foo=bar\".slice(4, 7) is " + repr("foo=bar".slice(4, 7)));
-
-println("\"foo bar\".split(\" \") is " + repr("foo bar".split(" ")));
-println("\"f o o b a r\".split(\" \") is " + repr("f o o b a r".split(" ")));
-println("\"foobar\".split(\"oo\") is " + repr("foobar".split("oo")));
-println("\"foobar\".split(\"o\") is " + repr("foobar".split("o")));
-println("\"foobar\".split(\"baz\") is " + repr("foobar".split("baz")));
-
-println("\", \".join([\"foo\", \"bar\", \"baz\"]) is " + repr(", ".join(["foo", "bar", "baz"])));
-println("\", \".join([]) is " + repr(", ".join([])));
-println("\"\".join([\"foo\", \"bar\", \"baz\"]) is " + repr("".join(["foo", "bar", "baz"])));
-println("\"\".join([]) is " + repr("".join([])));
-
-println("\"foo=bar\".cut(\"=\") is " + repr("foo=bar".cut("=")));
-println("\"foo=bar\".cut(\"foo\") is " + repr("foo=bar".cut("foo")));
-println("\"foo=bar\".cut(\"bar\") is " + repr("foo=bar".cut("bar")));
-println("\"foo=bar\".cut(\"\") is " + repr("foo=bar".cut("")));
-println("\"foo=bar\".cut(\"nope\") is " + repr("foo=bar".cut("nope")));
-println("\"\".cut(\"\") is " + repr("".cut("")));
+# Another example, `math::sqrt`, returns the square root of an input number.
+println("math::sqrt(25) is " + repr(math::sqrt(25)));
+println("math::sqrt(2) is " + repr(math::sqrt(2)));
 
 print("\n");
 
-let x = [123, 456, 789];
-println("initial vector x is " + repr(x));
-println("x.count() is " + repr(x.count()));
-println("x.push(\"foo\") ...");
-x.push("foo");
-println("x after push is " + repr(x));
-println("x.pop() ...");
-x.pop();
-println("x after pop is " + repr(x));
-println("x.insert(1, \"foo\") ...");
-x.insert(1, "foo");
-println("x after insert is " + repr(x));
-println("x.remove(1) ...");
-x.remove(1);
-println("x after remove is " + repr(x));
-println("x.slice(1, 3) is " + repr(x.slice(1, 3)));
-println("x.contains(456) is " + repr(x.contains(456)));
-println("x.contains(\"abc\") is " + repr(x.contains("abc")));
-println("[\"foo\", \"bar\", \"baz\"].find(\"bar\") is " + repr(["foo", "bar", "baz"].find("bar")));
-println("[\"foo\", \"bar\", \"baz\"].find(\"nope\") is " + repr(["foo", "bar", "baz"].find("nope")));
-println("[\"foo\", \"bar\", \"foo\"].find(\"foo\") is " + repr(["foo", "bar", "foo"].find("foo")));
-println("[\"foo\", \"bar\", \"baz\"].rfind(\"bar\") is " + repr(["foo", "bar", "baz"].rfind("bar")));
-println("[\"foo\", \"bar\", \"baz\"].rfind(\"nope\") is " + repr(["foo", "bar", "baz"].rfind("nope")));
-println("[\"foo\", \"bar\", \"foo\"].rfind(\"foo\") is " + repr(["foo", "bar", "foo"].rfind("foo")));
-println("[\"foo\", \"bar\", \"baz\"].reversed() is " + repr(["foo", "bar", "baz"].reversed()));
-println("[\"foo\", \"bar\", \"baz\"].sorted() is " + repr(["foo", "bar", "baz"].sorted()));
+# The functions `print`, `println`, `dump`, `dumpln`, and `repr`, used
+# extensively throughout this overview, are also Lumpy builtins!
 
-print("\n");
+dumpln(println); # println@builtin
 
-let x = {"a": 123, "b": 456, "c": 789};
-println("initial map x is " + repr(x));
-println("x.count() is " + repr(x.count()));
-println("x.insert(\"foo\", \"bar\") ...");
-x.insert("foo", "bar");
-println("x after insert is " + repr(x));
-println("x.remove(\"foo\") ...");
-x.remove("foo");
-println("x after remove is " + repr(x));
-println("x.contains(\"b\") is " + repr(x.contains("b")));
-println("x.contains(\"abc\") is " + repr(x.contains("abc")));
-
-print("\n");
-
-let x = {"a", "b", "c"};
-println("initial set x is " + repr(x));
-println("x.count() is " + repr(x.count()));
-println("x.insert(\"foo\") ...");
-x.insert("foo");
-println("x after insert is " + repr(x));
-println("x.remove(\"foo\") ...");
-x.remove("foo");
-println("x after remove is " + repr(x));
-println("x.contains(\"b\") is " + repr(x.contains("b")));
-println("x.contains(\"abc\") is " + repr(x.contains("abc")));
-
-print("\n");
-
-println("boolean(true) is " + repr(boolean(true)));
-println("boolean(false) is " + repr(boolean(false)));
-println("boolean(123) is " + repr(boolean(123)));
-println("boolean(0) is " + repr(boolean(0)));
-println("boolean(Inf) is " + repr(boolean(Inf)));
-println("boolean(NaN) is " + repr(boolean(NaN)));
-println("boolean(\"true\") is " + repr(boolean("true")));
-println("boolean(\"false\") is " + repr(boolean("false")));
-try { boolean(null); } else err { println("boolean(null) produces " + repr(err)); }
-try { boolean("foo"); } else err { println("boolean(\"foo\") produces " + repr(err)); }
-try { boolean(map{}); } else err { println("boolean(map{}) produces " + repr(err)); }
-
-print("\n");
-
-println("number(true) is " + repr(number(true)));
-println("number(false) is " + repr(number(false)));
-println("number(123) is " + repr(number(123)));
-println("number(\"123\") is " + repr(number("123")));
-println("number(\"+123\") is " + repr(number("+123")));
-println("number(\"-123\") is " + repr(number("-123")));
-println("number(\"123.4\") is " + repr(number("123.4")));
-println("number(\"Inf\") is " + repr(number("Inf")));
-println("number(\"INF\") is " + repr(number("INF")));
-println("number(\"iNF\") is " + repr(number("iNF")));
-println("number(\"NaN\") is " + repr(number("NaN")));
-println("number(\"NAN\") is " + repr(number("NAN")));
-println("number(\"nan\") is " + repr(number("nan")));
-try { number(null); } else err { println("number(null) produces " + repr(err)); }
-try { number("foo"); } else err { println("number(\"foo\") produces " + repr(err)); }
-try { number(map{}); } else err { println("number(map{}) produces " + repr(err)); }
-
-print("\n");
-
-println("string(null) is " + repr(string(null)));
-println("string(true) is " + repr(string(true)));
-println("string(false) is " + repr(string(false)));
-println("string(123) is " + repr(string(123)));
-println("string(123.4) is " + repr(string(123.4)));
-println("string(Inf) is " + repr(string(Inf)));
-println("string(NaN) is " + repr(string(NaN)));
-println("string(\"foo\") is " + repr(string("foo")));
-println("string(map{}) is " + repr(string(map{})));
-println("string(set{}) is " + repr(string(set{})));
-println("string(123.&) is " + repr(string(123.&)));
-
-print("\n");
-
-println("vector(\"foo\") is " + repr(vector("foo")));
-println("vector([123, 456, 789]) is " + repr(vector([123, 456, 789])));
-println("vector({\"foo\": 123, \"bar\": 456, \"baz\": 789}) is " + repr(vector({"foo": 123, "bar": 456, "baz": 789})));
-println("vector({\"foo\", \"bar\", \"baz\"}) is " + repr(vector({"foo", "bar", "baz"})));
-try { vector(null); } else err { println("vector(null) produces " + repr(err)); }
-try { vector(123); } else err { println("vector(123) produces " + repr(err)); }
-
-print("\n");
-
-assert(true); println("assert(true) does nothing");
-try { assert(false); } else err { println("assert(false) produces " + repr(err)); }
-
-print("\n");
-
-let greeter = import("examples/greeter.lumpy");
-println("import(\"examples/greeter.lumpy\") produces " + repr(greeter));
-let greet = greeter::new("Juliet");
-println("greeter::new(\"Juliet\") produces " + repr(greet));
-greet(); # Say hello to Juliet!
-
-print("\n");
-
-println("read the `examples/greeter.lumpy` file with `fs::read`");
-let module = fs::read("examples/greeter.lumpy");
-println("```");
-print(module);
-println("```");
-
-print("\n");
-
-println("writing to `/dev/stdout` with file with `fs::write`");
-let module = fs::write("/dev/stdout", "some text\n");
-
-print("\n");
-
-println("writing to `/dev/stdout` with file with `fs::append`");
-let module = fs::append("/dev/stdout", "some text\n");
+# The behavior of each builtin function is described by the function's
+# associated test under the `tests` directory.
 
 print("\n");
 
