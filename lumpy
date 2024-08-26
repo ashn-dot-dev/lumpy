@@ -4438,24 +4438,6 @@ class Repl(code.InteractiveConsole):
         return False
 
 
-def repl(env: Optional[Environment] = None) -> None:
-    if env is None:
-        env = Environment(BASE_ENV)
-    while True:
-        try:
-            line = input(">> ")
-            result = eval_source(line, env)
-            if isinstance(result, Value):
-                print(result)
-            if isinstance(result, Error):
-                print(f"error: {result}")
-        except ParseError as e:
-            print(f"{e}", file=sys.stderr)
-        except (EOFError, KeyboardInterrupt):
-            print("", end="\n")
-            return
-
-
 def main() -> None:
     description = "The Lumpy Programming Language"
     parser = ArgumentParser(description=description)
