@@ -181,9 +181,6 @@ class Boolean(Value):
             return False
         return self.data == other.data
 
-    def __bool__(self) -> bool:
-        return self.data
-
     def __str__(self) -> str:
         return "true" if self.data else "false"
 
@@ -806,12 +803,12 @@ class SourceLocation:
 
 class TokenKind(enum.Enum):
     # Meta
-    ILLEGAL = "ILLEGAL"
-    EOF = "EOF"
+    ILLEGAL = "illegal"
+    EOF = "eof"
     # Identifiers and Literals
-    IDENTIFIER = "IDENTIFIER"
-    NUMBER = "NUMBER"
-    STRING = "STRING"
+    IDENTIFIER = "identifier"
+    NUMBER = "number"
+    STRING = "string"
     # Operators
     ADD = "+"
     SUB = "-"
