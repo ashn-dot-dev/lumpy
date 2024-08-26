@@ -40,7 +40,7 @@ Composed by One Man Symphony - onemansymphony.bandcamp.com
 https://creativecommons.org/licenses/by/4.0/
 
 File has been modified to remove a pop at the beginning of the track, add a
-fad-out at the end of the track, and has been re-exported as an Ogg file.
+fade-out at the end of the track, and has been re-exported as an Ogg file.
 ```
 
 ```
