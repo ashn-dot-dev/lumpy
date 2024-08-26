@@ -779,7 +779,11 @@ print("\n");
 # The functions `print`, `println`, `dump`, `dumpln`, and `repr`, used
 # extensively throughout this overview, are also Lumpy builtins!
 
+dumpln(print);   # print@builtin
 dumpln(println); # println@builtin
+dumpln(dump);    # dump@builtin
+dumpln(dumpln);  # dumpln@builtin
+dumpln(repr);    # repr@builtin
 
 # The behavior of each builtin function is described by the function's
 # associated test under the `tests` directory.
