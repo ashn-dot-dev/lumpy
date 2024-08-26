@@ -2,7 +2,7 @@
 #
 # An example game made with Lumpy and Pygame.
 
-let gf = import("mingf/main.lumpy");
+let gf = import("../../lib/minimalist-game-framework/main.lumpy");
 
 let SCREEN_W = 640;
 let SCREEN_H = 480;

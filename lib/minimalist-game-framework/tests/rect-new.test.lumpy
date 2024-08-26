@@ -1,4 +1,4 @@
-let rect = import("../mingf/rect.lumpy");
+let rect = import("../rect.lumpy");
 
 dumpln(rect::new(123, 456, 3, 5));
 dumpln(rect::new(123, 456, 0, 0));

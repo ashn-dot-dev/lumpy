@@ -1,4 +1,4 @@
-let color = import("../mingf/color.lumpy");
+let color = import("../color.lumpy");
 
 dumpln(color::new(0xAA, 0xBB, 0xCC, 0xDD));
 dumpln(color::new(0xAA, 0xBB, 0xCC, null));

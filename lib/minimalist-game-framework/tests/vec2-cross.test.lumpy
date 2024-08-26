@@ -1,4 +1,4 @@
-let vec2 = import("../mingf/vec2.lumpy");
+let vec2 = import("../vec2.lumpy");
 
 dumpln(vec2::cross(vec2::new(0, 0), vec2::new(1, 1)));
 dumpln(vec2::cross(vec2::new(1, 1), vec2::new(0, 0)));
