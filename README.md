@@ -192,6 +192,7 @@ An example game built in Lumpy using Pygame can be found under the
 ```
 
 ## License
-All content in this repository is licensed under the Zero-Clause BSD license.
+All content in this repository, unless otherwise noted, is licensed under the
+Zero-Clause BSD license.
 
 See LICENSE for more information.
