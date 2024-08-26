@@ -1,6 +1,6 @@
 # examples/program-arguments.lumpy
 #
 # Run as:
-# $ lumpy arg1 arg2 arg3
+# /path/to/lumpy$ ./lumpy examples/program-arguments.lumpy foo bar baz
 
 println("program arguments: " + repr(argv));

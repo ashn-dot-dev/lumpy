@@ -4463,6 +4463,7 @@ def main() -> None:
     args, argv = parser.parse_known_args()
 
     if args.file is not None:
+        argv.insert(0, args.file)
         env = Environment(BASE_ENV)
         module = env.get(String("module"))
         assert module is not None
