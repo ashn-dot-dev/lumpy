@@ -687,7 +687,7 @@ println("let x be 123");
 let x = 123;
 println("open a new scope");
 if true {
-    println("\tset x to 456 inside the new scope (using assignmet without let)");
+    println("\tset x to 456 inside the new scope (using assignment without let)");
     x = 456;
     println("\tinside the scope x is " + repr(x));
 }
@@ -698,7 +698,7 @@ print("\n");
 println("let x be 123");
 let x = 123;
 function() {
-    println("\tset x to 456 from within a function (using assignmet without let)");
+    println("\tset x to 456 from within a function (using assignment without let)");
     x = 456;
     println("\tinside the function x is " + repr(x));
 }();
@@ -706,7 +706,7 @@ println("outside the function x is " + repr(x));
 
 print("\n");
 
-println("create a function `adder(x)` returining a `function(y)` that returns the sum of the closed-over x and argument y when invoked");
+println("create a function `adder(x)` returning a `function(y)` that returns the sum of the closed-over x and argument y when invoked");
 let adder = function(x) {
     return function(y) {
         return x + y;
