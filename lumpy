@@ -19,6 +19,7 @@ from typing import (
     Union,
     final,
 )
+import code
 import enum
 import math
 import os
@@ -4276,9 +4277,9 @@ def eval_source(
     env: Optional[Environment] = None,
     loc: Optional[SourceLocation] = None,
 ) -> Optional[Union[Value, Error]]:
-    lexer: Lexer = Lexer(source, loc)
-    parser: Parser = Parser(lexer)
-    program: AstProgram = parser.parse_program()
+    lexer = Lexer(source, loc)
+    parser = Parser(lexer)
+    program = parser.parse_program()
     return program.eval(env or Environment(BASE_ENV))
 
 
@@ -4407,6 +4408,36 @@ BASE_ENV.let(
 )
 
 
+class Repl(code.InteractiveConsole):
+    def __init__(self, env: Optional[Environment] = None):
+        super().__init__()
+        self.env = env if env is not None else Environment(BASE_ENV)
+
+    def runsource(self, source, filename="<input>", symbol="single"):
+        lexer = Lexer(source)
+        parser = Parser(lexer)
+        try:
+            program = parser.parse_program()
+        except ParseError as e:
+            if not source.endswith("\n"):
+                # Assume the user has not finished entering their program, and
+                # wait for an additional newline before producing an error.
+                return True
+            print(f"error: {e}", file=sys.stderr)
+            return False
+        # If the program is valid, but did not end in a semicolon or additional
+        # newline, then assume that there may be additonal source to proccess,
+        # e.g. the else clause of an if-elif-else statement.
+        if not (source.endswith("\n") or source.rstrip().endswith(";")):
+            return True
+        result = program.eval(self.env)
+        if isinstance(result, Value):
+            print(result)
+        if isinstance(result, Error):
+            print(f"error: {result}")
+        return False
+
+
 def repl(env: Optional[Environment] = None) -> None:
     if env is None:
         env = Environment(BASE_ENV)
@@ -4414,8 +4445,8 @@ def repl(env: Optional[Environment] = None) -> None:
         try:
             line = input(">> ")
             result = eval_source(line, env)
-            if isinstance(result, Return):
-                print(result.value)
+            if isinstance(result, Value):
+                print(result)
             if isinstance(result, Error):
                 print(f"error: {result}")
         except ParseError as e:
@@ -4460,7 +4491,8 @@ def main() -> None:
                     s += f" called from {element.location}"
                 print(s)
     else:
-        repl()
+        repl = Repl()
+        repl.interact(banner="", exitmsg="")
 
 
 if __name__ == "__main__":
