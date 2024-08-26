@@ -25,8 +25,9 @@ Hello, world!
 Lumpy uses value semantics, so assignment operations copy the contents or
 "value" of an object when performing the assignment. After an assignment
 statement such as `a = b`, the objects `a` and `b` will contain separate copies
-of the same value. Lumpy also uses structural equality, so if two object have
-the same contents, then they are considered to be equal.
+of the same value. Lumpy also performs equality comparisons based on structural
+equality, so if two object have the same contents, then they are considered to
+be equal.
 
 ```
 # examples/value-semantics-and-structural-equality.lumpy
@@ -113,7 +114,7 @@ by taking a refrence to a value with the postfix `.&` operator, and then
 passing that value to a function. Lumpy has special syntax where
 `value.func(args)` implicitly passes a reference to `value` as the first
 parameter to metafunction `func`, similar to `this` within non-static member
-functions in C++ or `self` in non-static methods in Python. The special
+functions in C++ or `self` within non-static methods in Python. The special
 implicit refrence syntax provides a convenient way to support object-oriented
 patterns in Lumpy.
 
