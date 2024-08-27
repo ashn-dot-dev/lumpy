@@ -331,7 +331,7 @@ class BuiltinMinGFFps(Builtin):
         return Number.new(_clock.get_fps())
 
 
-class BuiltinMinGFTextureLoad(Builtin):
+class BuiltinMinGFImageLoad(Builtin):
     @staticmethod
     def name():
         return String("load")
@@ -339,11 +339,11 @@ class BuiltinMinGFTextureLoad(Builtin):
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
         path = Builtin.typed_argument(arguments, 0, String).data
-        texture = pygame.image.load(path).convert_alpha()
-        return External(texture, _MINGF_TEXTURE_META.copy())
+        image = pygame.image.load(path).convert_alpha()
+        return External(image, _MINGF_TEXTURE_META.copy())
 
 
-class BuiltinMinGFTextureW(Builtin):
+class BuiltinMinGFImageW(Builtin):
     @staticmethod
     def name():
         return String("w")
@@ -351,12 +351,12 @@ class BuiltinMinGFTextureW(Builtin):
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
         ref, ext = Builtin.typed_argument_reference(arguments, 0, External)
-        assert isinstance(ext.data, pygame.Surface), "expected texture"
-        texture = ext.data
-        return Number.new(texture.get_width())
+        assert isinstance(ext.data, pygame.Surface), "expected image"
+        image = ext.data
+        return Number.new(image.get_width())
 
 
-class BuiltinMinGFTextureH(Builtin):
+class BuiltinMinGFImageH(Builtin):
     @staticmethod
     def name():
         return String("h")
@@ -364,9 +364,9 @@ class BuiltinMinGFTextureH(Builtin):
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
         ref, ext = Builtin.typed_argument_reference(arguments, 0, External)
-        assert isinstance(ext.data, pygame.Surface), "expected texture"
-        texture = ext.data
-        return Number.new(texture.get_height())
+        assert isinstance(ext.data, pygame.Surface), "expected image"
+        image = ext.data
+        return Number.new(image.get_height())
 
 
 class BuiltinMinGFFontLoad(Builtin):
@@ -614,36 +614,36 @@ class BuiltinMinGFDrawRectSolid(Builtin):
         return Null()
 
 
-class BuiltinMinGFDrawTexture(Builtin):
+class BuiltinMinGFDrawImage(Builtin):
     @staticmethod
     def name():
-        return String("texture")
+        return String("image")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 2)
         ext = Builtin.typed_argument(arguments, 0, External)
-        assert isinstance(ext.data, pygame.Surface), "expected texture"
-        texture = ext.data
+        assert isinstance(ext.data, pygame.Surface), "expected image"
+        image = ext.data
         vec2 = Builtin.typed_argument(arguments, 1, Map)
         position = pygame.Vector2(
             float(vec2[String("x")]),
             float(vec2[String("y")]),
         )
 
-        _screen.blit(texture, position)
+        _screen.blit(image, position)
         return Null()
 
 
-class BuiltinMinGFDrawTextureEx(Builtin):
+class BuiltinMinGFDrawImageEx(Builtin):
     @staticmethod
     def name():
-        return String("texture_ex")
+        return String("image_ex")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 3)
         ext = Builtin.typed_argument(arguments, 0, External)
-        assert isinstance(ext.data, pygame.Surface), "expected texture"
-        texture = ext.data
+        assert isinstance(ext.data, pygame.Surface), "expected image"
+        image = ext.data
         vec2 = Builtin.typed_argument(arguments, 1, Map)
         position = pygame.Vector2(
             float(vec2[String("x")]),
@@ -651,7 +651,7 @@ class BuiltinMinGFDrawTextureEx(Builtin):
         )
         extras = Builtin.typed_argument(arguments, 2, Map)
 
-        rect = texture.get_frect()
+        rect = image.get_frect()
         rect.x = position.x
         rect.y = position.y
 
@@ -692,17 +692,17 @@ class BuiltinMinGFDrawTextureEx(Builtin):
             raise Exception(f"unexpected extras key {k}")
 
         if flip_x or flip_y:
-            texture = pygame.transform.flip(texture, flip_x=flip_x, flip_y=flip_y)
+            image = pygame.transform.flip(image, flip_x=flip_x, flip_y=flip_y)
         if scale_x != 1.0 or scale_y != 1.0:
-            resized_x = max(0.0, scale_x * texture.get_width())
-            resized_y = max(0.0, scale_y * texture.get_height())
-            texture = pygame.transform.scale(texture, size=(resized_x, resized_y))
-            rect = texture.get_frect(topleft=rect.topleft)
+            resized_x = max(0.0, scale_x * image.get_width())
+            resized_y = max(0.0, scale_y * image.get_height())
+            image = pygame.transform.scale(image, size=(resized_x, resized_y))
+            rect = image.get_frect(topleft=rect.topleft)
         if angle != 0.0:
-            texture = pygame.transform.rotate(texture, angle=angle)
-            rect = texture.get_frect(center=rect.center)
+            image = pygame.transform.rotate(image, angle=angle)
+            rect = image.get_frect(center=rect.center)
 
-        _screen.blit(texture, rect)
+        _screen.blit(image, rect)
         return Null()
 
 
@@ -737,8 +737,8 @@ class BuiltinMinGFDrawText(Builtin):
 
 
 _MINGF_TEXTURE_META = Map.new({
-    BuiltinMinGFTextureW.name(): BuiltinMinGFTextureW(),
-    BuiltinMinGFTextureH.name(): BuiltinMinGFTextureH(),
+    BuiltinMinGFImageW.name(): BuiltinMinGFImageW(),
+    BuiltinMinGFImageH.name(): BuiltinMinGFImageH(),
 })
 _MINGF_FONT_META = Map.new({
     BuiltinMinGFFontMeasure.name(): BuiltinMinGFFontMeasure(),
@@ -752,8 +752,8 @@ _MINGF = Map.new({
     BuiltinMinGFTick.name(): BuiltinMinGFTick(),
     BuiltinMinGFRunning.name(): BuiltinMinGFRunning(),
     BuiltinMinGFFps.name(): BuiltinMinGFFps(),
-    String("texture"): Map.new({
-        BuiltinMinGFTextureLoad.name(): BuiltinMinGFTextureLoad(),
+    String("image"): Map.new({
+        BuiltinMinGFImageLoad.name(): BuiltinMinGFImageLoad(),
     }),
     String("font"): Map.new({
         BuiltinMinGFFontLoad.name(): BuiltinMinGFFontLoad(),
@@ -777,8 +777,8 @@ _MINGF = Map.new({
     String("draw"): Map.new({
         BuiltinMinGFDrawRectEmpty.name(): BuiltinMinGFDrawRectEmpty(),
         BuiltinMinGFDrawRectSolid.name(): BuiltinMinGFDrawRectSolid(),
-        BuiltinMinGFDrawTexture.name(): BuiltinMinGFDrawTexture(),
-        BuiltinMinGFDrawTextureEx.name(): BuiltinMinGFDrawTextureEx(),
+        BuiltinMinGFDrawImage.name(): BuiltinMinGFDrawImage(),
+        BuiltinMinGFDrawImageEx.name(): BuiltinMinGFDrawImageEx(),
         BuiltinMinGFDrawText.name(): BuiltinMinGFDrawText(),
     }),
 })

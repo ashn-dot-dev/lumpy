@@ -6,7 +6,7 @@ let SCREEN_W = 640;
 let SCREEN_H = 480;
 gf::init(SCREEN_W, SCREEN_H, "Scaling and Rotation");
 
-let sword = gf::texture::load(module::directory + "/assets/sword.png");
+let sword = gf::image::load(module::directory + "/assets/sword.png");
 
 let ticks = 0;
 
@@ -14,7 +14,7 @@ while gf::running() {
     let scale = 16 + 8 * math::cos(ticks / 60);
     let position = gf::mouse::position() - gf::vec2::new(sword.w() * scale / 2, sword.h() * scale / 2);
 
-    gf::draw::texture_ex(
+    gf::draw::image_ex(
         sword,
         position,
         {

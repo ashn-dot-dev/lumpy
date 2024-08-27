@@ -11,10 +11,10 @@ gf::init(SCREEN_W, SCREEN_H, "Game");
 let frame = 1;
 let VOLUME_SCALE = 0.2;
 
-let textures = {
-    "earth": gf::texture::load(module::directory + "/assets/earth.png"),
-    "player": gf::texture::load(module::directory + "/assets/shuttle.png"),
-    "enemy": gf::texture::load(module::directory + "/assets/shuttle2.png"),
+let images = {
+    "earth": gf::image::load(module::directory + "/assets/earth.png"),
+    "player": gf::image::load(module::directory + "/assets/shuttle.png"),
+    "enemy": gf::image::load(module::directory + "/assets/shuttle2.png"),
 };
 let sounds = {
     "music": gf::sound::load(module::directory + "/assets/One-Man-Symphony-Wreckage-01-Black-Holes.ogg"),
@@ -24,8 +24,8 @@ let sounds = {
 let font = gf::font::load(module::directory + "/assets/Unispace-Bold.otf", 36);
 gf::sound::play_ex(sounds::music, VOLUME_SCALE, {"loop": true});
 
-let PLAYER_W = textures::player.w();
-let PLAYER_H = textures::player.h();
+let PLAYER_W = images::player.w();
+let PLAYER_H = images::player.h();
 let PLAYER_HITBOX_W = PLAYER_W / 3;
 let PLAYER_HITBOX_H = PLAYER_H;
 let player = {
@@ -43,8 +43,8 @@ let LASER_W = 8;
 let LASER_H = 16;
 let lasers = [];
 
-let ENEMY_W = textures::enemy.w();
-let ENEMY_H = textures::enemy.h();
+let ENEMY_W = images::enemy.w();
+let ENEMY_H = images::enemy.h();
 let enemies = [];
 
 let overlapping = function(a, b) {
@@ -266,8 +266,8 @@ while gf::running() {
         }
     }
 
-    gf::draw::texture_ex(
-        textures::earth,
+    gf::draw::image_ex(
+        images::earth,
         gf::vec2::new(SCREEN_W - 160, SCREEN_H - 160),
         {"scale": 2},
     );
@@ -293,8 +293,8 @@ while gf::running() {
     }
     for enemy in enemies {
         if enemy.scale > 0 {
-            gf::draw::texture_ex(
-                textures::enemy,
+            gf::draw::image_ex(
+                images::enemy,
                 enemy.position,
                 {
                     "scale": gf::vec2::new(1.0, enemy.scale),
@@ -311,8 +311,8 @@ while gf::running() {
             PLAYER_H
         ).center();
         let diff = center - player.position;
-        gf::draw::texture_ex(
-            textures::player,
+        gf::draw::image_ex(
+            images::player,
             player.position + diff * (1 - player.scale),
             {
                 "scale": player.scale,
