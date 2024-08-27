@@ -11,17 +11,21 @@ gf::init(SCREEN_W, SCREEN_H, "Game");
 let frame = 1;
 let VOLUME_SCALE = 0.2;
 
-let earth = gf::texture::load(module::directory + "/assets/earth.png");
-let player_ship = gf::texture::load(module::directory + "/assets/shuttle2.png");
-let enemy_ship = gf::texture::load(module::directory + "/assets/shuttle.png");
+let textures = {
+    "earth": gf::texture::load(module::directory + "/assets/earth.png"),
+    "player": gf::texture::load(module::directory + "/assets/shuttle2.png"),
+    "enemy": gf::texture::load(module::directory + "/assets/shuttle.png"),
+};
+let sounds = {
+    "music": gf::sound::load(module::directory + "/assets/One-Man-Symphony-Wreckage-01-Black-Holes.ogg"),
+    "laser": gf::sound::load(module::directory + "/assets/laser.ogg"),
+    "explosion": gf::sound::load(module::directory + "/assets/explosion.ogg"),
+};
 let font = gf::font::load(module::directory + "/assets/Unispace-Bold.otf", 36);
-let laser = gf::sound::load(module::directory + "/assets/laser.ogg");
-let explosion = gf::sound::load(module::directory + "/assets/explosion.ogg");
-let music = gf::sound::load(module::directory + "/assets/One-Man-Symphony-Wreckage-01-Black-Holes.ogg");
-gf::sound::play_ex(music, VOLUME_SCALE, {"loop": true});
+gf::sound::play_ex(sounds::music, VOLUME_SCALE, {"loop": true});
 
-let PLAYER_W = player_ship.w();
-let PLAYER_H = player_ship.h();
+let PLAYER_W = textures::player.w();
+let PLAYER_H = textures::player.h();
 let PLAYER_HITBOX_W = PLAYER_W / 3;
 let PLAYER_HITBOX_H = PLAYER_H;
 let player = {
@@ -38,8 +42,8 @@ let LASER_W = 8;
 let LASER_H = 16;
 let lasers = [];
 
-let ENEMY_W = enemy_ship.w();
-let ENEMY_H = enemy_ship.h();
+let ENEMY_W = textures::enemy.w();
+let ENEMY_H = textures::enemy.h();
 let enemies = [];
 
 let overlapping = function(a, b) {
@@ -137,7 +141,7 @@ while gf::running() {
         enemy.*.position.y = enemy.*.position.y + 4;
     }
     if player.alive and gf::key::pressed("SPACE") {
-        gf::sound::play(laser, VOLUME_SCALE * 0.25);
+        gf::sound::play(sounds::laser, VOLUME_SCALE * 0.25);
         lasers.push({
             "alive": true,
             "position": gf::vec2::new(
@@ -197,7 +201,7 @@ while gf::running() {
                 ).center(),
             );
             let volume = VOLUME_SCALE * (1 - (distance / max(SCREEN_W, SCREEN_H)));
-            gf::sound::play(explosion, volume);
+            gf::sound::play(sounds::explosion, volume);
         }
         let player_center = gf::rect::new(
             player.position.x,
@@ -222,7 +226,7 @@ while gf::running() {
         ) {
             player.alive = false;
             enemy.*.alive = false;
-            gf::sound::play(explosion, VOLUME_SCALE);
+            gf::sound::play(sounds::explosion, VOLUME_SCALE);
         }
     }
 
@@ -250,7 +254,7 @@ while gf::running() {
     }
 
     gf::draw::texture_ex(
-        earth,
+        textures::earth,
         gf::vec2::new(SCREEN_W - 160, SCREEN_H - 160),
         {"scale": 2},
     );
@@ -277,7 +281,7 @@ while gf::running() {
     for enemy in enemies {
         if enemy.scale > 0 {
             gf::draw::texture_ex(
-                enemy_ship,
+                textures::enemy,
                 enemy.position,
                 {
                     "scale": gf::vec2::new(1.0, enemy.scale),
@@ -295,7 +299,7 @@ while gf::running() {
         ).center();
         let diff = center - player.position;
         gf::draw::texture_ex(
-            player_ship,
+            textures::player,
             player.position + diff * (1 - player.scale),
             {"scale": player.scale},
         );
