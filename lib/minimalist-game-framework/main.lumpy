@@ -351,6 +351,7 @@ class BuiltinMinGFTextureW(Builtin):
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
         ref, ext = Builtin.typed_argument_reference(arguments, 0, External)
+        assert isinstance(ext.data, pygame.Surface), "expected texture"
         texture = ext.data
         return Number.new(texture.get_width())
 
@@ -363,6 +364,7 @@ class BuiltinMinGFTextureH(Builtin):
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
         ref, ext = Builtin.typed_argument_reference(arguments, 0, External)
+        assert isinstance(ext.data, pygame.Surface), "expected texture"
         texture = ext.data
         return Number.new(texture.get_height())
 
@@ -388,6 +390,7 @@ class BuiltinMinGFFontMeasure(Builtin):
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 2)
         ref, ext = Builtin.typed_argument_reference(arguments, 0, External)
+        assert isinstance(ext.data, pygame.Font), "expected font"
         font = ext.data
         text = Builtin.typed_argument(arguments, 1, String).data
         size = font.size(text)
@@ -416,7 +419,9 @@ class BuiltinMinGFSoundPlay(Builtin):
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 2)
-        sound = arguments[0].data
+        ext = Builtin.typed_argument(arguments, 0, External)
+        assert isinstance(ext.data, pygame.mixer.Sound), "expected sound"
+        sound = ext.data
         volume = float(Builtin.typed_argument(arguments, 1, Number).data)
         if volume < 0.0:
             volume = 0.0
@@ -436,7 +441,9 @@ class BuiltinMinGFSoundPlayEx(Builtin):
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 3)
-        sound = arguments[0].data
+        ext = Builtin.typed_argument(arguments, 0, External)
+        assert isinstance(ext.data, pygame.mixer.Sound), "expected sound"
+        sound = ext.data
         volume = float(Builtin.typed_argument(arguments, 1, Number).data)
         if volume < 0.0:
             volume = 0.0
@@ -445,7 +452,8 @@ class BuiltinMinGFSoundPlayEx(Builtin):
         extras = Builtin.typed_argument(arguments, 2, Map)
         loop = False
         if String("loop") in extras:
-            loop = bool(extras[String("loop")])
+            assert isinstance(extras[String("loop")], Boolean), "expected loop to be a boolean"
+            loop = extras[String("loop")].data
 
         channel = sound.play(loops=-1 if loop else 0)
         if channel is not None:
@@ -552,9 +560,9 @@ class BuiltinMinGFDrawRectEmpty(Builtin):
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 3)
-        rect = arguments[0]
-        color = arguments[1]
-        width = arguments[2]
+        rect = Builtin.typed_argument(arguments, 0, Map)
+        color = Builtin.typed_argument(arguments, 1, Map)
+        width = Builtin.typed_argument(arguments, 2, Number)
         pygame.draw.rect(
             _screen,
             pygame.Color(
@@ -581,8 +589,8 @@ class BuiltinMinGFDrawRectSolid(Builtin):
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 2)
-        rect = arguments[0]
-        color = arguments[1]
+        rect = Builtin.typed_argument(arguments, 0, Map)
+        color = Builtin.typed_argument(arguments, 1, Map)
         pygame.draw.rect(
             _screen,
             pygame.Color(
@@ -608,8 +616,10 @@ class BuiltinMinGFDrawTexture(Builtin):
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 2)
-        texture = arguments[0].data
-        vec2 = arguments[1]
+        ext = Builtin.typed_argument(arguments, 0, External)
+        assert isinstance(ext.data, pygame.Surface), "expected texture"
+        texture = ext.data
+        vec2 = Builtin.typed_argument(arguments, 1, Map)
 
         _screen.blit(
             texture,
@@ -625,14 +635,19 @@ class BuiltinMinGFDrawTextureEx(Builtin):
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 3)
-        texture = arguments[0].data
-        vec2 = arguments[1]
+        ext = Builtin.typed_argument(arguments, 0, External)
+        assert isinstance(ext.data, pygame.Surface), "expected texture"
+        texture = ext.data
+        vec2 = Builtin.typed_argument(arguments, 1, Map)
+
         extras = Builtin.typed_argument(arguments, 2, Map)
         flip_x = False
-        if String("flip-x") in extras:
-            flip_x = bool(extras[String("flip-x")])
         flip_y = False
+        if String("flip-x") in extras:
+            assert isinstance(extras[String("flip-x")], Boolean), "expected flip-x to be a boolean"
+            flip_x = extras[String("flip-x")].data
         if String("flip-y") in extras:
+            assert isinstance(extras[String("flip-y")], Boolean), "expected flip-y to be a boolean"
             flip_y = bool(extras[String("flip-y")])
         scale_x = 1.0
         scale_y = 1.0
@@ -642,6 +657,8 @@ class BuiltinMinGFDrawTextureEx(Builtin):
                 scale_x = float(scale)
                 scale_y = float(scale)
             else:
+                assert isinstance(scale[String("x")], Number), "expected scale::x to be a number"
+                assert isinstance(scale[String("y")], Number), "expected scale::y to be a number"
                 scale_x = float(scale[String("x")])
                 scale_y = float(scale[String("y")])
 
@@ -663,9 +680,11 @@ class BuiltinMinGFDrawText(Builtin):
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 4)
-        font = arguments[0].data
-        vec2 = arguments[1]
-        color = arguments[2]
+        ext = Builtin.typed_argument(arguments, 0, External)
+        assert isinstance(ext.data, pygame.Font), "expected font"
+        font = ext.data
+        vec2 = Builtin.typed_argument(arguments, 1, Map)
+        color = Builtin.typed_argument(arguments, 2, Map)
         text = Builtin.typed_argument(arguments, 3, String).data
         text = font.render(
             text,
