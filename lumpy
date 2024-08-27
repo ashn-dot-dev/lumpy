@@ -708,7 +708,10 @@ class Builtin(Value):
             result = self.function(arguments)
             return Null() if result is None else result
         except Exception as e:
-            return Error(None, String(f"{e}"))
+            message = f"{e}"
+            if len(message) == 0:
+                message = f"encountered exception {type(e).__name__}"
+            return Error(None, String(message))
 
     @staticmethod
     def expect_argument_count(arguments: list[Value], count: int) -> None:
