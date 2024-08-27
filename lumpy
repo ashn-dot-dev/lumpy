@@ -39,6 +39,18 @@ def escape(text: str) -> str:
     return "".join([MAPPING.get(c, c) for c in text])
 
 
+class InvalidFieldAccess(KeyError):
+    def __init__(self, value: "Value", field: "Value"):
+        self.value = value.copy()
+        self.field = field.copy()
+        super().__init__(str(self))
+
+    def __str__(self) -> str:
+        return (
+            f"invalid access into value {self.value} with field {self.field}"
+        )
+
+
 class SharedVectorData(UserList["Value"]):
     def __init__(self, data: Optional[Iterable["Value"]] = None):
         self.uses: int = 0
@@ -402,7 +414,7 @@ class Vector(Value):
             self.data.uses -= 1
             self.data = self.data.copy()  # copy-on-write
             self.data.uses += 1
-        return super().__delitem__(key)
+        super().__delitem__(key)
 
     @staticmethod
     def type() -> str:
@@ -477,17 +489,26 @@ class Map(Value):
             self.data.uses -= 1
             self.data = self.data.copy()  # copy-on-write
             self.data.uses += 1
-        self.data.__setitem__(key, value)
+        try:
+            self.data.__setitem__(key, value)
+        except KeyError:
+            raise InvalidFieldAccess(self, key)
 
     def __getitem__(self, key: Value) -> Value:
-        return self.data.__getitem__(key)
+        try:
+            return self.data.__getitem__(key)
+        except KeyError:
+            raise InvalidFieldAccess(self, key)
 
     def __delitem__(self, key: Value) -> None:
         if self.data.uses > 1:
             self.data.uses -= 1
             self.data = self.data.copy()  # copy-on-write
             self.data.uses += 1
-        return self.data.__delitem__(key)
+        try:
+            self.data.__delitem__(key)
+        except KeyError:
+            raise InvalidFieldAccess(self, key)
 
     @staticmethod
     def type() -> str:
@@ -687,7 +708,7 @@ class Builtin(Value):
             result = self.function(arguments)
             return Null() if result is None else result
         except Exception as e:
-            return Error(None, f"{e}")
+            return Error(None, String(f"{e}"))
 
     @staticmethod
     def expect_argument_count(arguments: list[Value], count: int) -> None:
