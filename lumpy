@@ -116,6 +116,9 @@ class Value(ABC):
     def __delitem__(self, key: "Value") -> None:
         raise NotImplementedError()  # optionally overridden by subclasses
 
+    def __copy__(self):
+        return self.copy()
+
     def metavalue(self, name: "Value") -> Optional["Value"]:
         if self.meta is None:
             return None

@@ -12,13 +12,21 @@ SOURCES: https://commons.wikimedia.org/wiki/File:Africa_and_Europe_from_a_Millio
 ```
 suttle.png
 LICENSE: Public Domain (CC0)
-SOURCEs: https://opengameart.org/content/simple-spaceship
+SOURCES: https://opengameart.org/content/simple-spaceship
 ```
 
 ```
 shuttle2.png
 LICENSE: Public Domain (CC0)
-SOURCEs: https://opengameart.org/content/simple-spaceship
+SOURCES: https://opengameart.org/content/simple-spaceship
+```
+
+```
+sword.png
+LICENSE: Public Domain (CC0)
+SOURCES: https://snoopethduckduck.itch.io/swords
+
+Image is `SnoopethDuckDuck Swords and Staffs/Pack 1/1px/03.png`
 ```
 
 ## FONTS

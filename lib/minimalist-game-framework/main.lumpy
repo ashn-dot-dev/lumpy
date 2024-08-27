@@ -302,7 +302,6 @@ class BuiltinMinGFTick(Builtin):
                 _PYGAME_KEYMAP[event.key].held = False
                 _PYGAME_KEYMAP[event.key].released = True
             if event.type == pygame.MOUSEBUTTONDOWN and event.button in _PYGAME_MOUSEMAP:
-                print(event.button)
                 _PYGAME_MOUSEMAP[event.button].held = True
                 _PYGAME_MOUSEMAP[event.button].pressed = True
             if event.type == pygame.MOUSEBUTTONUP and event.button in _PYGAME_MOUSEMAP:
@@ -451,10 +450,15 @@ class BuiltinMinGFSoundPlayEx(Builtin):
         if volume > 1.0:
             volume = 1.0
         extras = Builtin.typed_argument(arguments, 2, Map)
+
         loop = False
-        if String("loop") in extras:
-            assert isinstance(extras[String("loop")], Boolean), "expected loop to be a boolean"
-            loop = extras[String("loop")].data
+        for k, v in extras.data.items():
+            if isinstance(k, String) and k.data == "loop":
+                assert isinstance(v, Boolean), "expected loop to be a boolean"
+                loop = v.data
+                continue
+
+            raise Exception(f"unexpected extras key {k}")
 
         channel = sound.play(loops=-1 if loop else 0)
         if channel is not None:
@@ -605,7 +609,7 @@ class BuiltinMinGFDrawRectSolid(Builtin):
                 float(rect[String("y")]),
                 float(rect[String("w")]),
                 float(rect[String("h")]),
-            )
+            ),
         )
         return Null()
 
@@ -621,12 +625,12 @@ class BuiltinMinGFDrawTexture(Builtin):
         assert isinstance(ext.data, pygame.Surface), "expected texture"
         texture = ext.data
         vec2 = Builtin.typed_argument(arguments, 1, Map)
-        vector = pygame.Vector2(
+        position = pygame.Vector2(
             float(vec2[String("x")]),
             float(vec2[String("y")]),
         )
 
-        _screen.blit(texture, vector)
+        _screen.blit(texture, position)
         return Null()
 
 
@@ -641,39 +645,64 @@ class BuiltinMinGFDrawTextureEx(Builtin):
         assert isinstance(ext.data, pygame.Surface), "expected texture"
         texture = ext.data
         vec2 = Builtin.typed_argument(arguments, 1, Map)
-        vector = pygame.Vector2(
+        position = pygame.Vector2(
             float(vec2[String("x")]),
             float(vec2[String("y")]),
         )
-
         extras = Builtin.typed_argument(arguments, 2, Map)
+
+        rect = texture.get_frect()
+        rect.x = position.x
+        rect.y = position.y
+
         flip_x = False
         flip_y = False
-        if String("flip-x") in extras:
-            assert isinstance(extras[String("flip-x")], Boolean), "expected flip-x to be a boolean"
-            flip_x = extras[String("flip-x")].data
-        if String("flip-y") in extras:
-            assert isinstance(extras[String("flip-y")], Boolean), "expected flip-y to be a boolean"
-            flip_y = bool(extras[String("flip-y")])
         scale_x = 1.0
         scale_y = 1.0
-        if String("scale") in extras:
-            scale = extras[String("scale")]
-            if isinstance(scale, Number):
-                scale_x = float(scale)
-                scale_y = float(scale)
-            else:
-                assert isinstance(scale[String("x")], Number), "expected scale::x to be a number"
-                assert isinstance(scale[String("y")], Number), "expected scale::y to be a number"
-                scale_x = float(scale[String("x")])
-                scale_y = float(scale[String("y")])
+        angle = 0.0
+        for k, v in extras.data.items():
+            if isinstance(k, String) and k.data == "flip-x":
+                assert isinstance(v, Boolean), "expected flip-x to be a boolean"
+                flip_x = v.data
+                continue
 
-        resized_x = max(0.0, scale_x * texture.get_width())
-        resized_y = max(0.0, scale_y * texture.get_height())
-        texture = pygame.transform.flip(texture, flip_x=flip_x, flip_y=flip_y)
-        texture = pygame.transform.scale(texture, size=(resized_x, resized_y))
+            if isinstance(k, String) and k.data == "flip-y":
+                assert isinstance(v, Boolean), "expected flip-y to be a boolean"
+                flip_y = v.data
+                continue
 
-        _screen.blit(texture, vector)
+            if isinstance(k, String) and k.data == "scale":
+                # X and Y scaling factors applied before rotation.
+                if isinstance(v, Number):
+                    scale_x = float(v)
+                    scale_y = float(v)
+                else:
+                    assert isinstance(v[String("x")], Number), "expected scale::x to be a number"
+                    assert isinstance(v[String("y")], Number), "expected scale::y to be a number"
+                    scale_x = float(v[String("x")])
+                    scale_y = float(v[String("y")])
+                continue
+
+            if isinstance(k, String) and k.data == "angle":
+                # Angle of rotation around the cetner of the image.
+                assert isinstance(v, Number), "expected angle to be a number"
+                angle = float(extras[String("angle")])
+                continue
+
+            raise Exception(f"unexpected extras key {k}")
+
+        if flip_x or flip_y:
+            texture = pygame.transform.flip(texture, flip_x=flip_x, flip_y=flip_y)
+        if scale_x != 1.0 or scale_y != 1.0:
+            resized_x = max(0.0, scale_x * texture.get_width())
+            resized_y = max(0.0, scale_y * texture.get_height())
+            texture = pygame.transform.scale(texture, size=(resized_x, resized_y))
+            rect = texture.get_frect(topleft=rect.topleft)
+        if angle != 0.0:
+            texture = pygame.transform.rotate(texture, angle=angle)
+            rect = texture.get_frect(center=rect.center)
+
+        _screen.blit(texture, rect)
         return Null()
 
 

@@ -13,8 +13,8 @@ let VOLUME_SCALE = 0.2;
 
 let textures = {
     "earth": gf::texture::load(module::directory + "/assets/earth.png"),
-    "player": gf::texture::load(module::directory + "/assets/shuttle2.png"),
-    "enemy": gf::texture::load(module::directory + "/assets/shuttle.png"),
+    "player": gf::texture::load(module::directory + "/assets/shuttle.png"),
+    "enemy": gf::texture::load(module::directory + "/assets/shuttle2.png"),
 };
 let sounds = {
     "music": gf::sound::load(module::directory + "/assets/One-Man-Symphony-Wreckage-01-Black-Holes.ogg"),
@@ -31,6 +31,7 @@ let PLAYER_HITBOX_H = PLAYER_H;
 let player = {
     "alive": true,
     "scale": 1.0,
+    "angle": 0.0,
     "position": gf::vec2::new(
         SCREEN_W / 2 - PLAYER_W / 2,
         SCREEN_H / 2 - PLAYER_H / 2,
@@ -132,6 +133,18 @@ while gf::running() {
     if player.alive {
         player.position.x = math::clamp(player.position.x + delta.x, 0, SCREEN_W - PLAYER_W);
         player.position.y = math::clamp(player.position.y + delta.y, 0, SCREEN_H - PLAYER_H);
+
+        let TURN_SPEED = 0.2;
+        let TURN_MAX = 10;
+        if delta.x == 0 and player.angle > 0 {
+            player.angle = math::clamp(player.angle - TURN_SPEED * 4, 0, +TURN_MAX);
+        }
+        if delta.x == 0 and player.angle < 0 {
+            player.angle = math::clamp(player.angle + TURN_SPEED * 4, -TURN_MAX, 0);
+        }
+        if delta.x != 0 {
+            player.angle = math::clamp(player.angle - delta.x * TURN_SPEED, -TURN_MAX, +TURN_MAX);
+        }
     }
 
     for laser.& in lasers {
@@ -301,7 +314,10 @@ while gf::running() {
         gf::draw::texture_ex(
             textures::player,
             player.position + diff * (1 - player.scale),
-            {"scale": player.scale},
+            {
+                "scale": player.scale,
+                "angle": player.angle,
+            },
         );
     }
     let text = "Score: " + string(score);
