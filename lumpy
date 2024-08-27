@@ -4441,7 +4441,7 @@ class Repl(code.InteractiveConsole):
                 # Assume the user has not finished entering their program, and
                 # wait for an additional newline before producing an error.
                 return True
-            print(f"error: {e}", file=sys.stderr)
+            print(f"error: {e}")
             return False
         # If the program is valid, but did not end in a semicolon or additional
         # newline, then assume that there may be additonal source to proccess,
@@ -4483,14 +4483,14 @@ def main() -> None:
             print(result.value)
         if isinstance(result, Error):
             if result.location is not None:
-                print(f"[{result.location}] error: {result}")
+                print(f"[{result.location}] error: {result}", file=sys.stderr)
             else:
-                print(f"error: {result}")
+                print(f"error: {result}", file=sys.stderr)
             for element in result.trace:
                 s = f"...within {element.function}"
                 if element.location is not None:
                     s += f" called from {element.location}"
-                print(s)
+                print(s, file=sys.stderr)
     else:
         repl = Repl()
         repl.interact(banner="", exitmsg="")
