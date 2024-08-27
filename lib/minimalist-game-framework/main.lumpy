@@ -28,6 +28,7 @@ _PYGAME_MOUSEMAP = {
     3: _MOUSE_RBUTTON,
     2: _MOUSE_MBUTTON,
 }
+
 _STRING_MOUSEMAP = {
     "LBUTTON": _MOUSE_LBUTTON, "LEFT": _MOUSE_LBUTTON,
     "RBUTTON": _MOUSE_RBUTTON, "RIGHT": _MOUSE_RBUTTON,
@@ -562,7 +563,7 @@ class BuiltinMinGFDrawRectEmpty(Builtin):
         Builtin.expect_argument_count(arguments, 3)
         rect = Builtin.typed_argument(arguments, 0, Map)
         color = Builtin.typed_argument(arguments, 1, Map)
-        width = Builtin.typed_argument(arguments, 2, Number)
+        thickness = Builtin.typed_argument(arguments, 2, Number)
         pygame.draw.rect(
             _screen,
             pygame.Color(
@@ -577,7 +578,7 @@ class BuiltinMinGFDrawRectEmpty(Builtin):
                 float(rect[String("w")]),
                 float(rect[String("h")]),
             ),
-            width = int(width)
+            width = int(thickness)
         )
         return Null()
 
@@ -620,11 +621,12 @@ class BuiltinMinGFDrawTexture(Builtin):
         assert isinstance(ext.data, pygame.Surface), "expected texture"
         texture = ext.data
         vec2 = Builtin.typed_argument(arguments, 1, Map)
-
-        _screen.blit(
-            texture,
-            (float(vec2[String("x")]), float(vec2[String("y")]))
+        vector = pygame.Vector2(
+            float(vec2[String("x")]),
+            float(vec2[String("y")]),
         )
+
+        _screen.blit(texture, vector)
         return Null()
 
 
@@ -639,6 +641,10 @@ class BuiltinMinGFDrawTextureEx(Builtin):
         assert isinstance(ext.data, pygame.Surface), "expected texture"
         texture = ext.data
         vec2 = Builtin.typed_argument(arguments, 1, Map)
+        vector = pygame.Vector2(
+            float(vec2[String("x")]),
+            float(vec2[String("y")]),
+        )
 
         extras = Builtin.typed_argument(arguments, 2, Map)
         flip_x = False
@@ -666,10 +672,8 @@ class BuiltinMinGFDrawTextureEx(Builtin):
         resized_y = max(0.0, scale_y * texture.get_height())
         texture = pygame.transform.flip(texture, flip_x=flip_x, flip_y=flip_y)
         texture = pygame.transform.scale(texture, size=(resized_x, resized_y))
-        _screen.blit(
-            texture,
-            (float(vec2[String("x")]), float(vec2[String("y")]))
-        )
+
+        _screen.blit(texture, vector)
         return Null()
 
 
