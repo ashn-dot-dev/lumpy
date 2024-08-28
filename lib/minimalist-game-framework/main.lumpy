@@ -340,7 +340,7 @@ class BuiltinMinGFImageLoad(Builtin):
         Builtin.expect_argument_count(arguments, 1)
         path = Builtin.typed_argument(arguments, 0, String).data
         image = pygame.image.load(path).convert_alpha()
-        return External(image, _MINGF_TEXTURE_META.copy())
+        return External(image, _MINGF_IMAGE_META.copy())
 
 
 class BuiltinMinGFImageW(Builtin):
@@ -736,7 +736,7 @@ class BuiltinMinGFDrawText(Builtin):
         return Null()
 
 
-_MINGF_TEXTURE_META = Map.new({
+_MINGF_IMAGE_META = Map.new({
     String("w"): BuiltinMinGFImageW(),
     String("h"): BuiltinMinGFImageH(),
 })
