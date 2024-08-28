@@ -18,9 +18,8 @@ let x = {
     },
 };
 println(x::y::z);
-
 ################################################################################
 # function@[implicit-function-naming.test.lumpy, line 1]
 # foo@[implicit-function-naming.test.lumpy, line 3]
-# c@[implicit-function-naming.test.lumpy, line 8]
+# a::b::c@[implicit-function-naming.test.lumpy, line 8]
 # function@[implicit-function-naming.test.lumpy, line 17]

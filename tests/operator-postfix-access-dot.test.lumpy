@@ -62,13 +62,13 @@ dumpln(x);
 # "invalid function access with field \"foo\""
 # "invalid function access with field \"foo\""
 #
-# f@[operator-postfix-access-dot.test.lumpy, line 14]
+# meta::f@[operator-postfix-access-dot.test.lumpy, line 14]
 # inside metafunction f
 # "attempted access into type `number` with type `string`"
-# f@[operator-postfix-access-dot.test.lumpy, line 14]
+# meta::f@[operator-postfix-access-dot.test.lumpy, line 14]
 # inside metafunction f
 #
-# f@[operator-postfix-access-dot.test.lumpy, line 25]
+# meta::f@[operator-postfix-access-dot.test.lumpy, line 25]
 # inside metafunction f
 # 456
 # "attempted to call non-function type `number`"

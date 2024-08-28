@@ -664,7 +664,7 @@ class Function(Value):
 
     def __str__(self):
         name = self.ast.name.data if self.ast.name is not None else "function"
-        ugly = any(c not in ascii_letters + digits + "_" for c in name)
+        ugly = any(c not in ascii_letters + digits + "_" + ":" for c in name)
         name = f'"{escape(name)}"' if ugly else name
         if self.ast.location is not None:
             return f"{name}@[{self.ast.location}]"
@@ -1361,6 +1361,18 @@ def binary_operator_metafunction(
     return None
 
 
+def update_named_functions(map: "AstMap", prefix: str = ""):
+    """
+    Update the name values of named functions that are children somewhere in
+    this map, either direct map-level value or a decendent of another map.
+    """
+    for k, v in map.elements:
+        if isinstance(k, AstString) and isinstance(v, AstFunction):
+            v.name = String(prefix + k.data)
+        if isinstance(k, AstString) and isinstance(v, AstMap):
+            update_named_functions(v, prefix + k.data + str(TokenKind.SCOPE))
+
+
 class AstNode(ABC):
     location: Optional[SourceLocation]
 
@@ -1497,10 +1509,6 @@ class AstMap(AstExpression):
             v_result = v.eval(env)
             if isinstance(v_result, Error):
                 return v_result
-            if isinstance(k, AstString) and isinstance(v, AstFunction):
-                assert isinstance(k_result, String)
-                assert isinstance(v_result, Function)
-                v.name = String(k.data)
             elements[k_result.copy()] = v_result.copy()
         return Map.new(elements)
 
@@ -2800,6 +2808,7 @@ class Parser:
             self._advance_token()
         map_elements: list[Tuple[AstExpression, AstExpression]] = list()
         set_elements: list[AstExpression] = list()
+        named_functions: set[AstFunction] = set()
 
         location = self._expect_current(TokenKind.LBRACE).location
         while not self._check_current(TokenKind.RBRACE):
@@ -2829,7 +2838,9 @@ class Parser:
             case ParseMapOrSet.UNKNOWN:
                 raise ParseError(location, "ambiguous empty map or set")
             case ParseMapOrSet.MAP:
-                return AstMap(location, map_elements)
+                result = AstMap(location, map_elements)
+                update_named_functions(result)
+                return result
             case ParseMapOrSet.SET:
                 return AstSet(location, set_elements)
 
@@ -3008,9 +3019,13 @@ class Parser:
         identifier = self.parse_identifier()
         self._expect_current(TokenKind.ASSIGN)
         expression = self.parse_expression()
+        self._expect_current(TokenKind.SEMICOLON)
         if isinstance(expression, AstFunction):
             expression.name = identifier.name
-        self._expect_current(TokenKind.SEMICOLON)
+        if isinstance(expression, AstMap):
+            update_named_functions(
+                expression, identifier.name.data + str(TokenKind.SCOPE)
+            )
         return AstStatementLet(location, identifier, expression)
 
     def parse_statement_if_elif_else(self) -> AstStatementIfElifElse:
@@ -3452,7 +3467,7 @@ class BuiltinExtend(Builtin):
 class BuiltinFsRead(Builtin):
     @staticmethod
     def name() -> String:
-        return String("read")
+        return String("fs::read")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3465,7 +3480,7 @@ class BuiltinFsRead(Builtin):
 class BuiltinFsWrite(Builtin):
     @staticmethod
     def name() -> String:
-        return String("write")
+        return String("fs::write")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -3479,7 +3494,7 @@ class BuiltinFsWrite(Builtin):
 class BuiltinFsAppend(Builtin):
     @staticmethod
     def name() -> String:
-        return String("append")
+        return String("fs::append")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -3493,7 +3508,7 @@ class BuiltinFsAppend(Builtin):
 class BuiltinMathIsNaN(Builtin):
     @staticmethod
     def name() -> String:
-        return String("is_nan")
+        return String("math::is_nan")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3504,7 +3519,7 @@ class BuiltinMathIsNaN(Builtin):
 class BuiltinMathIsInf(Builtin):
     @staticmethod
     def name() -> String:
-        return String("is_inf")
+        return String("math::is_inf")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3515,7 +3530,7 @@ class BuiltinMathIsInf(Builtin):
 class BuiltinMathIsInteger(Builtin):
     @staticmethod
     def name() -> String:
-        return String("is_integer")
+        return String("math::is_integer")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3526,7 +3541,7 @@ class BuiltinMathIsInteger(Builtin):
 class BuiltinMathTrunc(Builtin):
     @staticmethod
     def name() -> String:
-        return String("trunc")
+        return String("math::trunc")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3537,7 +3552,7 @@ class BuiltinMathTrunc(Builtin):
 class BuiltinMathRound(Builtin):
     @staticmethod
     def name() -> String:
-        return String("round")
+        return String("math::round")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3548,7 +3563,7 @@ class BuiltinMathRound(Builtin):
 class BuiltinMathFloor(Builtin):
     @staticmethod
     def name() -> String:
-        return String("floor")
+        return String("math::floor")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3559,7 +3574,7 @@ class BuiltinMathFloor(Builtin):
 class BuiltinMathCeil(Builtin):
     @staticmethod
     def name() -> String:
-        return String("ceil")
+        return String("math::ceil")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3570,7 +3585,7 @@ class BuiltinMathCeil(Builtin):
 class BuiltinMathAbs(Builtin):
     @staticmethod
     def name() -> String:
-        return String("abs")
+        return String("math::abs")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3581,7 +3596,7 @@ class BuiltinMathAbs(Builtin):
 class BuiltinMathPow(Builtin):
     @staticmethod
     def name() -> String:
-        return String("pow")
+        return String("math::pow")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -3593,7 +3608,7 @@ class BuiltinMathPow(Builtin):
 class BuiltinMathSqrt(Builtin):
     @staticmethod
     def name() -> String:
-        return String("sqrt")
+        return String("math::sqrt")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3604,7 +3619,7 @@ class BuiltinMathSqrt(Builtin):
 class BuiltinMathClamp(BuiltinFromSource):
     @staticmethod
     def name() -> String:
-        return String("clamp")
+        return String("math::clamp")
 
     @staticmethod
     def source() -> str:
@@ -3625,7 +3640,7 @@ class BuiltinMathClamp(BuiltinFromSource):
 class BuiltinMathSin(Builtin):
     @staticmethod
     def name() -> String:
-        return String("sin")
+        return String("math::sin")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3636,7 +3651,7 @@ class BuiltinMathSin(Builtin):
 class BuiltinMathCos(Builtin):
     @staticmethod
     def name() -> String:
-        return String("cos")
+        return String("math::cos")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3647,7 +3662,7 @@ class BuiltinMathCos(Builtin):
 class BuiltinMathTan(Builtin):
     @staticmethod
     def name() -> String:
-        return String("tan")
+        return String("math::tan")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3658,7 +3673,7 @@ class BuiltinMathTan(Builtin):
 class BuiltinRandomNumber(Builtin):
     @staticmethod
     def name() -> String:
-        return String("number")
+        return String("random::number")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -3834,23 +3849,6 @@ class BuiltinStringTrim(Builtin):
 class BuiltinStringFind(Builtin):
     @staticmethod
     def name() -> String:
-        return String("rfind")
-
-    def function(self, arguments: list[Value]) -> Union[Value, Error]:
-        Builtin.expect_argument_count(arguments, 2)
-        arg0, arg0_data = Builtin.typed_argument_reference(
-            arguments, 0, String
-        )
-        arg1 = Builtin.typed_argument(arguments, 1, String)
-        found = arg0_data.data.rfind(arg1.data)
-        if found == -1:
-            return Null()
-        return Number.new(found)
-
-
-class BuiltinStringRfind(Builtin):
-    @staticmethod
-    def name() -> String:
         return String("find")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
@@ -3860,6 +3858,23 @@ class BuiltinStringRfind(Builtin):
         )
         arg1 = Builtin.typed_argument(arguments, 1, String)
         found = arg0_data.data.find(arg1.data)
+        if found == -1:
+            return Null()
+        return Number.new(found)
+
+
+class BuiltinStringRfind(Builtin):
+    @staticmethod
+    def name() -> String:
+        return String("rfind")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 2)
+        arg0, arg0_data = Builtin.typed_argument_reference(
+            arguments, 0, String
+        )
+        arg1 = Builtin.typed_argument(arguments, 1, String)
+        found = arg0_data.data.rfind(arg1.data)
         if found == -1:
             return Null()
         return Number.new(found)
