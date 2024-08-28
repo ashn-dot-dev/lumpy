@@ -321,7 +321,7 @@ while gf::running() {
         );
     }
     let text = "Score: " + string(score);
-    let size = font.measure(text);
+    let size = gf::measure::text(font, text);
     gf::draw::text(
         font,
         gf::vec2::new(SCREEN_W - size.x - 2, 2),

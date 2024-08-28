@@ -379,25 +379,7 @@ class BuiltinMinGFFontLoad(Builtin):
         path = Builtin.typed_argument(arguments, 0, String).data
         size = Builtin.typed_argument(arguments, 1, Number).data
         font = pygame.font.Font(path, size=int(size))
-        return External(font, _MINGF_FONT_META.copy())
-
-
-class BuiltinMinGFFontMeasure(Builtin):
-    @staticmethod
-    def name():
-        return String("minimalist-game-framework::font::measure")
-
-    def function(self, arguments):
-        Builtin.expect_argument_count(arguments, 2)
-        ref, ext = Builtin.typed_argument_reference(arguments, 0, External)
-        assert isinstance(ext.data, pygame.Font), "expected font"
-        font = ext.data
-        text = Builtin.typed_argument(arguments, 1, String).data
-        size = font.size(text)
-        return Map({
-            String("x"): Number.new(size[0]),
-            String("y"): Number.new(size[1]),
-        }, _MINGF_VEC2.copy())
+        return External(font)
 
 
 class BuiltinMinGFSoundLoad(Builtin):
@@ -556,6 +538,24 @@ class BuiltinMinGFKeyReleased(Builtin):
         if not key in _STRING_KEYMAP:
             return Boolean.new(False)
         return Boolean.new(_STRING_KEYMAP[key].released)
+
+
+class BuiltinMinGFMeasureText(Builtin):
+    @staticmethod
+    def name():
+        return String("minimalist-game-framework::measure::text")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 2)
+        ext = Builtin.typed_argument(arguments, 0, External)
+        assert isinstance(ext.data, pygame.Font), "expected font"
+        font = ext.data
+        text = Builtin.typed_argument(arguments, 1, String).data
+        size = font.size(text)
+        return Map({
+            String("x"): Number.new(float(size[0])),
+            String("y"): Number.new(float(size[1])),
+        }, _MINGF_VEC2.copy())
 
 
 class BuiltinMinGFDrawRectEmpty(Builtin):
@@ -740,9 +740,6 @@ _MINGF_IMAGE_META = Map.new({
     String("w"): BuiltinMinGFImageW(),
     String("h"): BuiltinMinGFImageH(),
 })
-_MINGF_FONT_META = Map.new({
-    String("measure"): BuiltinMinGFFontMeasure(),
-})
 _MINGF = Map.new({
     String("color"): _MINGF_COLOR.copy(),
     String("vec2"): _MINGF_VEC2.copy(),
@@ -773,6 +770,9 @@ _MINGF = Map.new({
         String("held"): BuiltinMinGFKeyHeld(),
         String("pressed"): BuiltinMinGFKeyPressed(),
         String("released"): BuiltinMinGFKeyReleased(),
+    }),
+    String("measure"): Map.new({
+        String("text"): BuiltinMinGFMeasureText(),
     }),
     String("draw"): Map.new({
         String("rect_empty"): BuiltinMinGFDrawRectEmpty(),
