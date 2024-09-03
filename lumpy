@@ -951,7 +951,6 @@ class Lexer:
     RE_IDENTIFIER = re.compile(r"^[a-zA-Z_]\w*", re.ASCII)
     RE_NUMBER_HEX = re.compile(r"^0x[0-9a-fA-F]+", re.ASCII)
     RE_NUMBER_DEC = re.compile(r"^\d+(\.\d+)?", re.ASCII)
-    RE_STRING = re.compile(r'^"(\S| |\\\\|\\n|\\")*"', re.ASCII)
 
     def __init__(
         self, source: str, location: Optional[SourceLocation] = None
