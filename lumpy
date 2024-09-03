@@ -1055,16 +1055,16 @@ class Lexer:
                 "expected character, found end-of-file",
             )
 
-        if not self._current_character() in printable:
-            raise ParseError(
-                self.location,
-                f"expected printable character, found ASCII {hex(ord(self._current_character()))}",
-            )
-
         if self._current_character() == "\n":
             raise ParseError(
                 self.location,
                 "expected character, found newline",
+            )
+
+        if not self._current_character().isprintable():
+            raise ParseError(
+                self.location,
+                f"expected printable character, found {hex(ord(self._current_character()))}",
             )
 
         if self._current_character() == "\\" and self._peek_character() == "t":

@@ -38,6 +38,7 @@ hello
 world
 ```
 );
+dumpln( "hello, 世界" );
 
 print("\n");
 
