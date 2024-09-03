@@ -660,6 +660,8 @@ class BuiltinMinGFDrawImageEx(Builtin):
         scale_x = 1.0
         scale_y = 1.0
         angle = 0.0
+        pivot_x = image.width / 2
+        pivot_y = image.height / 2
         for k, v in extras.data.items():
             if isinstance(k, String) and k.data == "flip-x":
                 assert isinstance(v, Boolean), "expected flip-x to be a boolean"
@@ -684,23 +686,45 @@ class BuiltinMinGFDrawImageEx(Builtin):
                 continue
 
             if isinstance(k, String) and k.data == "angle":
-                # Angle of rotation around the cetner of the image.
+                # Angle of rotation around the pivot of the image.
                 assert isinstance(v, Number), "expected angle to be a number"
                 angle = float(extras[String("angle")])
                 continue
 
+            if isinstance(k, String) and k.data == "pivot":
+                # Pivot of the image.
+                assert isinstance(v[String("x")], Number), "expected pivot::x to be a number"
+                assert isinstance(v[String("y")], Number), "expected pivot::y to be a number"
+                pivot_x = float(v[String("x")])
+                pivot_y = float(v[String("y")])
+                continue
+
             raise Exception(f"unexpected extras key {k}")
 
+        original_w = image.get_width()
+        original_h = image.get_height()
         if flip_x or flip_y:
             image = pygame.transform.flip(image, flip_x=flip_x, flip_y=flip_y)
         if scale_x != 1.0 or scale_y != 1.0:
-            resized_x = max(0.0, scale_x * image.get_width())
-            resized_y = max(0.0, scale_y * image.get_height())
+            resized_x = max(0.0, scale_x * original_w)
+            resized_y = max(0.0, scale_y * original_h)
             image = pygame.transform.scale(image, size=(resized_x, resized_y))
             rect = image.get_frect(topleft=rect.topleft)
         if angle != 0.0:
-            image = pygame.transform.rotate(image, angle=angle)
+            w, h = image.get_size()
+            size_2x = pygame.Vector2(w * 2, h * 2)
+            surface = pygame.Surface(size_2x, pygame.SRCALPHA)
+
+            clamped_x = min(max(0.0, pivot_x), original_w)
+            clamped_y = min(max(0.0, pivot_y), original_h)
+            pivot = pygame.Vector2(clamped_x * scale_x, clamped_y * scale_y)
+            offset = pygame.Vector2(w - pivot.x, h - pivot.y)
+            surface.blit(image, offset)
+
+            image = pygame.transform.rotate(surface, angle=angle)
             rect = image.get_frect(center=rect.center)
+            rect.x -= (w / 2 - pivot.x)
+            rect.y -= (h / 2 - pivot.y)
 
         _screen.blit(image, rect)
         return Null()
