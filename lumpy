@@ -3354,6 +3354,34 @@ class BuiltinVector(Builtin):
         return Error(None, f"cannot convert value {arguments[0]} to vector")
 
 
+class BuiltinUnion(BuiltinFromSource):
+    @staticmethod
+    def name() -> String:
+        return String("union")
+
+    @staticmethod
+    def source() -> str:
+        return """
+        let union = function(a, b) {
+            let type_a = type(a);
+            let type_b = type(b);
+            if (type_a != "set" or type_b != "set") {
+                error "expected two sets, received " + type_a + " and " + type_b;
+            }
+
+            let result = set{};
+            for element in a {
+                result.insert(element);
+            }
+            for element in b {
+                result.insert(element);
+            }
+            return result;
+        };
+        return union;
+        """
+
+
 class BuiltinAssert(BuiltinFromSource):
     @staticmethod
     def name() -> String:
@@ -4391,6 +4419,7 @@ let_builtin(BASE_ENV.store, BuiltinBoolean())
 let_builtin(BASE_ENV.store, BuiltinNumber())
 let_builtin(BASE_ENV.store, BuiltinString())
 let_builtin(BASE_ENV.store, BuiltinVector())
+let_builtin(BASE_ENV.store, BuiltinUnion())
 let_builtin(BASE_ENV.store, BuiltinAssert())
 let_builtin(BASE_ENV.store, BuiltinMin())
 let_builtin(BASE_ENV.store, BuiltinMax())

@@ -1,0 +1,10 @@
+let a = {"foo", "bar", "baz"};
+let b = {"abc", "def", "ghi"};
+dumpln(union(a, b));
+
+try { dumpln(union(123, set{})); } else err { dumpln(err); }
+try { dumpln(union(set{}, 123)); } else err { dumpln(err); }
+################################################################################
+# {"foo", "bar", "baz", "abc", "def", "ghi"}
+# "expected two sets, received number and set"
+# "expected two sets, received set and number"
