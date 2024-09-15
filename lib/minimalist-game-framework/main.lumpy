@@ -19,20 +19,20 @@ class MinGFPressState:
     released: bool = False
 
 
-_MOUSE_LBUTTON = MinGFPressState()
-_MOUSE_RBUTTON = MinGFPressState()
-_MOUSE_MBUTTON = MinGFPressState()
+_MINGF_MOUSE_LBUTTON = MinGFPressState()
+_MINGF_MOUSE_RBUTTON = MinGFPressState()
+_MINGF_MOUSE_MBUTTON = MinGFPressState()
 
-_PYGAME_MOUSEMAP = {
-    1: _MOUSE_LBUTTON,
-    3: _MOUSE_RBUTTON,
-    2: _MOUSE_MBUTTON,
+_MINGF_PYGAME_MOUSEMAP = {
+    1: _MINGF_MOUSE_LBUTTON,
+    3: _MINGF_MOUSE_RBUTTON,
+    2: _MINGF_MOUSE_MBUTTON,
 }
 
-_STRING_MOUSEMAP = {
-    "LBUTTON": _MOUSE_LBUTTON, "LEFT": _MOUSE_LBUTTON,
-    "RBUTTON": _MOUSE_RBUTTON, "RIGHT": _MOUSE_RBUTTON,
-    "MBUTTON": _MOUSE_MBUTTON, "MIDDLE": _MOUSE_MBUTTON,
+_MINGF_STRING_MOUSEMAP = {
+    "LBUTTON": _MINGF_MOUSE_LBUTTON, "LEFT": _MINGF_MOUSE_LBUTTON,
+    "RBUTTON": _MINGF_MOUSE_RBUTTON, "RIGHT": _MINGF_MOUSE_RBUTTON,
+    "MBUTTON": _MINGF_MOUSE_MBUTTON, "MIDDLE": _MINGF_MOUSE_MBUTTON,
 }
 
 _KEY_UARROW = MinGFPressState()
@@ -98,7 +98,7 @@ _KEY_X = MinGFPressState()
 _KEY_Y = MinGFPressState()
 _KEY_Z = MinGFPressState()
 
-_PYGAME_KEYMAP = {
+_MINGF_PYGAME_KEYMAP = {
     pygame.K_UP: _KEY_UARROW,
     pygame.K_DOWN: _KEY_DARROW,
     pygame.K_LEFT: _KEY_LARROW,
@@ -163,7 +163,7 @@ _PYGAME_KEYMAP = {
     pygame.K_z: _KEY_Z,
 }
 
-_STRING_KEYMAP = {
+_MINGF_STRING_KEYMAP = {
     "UARROW": _KEY_UARROW, "UP": _KEY_UARROW,
     "DARROW": _KEY_DARROW, "DOWN": _KEY_DARROW,
     "LARROW": _KEY_LARROW, "LEFT": _KEY_LARROW,
@@ -228,9 +228,9 @@ _STRING_KEYMAP = {
     "Z": _KEY_Z,
 }
 
-_running = False
-_screen = None
-_clock = None
+_mingf_running = False
+_mingf_screen = None
+_mingf_clock = None
 
 
 class BuiltinMinGFInit(Builtin):
@@ -248,10 +248,10 @@ class BuiltinMinGFInit(Builtin):
 
         pygame.display.set_caption(title.data)
 
-        global _running, _screen, _clock
-        _running = True
-        _screen = pygame.display.set_mode((int(w), int(h)))
-        _clock = pygame.time.Clock()
+        global _mingf_running, _mingf_screen, _mingf_clock
+        _mingf_running = True
+        _mingf_screen = pygame.display.set_mode((int(w), int(h)))
+        _mingf_clock = pygame.time.Clock()
         return Null()
 
 
@@ -263,8 +263,8 @@ class BuiltinMinGFFini(Builtin):
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 0)
 
-        global _running
-        _running = False
+        global _mingf_running
+        _mingf_running = False
         pygame.quit()
         return Null()
 
@@ -279,34 +279,34 @@ class BuiltinMinGFTick(Builtin):
 
         # End of the Current Frame
         pygame.display.flip()
-        _clock.tick(_MINGF_TARGET_FPS)
+        _mingf_clock.tick(_MINGF_TARGET_FPS)
 
         # Start of the Following Frame
-        _screen.fill((0x00, 0x00, 0x00))
-        for key in _PYGAME_KEYMAP.values():
+        _mingf_screen.fill((0x00, 0x00, 0x00))
+        for key in _MINGF_PYGAME_KEYMAP.values():
             key.pressed = False
             key.released = False
-        for button in _PYGAME_MOUSEMAP.values():
+        for button in _MINGF_PYGAME_MOUSEMAP.values():
             button.pressed = False
             button.released = False
         for event in pygame.event.get():
-            global _running
+            global _mingf_running
             if event.type == pygame.QUIT:
-                _running = False
+                _mingf_running = False
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                _running = False
-            if event.type == pygame.KEYDOWN and event.key in _PYGAME_KEYMAP:
-                _PYGAME_KEYMAP[event.key].held = True
-                _PYGAME_KEYMAP[event.key].pressed = True
-            if event.type == pygame.KEYUP and event.key in _PYGAME_KEYMAP:
-                _PYGAME_KEYMAP[event.key].held = False
-                _PYGAME_KEYMAP[event.key].released = True
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button in _PYGAME_MOUSEMAP:
-                _PYGAME_MOUSEMAP[event.button].held = True
-                _PYGAME_MOUSEMAP[event.button].pressed = True
-            if event.type == pygame.MOUSEBUTTONUP and event.button in _PYGAME_MOUSEMAP:
-                _PYGAME_MOUSEMAP[event.button].held = False
-                _PYGAME_MOUSEMAP[event.button].released = True
+                _mingf_running = False
+            if event.type == pygame.KEYDOWN and event.key in _MINGF_PYGAME_KEYMAP:
+                _MINGF_PYGAME_KEYMAP[event.key].held = True
+                _MINGF_PYGAME_KEYMAP[event.key].pressed = True
+            if event.type == pygame.KEYUP and event.key in _MINGF_PYGAME_KEYMAP:
+                _MINGF_PYGAME_KEYMAP[event.key].held = False
+                _MINGF_PYGAME_KEYMAP[event.key].released = True
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button in _MINGF_PYGAME_MOUSEMAP:
+                _MINGF_PYGAME_MOUSEMAP[event.button].held = True
+                _MINGF_PYGAME_MOUSEMAP[event.button].pressed = True
+            if event.type == pygame.MOUSEBUTTONUP and event.button in _MINGF_PYGAME_MOUSEMAP:
+                _MINGF_PYGAME_MOUSEMAP[event.button].held = False
+                _MINGF_PYGAME_MOUSEMAP[event.button].released = True
 
         return Null()
 
@@ -318,7 +318,7 @@ class BuiltinMinGFRunning(Builtin):
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 0)
-        return Boolean.new(_running)
+        return Boolean.new(_mingf_running)
 
 
 class BuiltinMinGFFps(Builtin):
@@ -328,7 +328,7 @@ class BuiltinMinGFFps(Builtin):
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 0)
-        return Number.new(_clock.get_fps())
+        return Number.new(_mingf_clock.get_fps())
 
 
 class BuiltinMinGFImageLoad(Builtin):
@@ -470,9 +470,9 @@ class BuiltinMinGFMouseHeld(Builtin):
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
         key = Builtin.typed_argument(arguments, 0, String).data.upper()
-        if not key in _STRING_MOUSEMAP:
+        if not key in _MINGF_STRING_MOUSEMAP:
             return Boolean.new(False)
-        return Boolean.new(_STRING_MOUSEMAP[key].held)
+        return Boolean.new(_MINGF_STRING_MOUSEMAP[key].held)
 
 
 class BuiltinMinGFMousePressed(Builtin):
@@ -483,9 +483,9 @@ class BuiltinMinGFMousePressed(Builtin):
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
         key = Builtin.typed_argument(arguments, 0, String).data.upper()
-        if not key in _STRING_MOUSEMAP:
+        if not key in _MINGF_STRING_MOUSEMAP:
             return Boolean.new(False)
-        return Boolean.new(_STRING_MOUSEMAP[key].pressed)
+        return Boolean.new(_MINGF_STRING_MOUSEMAP[key].pressed)
 
 
 class BuiltinMinGFMouseReleased(Builtin):
@@ -496,9 +496,9 @@ class BuiltinMinGFMouseReleased(Builtin):
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
         key = Builtin.typed_argument(arguments, 0, String).data.upper()
-        if not key in _STRING_MOUSEMAP:
+        if not key in _MINGF_STRING_MOUSEMAP:
             return Boolean.new(False)
-        return Boolean.new(_STRING_MOUSEMAP[key].released)
+        return Boolean.new(_MINGF_STRING_MOUSEMAP[key].released)
 
 
 class BuiltinMinGFKeyHeld(Builtin):
@@ -509,9 +509,9 @@ class BuiltinMinGFKeyHeld(Builtin):
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
         key = Builtin.typed_argument(arguments, 0, String).data.upper()
-        if not key in _STRING_KEYMAP:
+        if not key in _MINGF_STRING_KEYMAP:
             return Boolean.new(False)
-        return Boolean.new(_STRING_KEYMAP[key].held)
+        return Boolean.new(_MINGF_STRING_KEYMAP[key].held)
 
 
 class BuiltinMinGFKeyPressed(Builtin):
@@ -522,9 +522,9 @@ class BuiltinMinGFKeyPressed(Builtin):
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
         key = Builtin.typed_argument(arguments, 0, String).data.upper()
-        if not key in _STRING_KEYMAP:
+        if not key in _MINGF_STRING_KEYMAP:
             return Boolean.new(False)
-        return Boolean.new(_STRING_KEYMAP[key].pressed)
+        return Boolean.new(_MINGF_STRING_KEYMAP[key].pressed)
 
 
 class BuiltinMinGFKeyReleased(Builtin):
@@ -535,9 +535,9 @@ class BuiltinMinGFKeyReleased(Builtin):
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
         key = Builtin.typed_argument(arguments, 0, String).data.upper()
-        if not key in _STRING_KEYMAP:
+        if not key in _MINGF_STRING_KEYMAP:
             return Boolean.new(False)
-        return Boolean.new(_STRING_KEYMAP[key].released)
+        return Boolean.new(_MINGF_STRING_KEYMAP[key].released)
 
 
 class BuiltinMinGFMeasureText(Builtin):
@@ -569,7 +569,7 @@ class BuiltinMinGFDrawRectEmpty(Builtin):
         color = Builtin.typed_argument(arguments, 1, Map)
         thickness = Builtin.typed_argument(arguments, 2, Number)
         pygame.draw.rect(
-            _screen,
+            _mingf_screen,
             pygame.Color(
                 int(color[String("r")]),
                 int(color[String("g")]),
@@ -597,7 +597,7 @@ class BuiltinMinGFDrawRectSolid(Builtin):
         rect = Builtin.typed_argument(arguments, 0, Map)
         color = Builtin.typed_argument(arguments, 1, Map)
         pygame.draw.rect(
-            _screen,
+            _mingf_screen,
             pygame.Color(
                 int(color[String("r")]),
                 int(color[String("g")]),
@@ -630,7 +630,7 @@ class BuiltinMinGFDrawImage(Builtin):
             float(vec2[String("y")]),
         )
 
-        _screen.blit(image, position)
+        _mingf_screen.blit(image, position)
         return Null()
 
 
@@ -726,7 +726,7 @@ class BuiltinMinGFDrawImageEx(Builtin):
             rect.x -= (w / 2 - pivot.x)
             rect.y -= (h / 2 - pivot.y)
 
-        _screen.blit(image, rect)
+        _mingf_screen.blit(image, rect)
         return Null()
 
 
@@ -753,7 +753,7 @@ class BuiltinMinGFDrawText(Builtin):
                 int(color[String("a")]),
             )
         )
-        _screen.blit(
+        _mingf_screen.blit(
             text,
             (float(vec2[String("x")]), float(vec2[String("y")]))
         )
