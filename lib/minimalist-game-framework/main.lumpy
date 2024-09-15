@@ -244,6 +244,9 @@ class BuiltinMinGFInit(Builtin):
         h = Builtin.typed_argument(arguments, 1, Number)
         title = Builtin.typed_argument(arguments, 2, String)
 
+        if pygame.get_init():
+            raise Exception("minimalist-game-framework is already initialized")
+
         pygame.init()
 
         pygame.display.set_caption(title.data)
