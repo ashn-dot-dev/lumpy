@@ -189,7 +189,35 @@ An example game built in Lumpy using Pygame can be found under the
 (.venv-lumpy) /path/to/lumpy$ make check   # run tests
 (.venv-lumpy) /path/to/lumpy$ make lint    # lint with mypy
 (.venv-lumpy) /path/to/lumpy$ make format  # format using black
+(.venv-lumpy) /path/to/lumpy$ make build   # build standalone executable
+(.venv-lumpy) /path/to/lumpy$ make install # install standalone tools
 ```
+
+## Installing
+
+The `install` target will install standalone Lumpy tooling into the directory
+specified by `LUMPY_HOME` (default `$HOME/.lumpy`). Run `make install` with
+`LUMPY_HOME` specified as the directory of your choice:
+
+```sh
+$ make install                        # Install to the default $HOME/.lumpy
+$ make install LUMPY_HOME=/opt/lumpy  # Install to /opt/lumpy
+```
+
+Then, add the following snippet to your `.profile`, replacing `$HOME/.lumpy`
+with your chosen `LUMPY_HOME` directory if installing to a non-default
+`LUMPY_HOME` location:
+
+```sh
+export LUMPY_HOME="$HOME/.lumpy"
+if [ -e "$LUMPY_HOME/env" ]; then
+    . "$LUMPY_HOME/env"
+fi
+```
+
+Verify that the standalone Lumpy tooling has been successfully installed by
+running `lumpy -h`. You may need to source your `.profile` in new shells until
+the start of your next login session.
 
 ## License
 All content in this repository, unless otherwise noted, is licensed under the

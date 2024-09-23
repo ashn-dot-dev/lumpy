@@ -1,0 +1,5 @@
+#!/bin/sh
+if [ -n "${LUMPY_HOME}" ]; then
+    export PATH="${LUMPY_HOME}/bin:${PATH}"
+    export LUMPY_SEARCH_PATH="${LUMPY_HOME}/lib"
+fi

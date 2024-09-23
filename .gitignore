@@ -1,3 +1,9 @@
-.venv-lumpy
+.venv-lumpy/
 .mypy_cache/
 __pycache__/
+
+bin/lumpy
+
+# PyInstaller
+build/
+lumpy.spec

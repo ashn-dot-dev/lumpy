@@ -1,3 +1,4 @@
 mypy==1.*
 black==24.*
 pygame-ce==2.5.1
+pyinstaller==6.10.0
