@@ -18,7 +18,7 @@ println("Hello, world!");
 ```
 
 ```sh
-/path/to/lumpy$ ./lumpy examples/hello-world.lumpy
+/path/to/lumpy$ ./lumpy.py examples/hello-world.lumpy
 Hello, world!
 ```
 
@@ -58,7 +58,7 @@ println("y == z is " + repr(y == z));
 ```
 
 ```sh
-/path/to/lumpy$ ./lumpy examples/value-semantics-and-structural-equality.lumpy
+/path/to/lumpy$ ./lumpy.py examples/value-semantics-and-structural-equality.lumpy
 x is ["foo", {"bar": 123}, "baz"]
 y is ["foo", {"bar": 123}, "baz"]
 x == y is true
@@ -100,7 +100,7 @@ println("a != b is " + repr(a != b));
 ```
 
 ```sh
-/path/to/lumpy$ ./lumpy examples/operator-overloading.lumpy
+/path/to/lumpy$ ./lumpy.py examples/operator-overloading.lumpy
 a is {"id": "bananna", "expiry date": "2024-08-24"}
 b is {"id": "bananna", "expiry date": "2024-08-31"}
 a == b is true
@@ -155,7 +155,7 @@ println("alice after calling birthday (again) is " + repr(alice));
 ```
 
 ```
-/path/to/lumpy$ ./lumpy examples/pass-by-value-and-pass-by-reference.lumpy
+/path/to/lumpy$ ./lumpy.py examples/pass-by-value-and-pass-by-reference.lumpy
 alice before calling f is {"name": "alice", "age": 32}
 [within function f] person is {"name": "alice", "age": 32}
 [within function f] person after modification is {"name": "alice", "age": 32, "favorite color": "purple"}
@@ -170,14 +170,14 @@ A brief language overview with more information can be found in
 `overview.lumpy`, the output of which can be viewed by running:
 
 ```sh
-/path/to/lumpy$ ./lumpy overview.lumpy
+/path/to/lumpy$ ./lumpy.py overview.lumpy
 ```
 
 An example game built in Lumpy using Pygame can be found under the
 `examples/minimalist-game-framework` directory, and may be played by running:
 
 ```sh
-/path/to/lumpy$ ./lumpy examples/minimalist-game-framework/game.lumpy
+/path/to/lumpy$ ./lumpy.py examples/minimalist-game-framework/game.lumpy
 ```
 
 ## Development Setup

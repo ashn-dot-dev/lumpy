@@ -7,10 +7,10 @@ check:
 	sh lumpy-test
 
 lint:
-	python3 -m mypy --check-untyped-defs lumpy
+	python3 -m mypy --check-untyped-defs lumpy.py
 
 format:
-	python3 -m black --line-length=79 lumpy
+	python3 -m black --line-length=79 lumpy.py
 
 clean:
 	rm -rf __pycache__/
