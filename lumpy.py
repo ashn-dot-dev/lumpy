@@ -3475,7 +3475,7 @@ class BuiltinImport(Builtin):
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         arg0 = Builtin.typed_argument(arguments, 0, String)
-        env = Environment(BASE_ENV)
+        env = Environment(BASE_ENVIRONMENT)
         module = env.get(String("module"))
         assert module is not None
         module_directory = module[String("directory")]
@@ -4245,7 +4245,7 @@ class BuiltinSetRemove(Builtin):
         return Null.new()
 
 
-BASE_ENV = Environment()
+BASE_ENVIRONMENT = Environment()
 BOOLEAN_META = Map()
 NUMBER_META = Map()
 STRING_META = Map()
@@ -4264,7 +4264,7 @@ def eval_source(
     lexer = Lexer(source, loc)
     parser = Parser(lexer)
     program = parser.parse_program()
-    return program.eval(env or Environment(BASE_ENV))
+    return program.eval(env or Environment(BASE_ENVIRONMENT))
 
 
 def eval_file(
@@ -4311,7 +4311,7 @@ let_builtin(VECTOR_META, BuiltinVectorInsert())
 let_builtin(VECTOR_META, BuiltinVectorRemove())
 let_builtin(VECTOR_META, BuiltinVectorSlice())
 let_builtin(VECTOR_META, BuiltinVectorReversed())
-let_builtin(VECTOR_META, BuiltinVectorSorted(None, BASE_ENV))
+let_builtin(VECTOR_META, BuiltinVectorSorted(None, BASE_ENVIRONMENT))
 
 let_builtin(MAP_META, BuiltinMapCount())
 let_builtin(MAP_META, BuiltinMapContains())
@@ -4323,29 +4323,29 @@ let_builtin(SET_META, BuiltinSetContains())
 let_builtin(SET_META, BuiltinSetInsert())
 let_builtin(SET_META, BuiltinSetRemove())
 
-BASE_ENV.let(String("NaN"), Number.new(float("NaN")))
-BASE_ENV.let(String("Inf"), Number.new(float("Inf")))
-let_builtin(BASE_ENV.store, BuiltinSetmeta())
-let_builtin(BASE_ENV.store, BuiltinGetmeta())
-let_builtin(BASE_ENV.store, BuiltinType())
-let_builtin(BASE_ENV.store, BuiltinRepr())
-let_builtin(BASE_ENV.store, BuiltinDump())
-let_builtin(BASE_ENV.store, BuiltinDumpln())
-let_builtin(BASE_ENV.store, BuiltinPrint())
-let_builtin(BASE_ENV.store, BuiltinPrintln())
-let_builtin(BASE_ENV.store, BuiltinBoolean())
-let_builtin(BASE_ENV.store, BuiltinNumber())
-let_builtin(BASE_ENV.store, BuiltinString())
-let_builtin(BASE_ENV.store, BuiltinVector())
-let_builtin(BASE_ENV.store, BuiltinUnion())
-let_builtin(BASE_ENV.store, BuiltinIntersection())
-let_builtin(BASE_ENV.store, BuiltinDifference())
-let_builtin(BASE_ENV.store, BuiltinAssert())
-let_builtin(BASE_ENV.store, BuiltinMin())
-let_builtin(BASE_ENV.store, BuiltinMax())
-let_builtin(BASE_ENV.store, BuiltinImport())
-let_builtin(BASE_ENV.store, BuiltinExtend())
-BASE_ENV.let(
+BASE_ENVIRONMENT.let(String("NaN"), Number.new(float("NaN")))
+BASE_ENVIRONMENT.let(String("Inf"), Number.new(float("Inf")))
+let_builtin(BASE_ENVIRONMENT.store, BuiltinSetmeta())
+let_builtin(BASE_ENVIRONMENT.store, BuiltinGetmeta())
+let_builtin(BASE_ENVIRONMENT.store, BuiltinType())
+let_builtin(BASE_ENVIRONMENT.store, BuiltinRepr())
+let_builtin(BASE_ENVIRONMENT.store, BuiltinDump())
+let_builtin(BASE_ENVIRONMENT.store, BuiltinDumpln())
+let_builtin(BASE_ENVIRONMENT.store, BuiltinPrint())
+let_builtin(BASE_ENVIRONMENT.store, BuiltinPrintln())
+let_builtin(BASE_ENVIRONMENT.store, BuiltinBoolean())
+let_builtin(BASE_ENVIRONMENT.store, BuiltinNumber())
+let_builtin(BASE_ENVIRONMENT.store, BuiltinString())
+let_builtin(BASE_ENVIRONMENT.store, BuiltinVector())
+let_builtin(BASE_ENVIRONMENT.store, BuiltinUnion())
+let_builtin(BASE_ENVIRONMENT.store, BuiltinIntersection())
+let_builtin(BASE_ENVIRONMENT.store, BuiltinDifference())
+let_builtin(BASE_ENVIRONMENT.store, BuiltinAssert())
+let_builtin(BASE_ENVIRONMENT.store, BuiltinMin())
+let_builtin(BASE_ENVIRONMENT.store, BuiltinMax())
+let_builtin(BASE_ENVIRONMENT.store, BuiltinImport())
+let_builtin(BASE_ENVIRONMENT.store, BuiltinExtend())
+BASE_ENVIRONMENT.let(
     String("fs"),
     Map.new(
         {
@@ -4355,7 +4355,7 @@ BASE_ENV.let(
         }
     ),
 )
-BASE_ENV.let(
+BASE_ENVIRONMENT.let(
     String("math"),
     Map.new(
         {
@@ -4377,7 +4377,7 @@ BASE_ENV.let(
         }
     ),
 )
-BASE_ENV.let(
+BASE_ENVIRONMENT.let(
     String("module"),
     Map.new(
         {
@@ -4385,7 +4385,7 @@ BASE_ENV.let(
         }
     ),
 )
-BASE_ENV.let(
+BASE_ENVIRONMENT.let(
     String("random"),
     Map.new(
         {
@@ -4398,7 +4398,7 @@ BASE_ENV.let(
 class Repl(code.InteractiveConsole):
     def __init__(self, env: Optional[Environment] = None):
         super().__init__()
-        self.env = env if env is not None else Environment(BASE_ENV)
+        self.env = env if env is not None else Environment(BASE_ENVIRONMENT)
 
     def runsource(self, source, filename="<input>", symbol="single"):
         lexer = Lexer(source)
@@ -4433,7 +4433,7 @@ def main() -> None:
 
     if args.file is not None:
         argv.insert(0, args.file)
-        env = Environment(BASE_ENV)
+        env = Environment(BASE_ENVIRONMENT)
         module = env.get(String("module"))
         assert module is not None
         module[String("directory")] = String(

@@ -101,7 +101,7 @@ game = Map.new({
     BuiltinGameTick.name: BuiltinGameTick(),
     BuiltinGameIsHeld.name: BuiltinGameIsHeld(),
 })
-BASE_ENV.let(String("game"), game)
+BASE_ENVIRONMENT.let(String("game"), game)
 ```;
 extend(source);
 

@@ -6,9 +6,9 @@ import os
 import pygame
 
 
-_MINGF_COLOR = BASE_ENV.get(String("_MINGF_COLOR"))
-_MINGF_RECT = BASE_ENV.get(String("_MINGF_RECT"));
-_MINGF_VEC2 = BASE_ENV.get(String("_MINGF_VEC2"));
+_MINGF_COLOR = BASE_ENVIRONMENT.get(String("_MINGF_COLOR"))
+_MINGF_RECT = BASE_ENVIRONMENT.get(String("_MINGF_RECT"));
+_MINGF_VEC2 = BASE_ENVIRONMENT.get(String("_MINGF_VEC2"));
 _MINGF_TARGET_FPS = 60
 
 
@@ -759,12 +759,12 @@ _MINGF = Map.new({
         String("text"): BuiltinMinGFDrawText(),
     }),
 })
-BASE_ENV.let(String("_MINGF"), _MINGF)
+BASE_ENVIRONMENT.let(String("_MINGF"), _MINGF)
 ```;
 
-extend(`BASE_ENV.let(String("_MINGF_COLOR"), Null.new())`);
-extend(`BASE_ENV.let(String("_MINGF_RECT"), Null.new())`);
-extend(`BASE_ENV.let(String("_MINGF_VEC2"), Null.new())`);
+extend(`BASE_ENVIRONMENT.let(String("_MINGF_COLOR"), Null.new())`);
+extend(`BASE_ENVIRONMENT.let(String("_MINGF_RECT"), Null.new())`);
+extend(`BASE_ENVIRONMENT.let(String("_MINGF_VEC2"), Null.new())`);
 _MINGF_COLOR = import("color.lumpy");
 _MINGF_RECT = import("rect.lumpy");
 _MINGF_VEC2 = import("vec2.lumpy");
