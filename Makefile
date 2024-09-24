@@ -16,8 +16,8 @@ build: bin/lumpy
 
 install: build
 	mkdir -p "$(LUMPY_HOME)"
-	cp -r bin/ "$(LUMPY_HOME)"
-	cp -r lib/ "$(LUMPY_HOME)"
+	cp -r bin "$(LUMPY_HOME)"
+	cp -r lib "$(LUMPY_HOME)"
 	cp lumpy.py env "$(LUMPY_HOME)"
 
 check:
