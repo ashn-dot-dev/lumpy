@@ -9,5 +9,5 @@ An example game can be found in
 To play the example game, run:
 
 ```sh
-/path/to/lumpy$ ./lumpy examples/minimalist-game-framework/game.lumpy
+/path/to/lumpy$ ./lumpy.py examples/minimalist-game-framework/game.lumpy
 ```
