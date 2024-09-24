@@ -234,9 +234,7 @@ _mingf_clock = None
 
 
 class BuiltinMinGFInit(Builtin):
-    @staticmethod
-    def name():
-        return String("minimalist-game-framework::init")
+    name = String("minimalist-game-framework::init")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 3)
@@ -255,13 +253,11 @@ class BuiltinMinGFInit(Builtin):
         _mingf_running = True
         _mingf_screen = pygame.display.set_mode((int(w), int(h)))
         _mingf_clock = pygame.time.Clock()
-        return Null()
+        return Null.new()
 
 
 class BuiltinMinGFFini(Builtin):
-    @staticmethod
-    def name():
-        return String("minimalist-game-framework::fini")
+    name = String("minimalist-game-framework::fini")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 0)
@@ -269,13 +265,11 @@ class BuiltinMinGFFini(Builtin):
         global _mingf_running
         _mingf_running = False
         pygame.quit()
-        return Null()
+        return Null.new()
 
 
 class BuiltinMinGFTick(Builtin):
-    @staticmethod
-    def name():
-        return String("minimalist-game-framework::tick")
+    name = String("minimalist-game-framework::tick")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 0)
@@ -311,13 +305,11 @@ class BuiltinMinGFTick(Builtin):
                 _MINGF_PYGAME_MOUSEMAP[event.button].held = False
                 _MINGF_PYGAME_MOUSEMAP[event.button].released = True
 
-        return Null()
+        return Null.new()
 
 
 class BuiltinMinGFRunning(Builtin):
-    @staticmethod
-    def name():
-        return String("minimalist-game-framework::running")
+    name = String("minimalist-game-framework::running")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 0)
@@ -325,9 +317,7 @@ class BuiltinMinGFRunning(Builtin):
 
 
 class BuiltinMinGFFps(Builtin):
-    @staticmethod
-    def name():
-        return String("minimalist-game-framework::fps")
+    name = String("minimalist-game-framework::fps")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 0)
@@ -335,9 +325,7 @@ class BuiltinMinGFFps(Builtin):
 
 
 class BuiltinMinGFImageLoad(Builtin):
-    @staticmethod
-    def name():
-        return String("minimalist-game-framework::image::load")
+    name = String("minimalist-game-framework::image::load")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
@@ -347,9 +335,7 @@ class BuiltinMinGFImageLoad(Builtin):
 
 
 class BuiltinMinGFImageW(Builtin):
-    @staticmethod
-    def name():
-        return String("minimalist-game-framework::image::w")
+    name = String("minimalist-game-framework::image::w")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
@@ -360,9 +346,7 @@ class BuiltinMinGFImageW(Builtin):
 
 
 class BuiltinMinGFImageH(Builtin):
-    @staticmethod
-    def name():
-        return String("minimalist-game-framework::image::h")
+    name = String("minimalist-game-framework::image::h")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
@@ -373,34 +357,28 @@ class BuiltinMinGFImageH(Builtin):
 
 
 class BuiltinMinGFFontLoad(Builtin):
-    @staticmethod
-    def name():
-        return String("minimalist-game-framework::font::load")
+    name = String("minimalist-game-framework::font::load")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 2)
         path = Builtin.typed_argument(arguments, 0, String).data
         size = Builtin.typed_argument(arguments, 1, Number).data
         font = pygame.font.Font(path, size=int(size))
-        return External(font)
+        return External.new(font)
 
 
 class BuiltinMinGFSoundLoad(Builtin):
-    @staticmethod
-    def name():
-        return String("minimalist-game-framework::sound::load")
+    name = String("minimalist-game-framework::sound::load")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
         path = Builtin.typed_argument(arguments, 0, String).data
         sound = pygame.mixer.Sound(path)
-        return External(sound)
+        return External.new(sound)
 
 
 class BuiltinMinGFSoundPlay(Builtin):
-    @staticmethod
-    def name():
-        return String("minimalist-game-framework::sound::play")
+    name = String("minimalist-game-framework::sound::play")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 2)
@@ -416,13 +394,11 @@ class BuiltinMinGFSoundPlay(Builtin):
         channel = sound.play()
         if channel is not None:
             channel.set_volume(volume)
-        return Null()
+        return Null.new()
 
 
 class BuiltinMinGFSoundPlayEx(Builtin):
-    @staticmethod
-    def name():
-        return String("minimalist-game-framework::sound::play_ex")
+    name = String("minimalist-game-framework::sound::play_ex")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 3)
@@ -448,13 +424,11 @@ class BuiltinMinGFSoundPlayEx(Builtin):
         channel = sound.play(loops=-1 if loop else 0)
         if channel is not None:
             channel.set_volume(volume)
-        return Null()
+        return Null.new()
 
 
 class BuiltinMinGFMousePosition(Builtin):
-    @staticmethod
-    def name():
-        return String("minimalist-game-framework::mouse::position")
+    name = String("minimalist-game-framework::mouse::position")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 0)
@@ -466,9 +440,7 @@ class BuiltinMinGFMousePosition(Builtin):
 
 
 class BuiltinMinGFMouseHeld(Builtin):
-    @staticmethod
-    def name():
-        return String("minimalist-game-framework::mouse::held")
+    name = String("minimalist-game-framework::mouse::held")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
@@ -479,9 +451,7 @@ class BuiltinMinGFMouseHeld(Builtin):
 
 
 class BuiltinMinGFMousePressed(Builtin):
-    @staticmethod
-    def name():
-        return String("minimalist-game-framework::mouse::pressed")
+    name = String("minimalist-game-framework::mouse::pressed")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
@@ -492,9 +462,7 @@ class BuiltinMinGFMousePressed(Builtin):
 
 
 class BuiltinMinGFMouseReleased(Builtin):
-    @staticmethod
-    def name():
-        return String("minimalist-game-framework::mouse::released")
+    name = String("minimalist-game-framework::mouse::released")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
@@ -505,9 +473,7 @@ class BuiltinMinGFMouseReleased(Builtin):
 
 
 class BuiltinMinGFKeyHeld(Builtin):
-    @staticmethod
-    def name():
-        return String("minimalist-game-framework::key::held")
+    name = String("minimalist-game-framework::key::held")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
@@ -518,9 +484,7 @@ class BuiltinMinGFKeyHeld(Builtin):
 
 
 class BuiltinMinGFKeyPressed(Builtin):
-    @staticmethod
-    def name():
-        return String("minimalist-game-framework::key::pressed")
+    name = String("minimalist-game-framework::key::pressed")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
@@ -531,9 +495,7 @@ class BuiltinMinGFKeyPressed(Builtin):
 
 
 class BuiltinMinGFKeyReleased(Builtin):
-    @staticmethod
-    def name():
-        return String("minimalist-game-framework::key::released")
+    name = String("minimalist-game-framework::key::released")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
@@ -544,9 +506,7 @@ class BuiltinMinGFKeyReleased(Builtin):
 
 
 class BuiltinMinGFMeasureText(Builtin):
-    @staticmethod
-    def name():
-        return String("minimalist-game-framework::measure::text")
+    name = String("minimalist-game-framework::measure::text")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 2)
@@ -562,9 +522,7 @@ class BuiltinMinGFMeasureText(Builtin):
 
 
 class BuiltinMinGFDrawRectEmpty(Builtin):
-    @staticmethod
-    def name():
-        return String("minimalist-game-framework::draw::rect_empty")
+    name = String("minimalist-game-framework::draw::rect_empty")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 3)
@@ -587,13 +545,11 @@ class BuiltinMinGFDrawRectEmpty(Builtin):
             ),
             width = int(thickness)
         )
-        return Null()
+        return Null.new()
 
 
 class BuiltinMinGFDrawRectSolid(Builtin):
-    @staticmethod
-    def name():
-        return String("minimalist-game-framework::draw::rect_solid")
+    name = String("minimalist-game-framework::draw::rect_solid")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 2)
@@ -614,13 +570,11 @@ class BuiltinMinGFDrawRectSolid(Builtin):
                 float(rect[String("h")]),
             ),
         )
-        return Null()
+        return Null.new()
 
 
 class BuiltinMinGFDrawImage(Builtin):
-    @staticmethod
-    def name():
-        return String("minimalist-game-framework::draw::image")
+    name = String("minimalist-game-framework::draw::image")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 2)
@@ -634,13 +588,11 @@ class BuiltinMinGFDrawImage(Builtin):
         )
 
         _mingf_screen.blit(image, position)
-        return Null()
+        return Null.new()
 
 
 class BuiltinMinGFDrawImageEx(Builtin):
-    @staticmethod
-    def name():
-        return String("minimalist-game-framework::draw::image_ex")
+    name = String("minimalist-game-framework::draw::image_ex")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 3)
@@ -730,13 +682,11 @@ class BuiltinMinGFDrawImageEx(Builtin):
             rect.y -= (h / 2 - pivot.y)
 
         _mingf_screen.blit(image, rect)
-        return Null()
+        return Null.new()
 
 
 class BuiltinMinGFDrawText(Builtin):
-    @staticmethod
-    def name():
-        return String("minimalist-game-framework::draw::text")
+    name = String("minimalist-game-framework::draw::text")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 4)
@@ -760,7 +710,7 @@ class BuiltinMinGFDrawText(Builtin):
             text,
             (float(vec2[String("x")]), float(vec2[String("y")]))
         )
-        return Null()
+        return Null.new()
 
 
 _MINGF_IMAGE_META = Map.new({
@@ -812,9 +762,9 @@ _MINGF = Map.new({
 BASE_ENV.let(String("_MINGF"), _MINGF)
 ```;
 
-extend(`BASE_ENV.let(String("_MINGF_COLOR"), Null())`);
-extend(`BASE_ENV.let(String("_MINGF_RECT"), Null())`);
-extend(`BASE_ENV.let(String("_MINGF_VEC2"), Null())`);
+extend(`BASE_ENV.let(String("_MINGF_COLOR"), Null.new())`);
+extend(`BASE_ENV.let(String("_MINGF_RECT"), Null.new())`);
+extend(`BASE_ENV.let(String("_MINGF_VEC2"), Null.new())`);
 _MINGF_COLOR = import("color.lumpy");
 _MINGF_RECT = import("rect.lumpy");
 _MINGF_VEC2 = import("vec2.lumpy");

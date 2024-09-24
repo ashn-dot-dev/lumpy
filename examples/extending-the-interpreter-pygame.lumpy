@@ -31,9 +31,7 @@ clock = None
 font = None
 
 class BuiltinGameInit(Builtin):
-    @staticmethod
-    def name():
-        return String("init")
+    name = String("init")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 0)
@@ -47,9 +45,7 @@ class BuiltinGameInit(Builtin):
 
 
 class BuiltinGameQuit(Builtin):
-    @staticmethod
-    def name():
-        return String("quit")
+    name = String("quit")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 0)
@@ -58,9 +54,7 @@ class BuiltinGameQuit(Builtin):
 
 
 class BuiltinGameTick(Builtin):
-    @staticmethod
-    def name():
-        return String("tick")
+    name = String("tick")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 0)
@@ -82,9 +76,7 @@ class BuiltinGameTick(Builtin):
 
 
 class BuiltinGameIsHeld(Builtin):
-    @staticmethod
-    def name():
-        return String("is_held")
+    name = String("is_held")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
@@ -104,10 +96,10 @@ class BuiltinGameIsHeld(Builtin):
 game = Map.new({
     String("position"): Vec2(SCREEN_W / 2, SCREEN_H / 2).into_lumpy(),
     String("running"): Boolean.new(False),
-    BuiltinGameInit.name(): BuiltinGameInit(),
-    BuiltinGameQuit.name(): BuiltinGameQuit(),
-    BuiltinGameTick.name(): BuiltinGameTick(),
-    BuiltinGameIsHeld.name(): BuiltinGameIsHeld(),
+    BuiltinGameInit.name: BuiltinGameInit(),
+    BuiltinGameQuit.name: BuiltinGameQuit(),
+    BuiltinGameTick.name: BuiltinGameTick(),
+    BuiltinGameIsHeld.name: BuiltinGameIsHeld(),
 })
 BASE_ENV.let(String("game"), game)
 ```;

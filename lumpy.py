@@ -157,6 +157,11 @@ class Value(ABC):
 class Null(Value):
     meta: Optional["Map"] = None
 
+    @staticmethod
+    def new() -> "Null":
+        # Null values are explicitly not given a metamap by default.
+        return Null(meta=None)
+
     def __hash__(self) -> int:
         return 0
 
@@ -688,6 +693,10 @@ class Function(Value):
 class Builtin(Value):
     meta: Optional["Map"] = None
 
+    def __post_init__(self):
+        # Builtins should the name of the builtin as a class property.
+        self.name: String
+
     def __hash__(self) -> int:
         return hash(id(self.function))
 
@@ -697,7 +706,7 @@ class Builtin(Value):
         return self.function == other.function
 
     def __str__(self):
-        return f"{self.name().data}@builtin"
+        return f"{self.name.data}@builtin"
 
     @staticmethod
     def type() -> str:
@@ -709,7 +718,7 @@ class Builtin(Value):
     def call(self, arguments: list[Value]) -> Union[Value, "Error"]:
         try:
             result = self.function(arguments)
-            return Null() if result is None else result
+            return Null.new() if result is None else result
         except Exception as e:
             message = f"{e}"
             if len(message) == 0:
@@ -746,11 +755,6 @@ class Builtin(Value):
                 f"expected reference to {ty.type()} for argument {index}, received {argument.type()}"
             )
         return (argument, argument.data)
-
-    @staticmethod
-    @abstractmethod
-    def name() -> String:
-        raise NotImplementedError()
 
     @abstractmethod
     def function(self, arguments: list[Value]) -> Union[Value, "Error"]:
@@ -792,6 +796,10 @@ class External(Value):
     data: Any
     meta: Optional["Map"] = None
 
+    @staticmethod
+    def new(data: Any) -> "External":
+        return External(data, meta=None)
+
     def __hash__(self) -> int:
         return hash(id(self.data))
 
@@ -808,6 +816,7 @@ class External(Value):
         return f"external"
 
     def copy(self) -> "External":
+        # External values are explicitly not given a metamap by default.
         return External(self.data, self.meta.copy() if self.meta else None)
 
     def cow(self) -> None:
@@ -1444,7 +1453,7 @@ class AstNull(AstExpression):
     location: Optional[SourceLocation]
 
     def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
-        return Null()
+        return Null.new()
 
 
 @final
@@ -2525,7 +2534,7 @@ class AstStatementReturn(AstStatement):
 
     def eval(self, env: Environment) -> Optional[ControlFlow]:
         if self.expression is None:
-            return Return(Null())
+            return Return(Null.new())
         result = self.expression.eval(env)
         if isinstance(result, Error):
             return result
@@ -3170,44 +3179,38 @@ def call(
     if isinstance(result, Error):
         result.trace.append(Error.TraceElement(location, function))
         return result
-    return Null()
+    return Null.new()
 
 
 class BuiltinSetmeta(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("setmeta")
+    name = String("setmeta")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
         arg0 = Builtin.typed_argument(arguments, 0, Reference)
         if isinstance(arguments[1], Null):
             arg0.data.meta = None
-            return Null()
+            return Null.new()
         if isinstance(arguments[1], Map):
             arg0.data.meta = arguments[1]
-            return Null()
+            return Null.new()
         return Error(
             None, f"expected null or map, received {arguments[1].type()}"
         )
 
 
 class BuiltinGetmeta(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("getmeta")
+    name = String("getmeta")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         if arguments[0].meta is None:
-            return Null()
+            return Null.new()
         return arguments[0].meta
 
 
 class BuiltinType(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("type")
+    name = String("type")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3215,9 +3218,7 @@ class BuiltinType(Builtin):
 
 
 class BuiltinRepr(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("repr")
+    name = String("repr")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3225,31 +3226,25 @@ class BuiltinRepr(Builtin):
 
 
 class BuiltinDump(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("dump")
+    name = String("dump")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         print(arguments[0], end="")
-        return Null()
+        return Null.new()
 
 
 class BuiltinDumpln(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("dumpln")
+    name = String("dumpln")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         print(arguments[0], end="\n")
-        return Null()
+        return Null.new()
 
 
 class BuiltinPrint(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("print")
+    name = String("print")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3260,13 +3255,11 @@ class BuiltinPrint(Builtin):
             print(arguments[0].data, end="")
         else:
             print(arguments[0], end="")
-        return Null()
+        return Null.new()
 
 
 class BuiltinPrintln(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("println")
+    name = String("println")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3277,13 +3270,11 @@ class BuiltinPrintln(Builtin):
             print(arguments[0].data, end="\n")
         else:
             print(arguments[0], end="\n")
-        return Null()
+        return Null.new()
 
 
 class BuiltinBoolean(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("boolean")
+    name = String("boolean")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3300,9 +3291,7 @@ class BuiltinBoolean(Builtin):
 
 
 class BuiltinNumber(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("number")
+    name = String("number")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3320,9 +3309,7 @@ class BuiltinNumber(Builtin):
 
 
 class BuiltinString(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("string")
+    name = String("string")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3335,9 +3322,7 @@ class BuiltinString(Builtin):
 
 
 class BuiltinVector(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("vector")
+    name = String("vector")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3355,9 +3340,7 @@ class BuiltinVector(Builtin):
 
 
 class BuiltinUnion(BuiltinFromSource):
-    @staticmethod
-    def name() -> String:
-        return String("union")
+    name = String("union")
 
     @staticmethod
     def source() -> str:
@@ -3383,9 +3366,7 @@ class BuiltinUnion(BuiltinFromSource):
 
 
 class BuiltinIntersection(BuiltinFromSource):
-    @staticmethod
-    def name() -> String:
-        return String("intersection")
+    name = String("intersection")
 
     @staticmethod
     def source() -> str:
@@ -3415,9 +3396,7 @@ class BuiltinIntersection(BuiltinFromSource):
 
 
 class BuiltinDifference(BuiltinFromSource):
-    @staticmethod
-    def name() -> String:
-        return String("difference")
+    name = String("difference")
 
     @staticmethod
     def source() -> str:
@@ -3442,9 +3421,7 @@ class BuiltinDifference(BuiltinFromSource):
 
 
 class BuiltinAssert(BuiltinFromSource):
-    @staticmethod
-    def name() -> String:
-        return String("assert")
+    name = String("assert")
 
     @staticmethod
     def source() -> str:
@@ -3461,9 +3438,7 @@ class BuiltinAssert(BuiltinFromSource):
 
 
 class BuiltinMin(BuiltinFromSource):
-    @staticmethod
-    def name() -> String:
-        return String("min")
+    name = String("min")
 
     @staticmethod
     def source() -> str:
@@ -3479,9 +3454,7 @@ class BuiltinMin(BuiltinFromSource):
 
 
 class BuiltinMax(BuiltinFromSource):
-    @staticmethod
-    def name() -> String:
-        return String("max")
+    name = String("max")
 
     @staticmethod
     def source() -> str:
@@ -3497,9 +3470,7 @@ class BuiltinMax(BuiltinFromSource):
 
 
 class BuiltinImport(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("import")
+    name = String("import")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3531,14 +3502,12 @@ class BuiltinImport(Builtin):
         if isinstance(result, Error):
             return result
         if result is None:
-            return Null()
+            return Null.new()
         return result
 
 
 class BuiltinExtend(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("extend")
+    name = String("extend")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3547,13 +3516,11 @@ class BuiltinExtend(Builtin):
             exec(source, globals())
         except:
             return Error(None, String.new(traceback.format_exc()))
-        return Null()
+        return Null.new()
 
 
 class BuiltinFsRead(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("fs::read")
+    name = String("fs::read")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3564,9 +3531,7 @@ class BuiltinFsRead(Builtin):
 
 
 class BuiltinFsWrite(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("fs::write")
+    name = String("fs::write")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -3574,13 +3539,11 @@ class BuiltinFsWrite(Builtin):
         arg1 = Builtin.typed_argument(arguments, 1, String)
         with open(arg0.data, "w") as f:
             data = f.write(arg1.data)
-        return Null()
+        return Null.new()
 
 
 class BuiltinFsAppend(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("fs::append")
+    name = String("fs::append")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -3588,13 +3551,11 @@ class BuiltinFsAppend(Builtin):
         arg1 = Builtin.typed_argument(arguments, 1, String)
         with open(arg0.data, "a") as f:
             data = f.write(arg1.data)
-        return Null()
+        return Null.new()
 
 
 class BuiltinMathIsNaN(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("math::is_nan")
+    name = String("math::is_nan")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3603,9 +3564,7 @@ class BuiltinMathIsNaN(Builtin):
 
 
 class BuiltinMathIsInf(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("math::is_inf")
+    name = String("math::is_inf")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3614,9 +3573,7 @@ class BuiltinMathIsInf(Builtin):
 
 
 class BuiltinMathIsInteger(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("math::is_integer")
+    name = String("math::is_integer")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3625,9 +3582,7 @@ class BuiltinMathIsInteger(Builtin):
 
 
 class BuiltinMathTrunc(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("math::trunc")
+    name = String("math::trunc")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3636,9 +3591,7 @@ class BuiltinMathTrunc(Builtin):
 
 
 class BuiltinMathRound(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("math::round")
+    name = String("math::round")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3647,9 +3600,7 @@ class BuiltinMathRound(Builtin):
 
 
 class BuiltinMathFloor(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("math::floor")
+    name = String("math::floor")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3658,9 +3609,7 @@ class BuiltinMathFloor(Builtin):
 
 
 class BuiltinMathCeil(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("math::ceil")
+    name = String("math::ceil")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3669,9 +3618,7 @@ class BuiltinMathCeil(Builtin):
 
 
 class BuiltinMathAbs(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("math::abs")
+    name = String("math::abs")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3680,9 +3627,7 @@ class BuiltinMathAbs(Builtin):
 
 
 class BuiltinMathPow(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("math::pow")
+    name = String("math::pow")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -3692,9 +3637,7 @@ class BuiltinMathPow(Builtin):
 
 
 class BuiltinMathSqrt(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("math::sqrt")
+    name = String("math::sqrt")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3703,9 +3646,7 @@ class BuiltinMathSqrt(Builtin):
 
 
 class BuiltinMathClamp(BuiltinFromSource):
-    @staticmethod
-    def name() -> String:
-        return String("math::clamp")
+    name = String("math::clamp")
 
     @staticmethod
     def source() -> str:
@@ -3724,9 +3665,7 @@ class BuiltinMathClamp(BuiltinFromSource):
 
 
 class BuiltinMathSin(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("math::sin")
+    name = String("math::sin")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3735,9 +3674,7 @@ class BuiltinMathSin(Builtin):
 
 
 class BuiltinMathCos(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("math::cos")
+    name = String("math::cos")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3746,9 +3683,7 @@ class BuiltinMathCos(Builtin):
 
 
 class BuiltinMathTan(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("math::tan")
+    name = String("math::tan")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3757,9 +3692,7 @@ class BuiltinMathTan(Builtin):
 
 
 class BuiltinRandomNumber(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("random::number")
+    name = String("random::number")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -3769,9 +3702,7 @@ class BuiltinRandomNumber(Builtin):
 
 
 class BuiltinNumberIsNaN(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("is_nan")
+    name = String("is_nan")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3782,9 +3713,7 @@ class BuiltinNumberIsNaN(Builtin):
 
 
 class BuiltinNumberIsInf(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("is_inf")
+    name = String("is_inf")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3795,9 +3724,7 @@ class BuiltinNumberIsInf(Builtin):
 
 
 class BuiltinNumberIsInteger(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("is_integer")
+    name = String("is_integer")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3808,9 +3735,7 @@ class BuiltinNumberIsInteger(Builtin):
 
 
 class BuiltinNumberFixed(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("fixed")
+    name = String("fixed")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -3826,9 +3751,7 @@ class BuiltinNumberFixed(Builtin):
 
 
 class BuiltinNumberTrunc(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("trunc")
+    name = String("trunc")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3839,9 +3762,7 @@ class BuiltinNumberTrunc(Builtin):
 
 
 class BuiltinNumberRound(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("round")
+    name = String("round")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3852,9 +3773,7 @@ class BuiltinNumberRound(Builtin):
 
 
 class BuiltinNumberFloor(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("floor")
+    name = String("floor")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3865,9 +3784,7 @@ class BuiltinNumberFloor(Builtin):
 
 
 class BuiltinNumberCeil(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("ceil")
+    name = String("ceil")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3878,9 +3795,7 @@ class BuiltinNumberCeil(Builtin):
 
 
 class BuiltinStringContains(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("contains")
+    name = String("contains")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -3892,9 +3807,7 @@ class BuiltinStringContains(Builtin):
 
 
 class BuiltinStringStartsWith(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("starts_with")
+    name = String("starts_with")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -3906,9 +3819,7 @@ class BuiltinStringStartsWith(Builtin):
 
 
 class BuiltinStringEndsWith(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("ends_with")
+    name = String("ends_with")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -3920,9 +3831,7 @@ class BuiltinStringEndsWith(Builtin):
 
 
 class BuiltinStringTrim(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("trim")
+    name = String("trim")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3933,9 +3842,7 @@ class BuiltinStringTrim(Builtin):
 
 
 class BuiltinStringFind(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("find")
+    name = String("find")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -3945,14 +3852,12 @@ class BuiltinStringFind(Builtin):
         arg1 = Builtin.typed_argument(arguments, 1, String)
         found = arg0_data.data.find(arg1.data)
         if found == -1:
-            return Null()
+            return Null.new()
         return Number.new(found)
 
 
 class BuiltinStringRfind(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("rfind")
+    name = String("rfind")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -3962,14 +3867,12 @@ class BuiltinStringRfind(Builtin):
         arg1 = Builtin.typed_argument(arguments, 1, String)
         found = arg0_data.data.rfind(arg1.data)
         if found == -1:
-            return Null()
+            return Null.new()
         return Number.new(found)
 
 
 class BuiltinStringJoin(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("join")
+    name = String("join")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -3991,9 +3894,7 @@ class BuiltinStringJoin(Builtin):
 
 
 class BuiltinStringSlice(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("slice")
+    name = String("slice")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 3)
@@ -4024,9 +3925,7 @@ class BuiltinStringSlice(Builtin):
 
 
 class BuiltinStringSplit(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("split")
+    name = String("split")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4041,9 +3940,7 @@ class BuiltinStringSplit(Builtin):
 
 
 class BuiltinStringCut(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("cut")
+    name = String("cut")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4053,7 +3950,7 @@ class BuiltinStringCut(Builtin):
         arg1 = Builtin.typed_argument(arguments, 1, String)
         found = arg0_data.data.find(arg1.data)
         if found == -1:
-            return Null()
+            return Null.new()
         prefix = String(arg0_data.data[0:found])
         suffix = String(arg0_data.data[found + len(arg1.data) :])
         return Map.new(
@@ -4065,9 +3962,7 @@ class BuiltinStringCut(Builtin):
 
 
 class BuiltinVectorCount(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("count")
+    name = String("count")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -4078,9 +3973,7 @@ class BuiltinVectorCount(Builtin):
 
 
 class BuiltinVectorContains(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("contains")
+    name = String("contains")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4091,9 +3984,7 @@ class BuiltinVectorContains(Builtin):
 
 
 class BuiltinVectorFind(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("find")
+    name = String("find")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4103,13 +3994,11 @@ class BuiltinVectorFind(Builtin):
         for index, value in enumerate(arg0_data.data):
             if value == arguments[1]:
                 return Number.new(index)
-        return Null()
+        return Null.new()
 
 
 class BuiltinVectorRfind(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("rfind")
+    name = String("rfind")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4119,13 +4008,11 @@ class BuiltinVectorRfind(Builtin):
         for index, value in reversed(list(enumerate(arg0_data.data))):
             if value == arguments[1]:
                 return Number.new(index)
-        return Null()
+        return Null.new()
 
 
 class BuiltinVectorPush(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("push")
+    name = String("push")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4135,13 +4022,11 @@ class BuiltinVectorPush(Builtin):
         if arg0_data.data.uses > 1:
             arg0_data.cow()  # copy-on-write
         arg0_data.data.append(arguments[1])
-        return Null()
+        return Null.new()
 
 
 class BuiltinVectorPop(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("pop")
+    name = String("pop")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -4151,13 +4036,11 @@ class BuiltinVectorPop(Builtin):
         if arg0_data.data.uses > 1:
             arg0_data.cow()  # copy-on-write
         arg0_data.data.pop()
-        return Null()
+        return Null.new()
 
 
 class BuiltinVectorInsert(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("insert")
+    name = String("insert")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 3)
@@ -4170,13 +4053,11 @@ class BuiltinVectorInsert(Builtin):
         if arg0_data.data.uses > 1:
             arg0_data.cow()  # copy-on-write
         arg0_data.data.insert(int(float(arg1.data)), arguments[2])
-        return Null()
+        return Null.new()
 
 
 class BuiltinVectorRemove(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("remove")
+    name = String("remove")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4189,13 +4070,11 @@ class BuiltinVectorRemove(Builtin):
         if arg0_data.data.uses > 1:
             arg0_data.cow()  # copy-on-write
         del arg0_data.data[int(float(arg1.data))]
-        return Null()
+        return Null.new()
 
 
 class BuiltinVectorSlice(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("slice")
+    name = String("slice")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 3)
@@ -4229,9 +4108,7 @@ class BuiltinVectorSlice(Builtin):
 
 
 class BuiltinVectorReversed(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("reversed")
+    name = String("reversed")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -4245,9 +4122,7 @@ class BuiltinVectorReversed(Builtin):
 
 
 class BuiltinVectorSorted(BuiltinFromSource):
-    @staticmethod
-    def name() -> String:
-        return String("sorted")
+    name = String("sorted")
 
     @staticmethod
     def source() -> str:
@@ -4289,9 +4164,7 @@ class BuiltinVectorSorted(BuiltinFromSource):
 
 
 class BuiltinMapCount(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("count")
+    name = String("count")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -4300,9 +4173,7 @@ class BuiltinMapCount(Builtin):
 
 
 class BuiltinMapContains(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("contains")
+    name = String("contains")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4311,21 +4182,17 @@ class BuiltinMapContains(Builtin):
 
 
 class BuiltinMapInsert(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("insert")
+    name = String("insert")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 3)
         arg0, arg0_data = Builtin.typed_argument_reference(arguments, 0, Map)
         arg0_data[arguments[1]] = arguments[2]
-        return Null()
+        return Null.new()
 
 
 class BuiltinMapRemove(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("remove")
+    name = String("remove")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4334,13 +4201,11 @@ class BuiltinMapRemove(Builtin):
             del arg0_data[arguments[1]]
         except KeyError:
             pass
-        return Null()
+        return Null.new()
 
 
 class BuiltinSetCount(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("count")
+    name = String("count")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -4349,9 +4214,7 @@ class BuiltinSetCount(Builtin):
 
 
 class BuiltinSetContains(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("contains")
+    name = String("contains")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4360,21 +4223,17 @@ class BuiltinSetContains(Builtin):
 
 
 class BuiltinSetInsert(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("insert")
+    name = String("insert")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
         arg0, arg0_data = Builtin.typed_argument_reference(arguments, 0, Set)
         arg0_data.insert(arguments[1])
-        return Null()
+        return Null.new()
 
 
 class BuiltinSetRemove(Builtin):
-    @staticmethod
-    def name() -> String:
-        return String("remove")
+    name = String("remove")
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4383,7 +4242,7 @@ class BuiltinSetRemove(Builtin):
             arg0_data.remove(arguments[1])
         except KeyError:
             pass
-        return Null()
+        return Null.new()
 
 
 BASE_ENV = Environment()
@@ -4419,7 +4278,7 @@ def eval_file(
 
 
 def let_builtin(map: Map, builtin: Builtin) -> None:
-    map[builtin.name()] = builtin
+    map[builtin.name] = builtin
 
 
 let_builtin(NUMBER_META, BuiltinNumberIsNaN())
@@ -4522,7 +4381,7 @@ BASE_ENV.let(
     String("module"),
     Map.new(
         {
-            String("directory"): Null(),
+            String("directory"): Null.new(),
         }
     ),
 )

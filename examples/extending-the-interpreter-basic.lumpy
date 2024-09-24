@@ -5,9 +5,7 @@
 let source =
 ```
 class BuiltinScream(Builtin):
-    @staticmethod
-    def name():
-        return String("scream")
+    name = String("scream")
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 0)
