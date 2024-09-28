@@ -21,7 +21,7 @@ install: build
 	cp lumpy.py env "$(LUMPY_HOME)"
 
 check:
-	sh bin/lumpy-test
+	LUMPY_HOME="$(realpath .)" sh bin/lumpy-test
 
 lint:
 	python3 -m mypy --check-untyped-defs lumpy.py
