@@ -108,6 +108,7 @@ while gf::running() {
     }
 
     if frame != 1 { print("\n"); }
+    println("Elapsed time: " + repr(gf::now()));
     println("Mouse Position: " + repr(gf::mouse::position()));
     println("Mouse Buttons Held: " + repr(mouse_buttons_held));
     println("Mouse Buttons Pressed This Frame: " + repr(mouse_buttons_pressed));

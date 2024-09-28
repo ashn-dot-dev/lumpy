@@ -2,6 +2,7 @@ let source =
 ```
 from dataclasses import dataclass
 import os
+import time
 
 import pygame
 
@@ -9,7 +10,6 @@ import pygame
 _MINGF_COLOR = BASE_ENVIRONMENT.get(String("_MINGF_COLOR"))
 _MINGF_RECT = BASE_ENVIRONMENT.get(String("_MINGF_RECT"));
 _MINGF_VEC2 = BASE_ENVIRONMENT.get(String("_MINGF_VEC2"));
-_MINGF_TARGET_FPS = 60
 
 
 @dataclass
@@ -231,6 +231,11 @@ _MINGF_STRING_KEYMAP = {
 _mingf_running = False
 _mingf_screen = None
 _mingf_clock = None
+_mingf_start = None
+
+
+def elapsed_seconds(start_ns, current_ns):
+        return (current_ns - start_ns) / 1000000000
 
 
 class BuiltinMinGFInit(Builtin):
@@ -249,10 +254,11 @@ class BuiltinMinGFInit(Builtin):
 
         pygame.display.set_caption(title.data)
 
-        global _mingf_running, _mingf_screen, _mingf_clock
+        global _mingf_running, _mingf_screen, _mingf_clock, _mingf_start
         _mingf_running = True
-        _mingf_screen = pygame.display.set_mode((int(w), int(h)))
+        _mingf_screen = pygame.display.set_mode(size=(int(w), int(h)), vsync=1)
         _mingf_clock = pygame.time.Clock()
+        _mingf_start = time.time_ns()
         return Null.new()
 
 
@@ -276,7 +282,7 @@ class BuiltinMinGFTick(Builtin):
 
         # End of the Current Frame
         pygame.display.flip()
-        _mingf_clock.tick(_MINGF_TARGET_FPS)
+        _mingf_clock.tick_busy_loop(60)
 
         # Start of the Following Frame
         _mingf_screen.fill((0x00, 0x00, 0x00))
@@ -314,6 +320,14 @@ class BuiltinMinGFRunning(Builtin):
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 0)
         return Boolean.new(_mingf_running)
+
+
+class BuiltinMinGFNow(Builtin):
+    name = String("minimalist-game-framework::now")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 0)
+        return Number.new(elapsed_seconds(_mingf_start, time.time_ns()))
 
 
 class BuiltinMinGFFps(Builtin):
@@ -725,6 +739,7 @@ _MINGF = Map.new({
     String("fini"): BuiltinMinGFFini(),
     String("tick"): BuiltinMinGFTick(),
     String("running"): BuiltinMinGFRunning(),
+    String("now"): BuiltinMinGFNow(),
     String("fps"): BuiltinMinGFFps(),
     String("image"): Map.new({
         String("load"): BuiltinMinGFImageLoad(),
