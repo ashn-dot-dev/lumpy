@@ -3348,18 +3348,27 @@ class BuiltinUnion(BuiltinFromSource):
         let union = function(a, b) {
             let type_a = type(a);
             let type_b = type(b);
-            if (type_a != "set" or type_b != "set") {
-                error "expected two sets, received " + type_a + " and " + type_b;
+            if type_a == "map" and type_b == "map" {
+                let result = map{};
+                for k, v in a {
+                    result.insert(k, v);
+                }
+                for k, v in b {
+                    result.insert(k, v);
+                }
+                return result;
             }
-
-            let result = set{};
-            for element in a {
-                result.insert(element);
+            if type_a == "set" and type_b == "set" {
+                let result = set{};
+                for element in a {
+                    result.insert(element);
+                }
+                for element in b {
+                    result.insert(element);
+                }
+                return result;
             }
-            for element in b {
-                result.insert(element);
-            }
-            return result;
+            error "expected two maps or two sets, received " + type_a + " and " + type_b;
         };
         return union;
         """
