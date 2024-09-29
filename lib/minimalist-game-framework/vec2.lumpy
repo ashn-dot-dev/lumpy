@@ -1,5 +1,5 @@
 let vec2 = {
-    "type": "vec2",
+    "type": "minimalist-game-framework::vec2",
     "new": function(x, y) {
         let self = {
             "x": x,
