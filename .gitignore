@@ -3,7 +3,3 @@
 __pycache__/
 
 bin/lumpy
-
-# PyInstaller
-build/
-lumpy.spec

@@ -6,11 +6,12 @@ LUMPY_HOME = $$HOME/.lumpy
 all: lint format check
 
 bin/lumpy: lumpy.py
-	pyinstaller \
+	python3 -m nuitka lumpy.py \
 		--onefile \
-		--distpath "$$(pwd)/bin" \
-		--hidden-import pygame \
-		lumpy.py
+		--output-dir="$$(pwd)/bin" \
+		--output-filename=lumpy \
+		--remove-output \
+		--include-module=pygame
 
 build: bin/lumpy
 
@@ -33,4 +34,3 @@ clean:
 	rm -f bin/lumpy
 	rm -rf __pycache__
 	rm -rf .mypy_cache
-	rm -rf build lumpy.spec # PyInstaller
