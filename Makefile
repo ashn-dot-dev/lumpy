@@ -10,8 +10,7 @@ bin/lumpy: lumpy.py
 		--onefile \
 		--output-dir="$$(pwd)/bin" \
 		--output-filename=lumpy \
-		--remove-output \
-		--include-module=pygame
+		--remove-output
 
 build: bin/lumpy
 
