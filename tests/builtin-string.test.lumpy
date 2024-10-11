@@ -8,6 +8,25 @@ println("string(NaN) is " + repr(string(NaN)));
 println("string(\"foo\") is " + repr(string("foo")));
 println("string(map{}) is " + repr(string(map{})));
 println("string(set{}) is " + repr(string(set{})));
+
+let meta = {
+    "string": function(value) {
+        return "ABC";
+    }
+};
+let x = map{};
+setmeta(x.&, meta);
+println("string(x) with custom string metafunction is " + repr(string(x)));
+
+let meta = {
+    "string": function(value) {
+        return map{};
+    }
+};
+let y = map{};
+setmeta(y.&, meta);
+println("string(y) with custom string metafunction is...");
+try { println(repr(string(y))); } else err { println("error: " + string(err)); }
 ################################################################################
 # string(null) is "null"
 # string(true) is "true"
@@ -19,3 +38,6 @@ println("string(set{}) is " + repr(string(set{})));
 # string("foo") is "foo"
 # string(map{}) is "map{}"
 # string(set{}) is "set{}"
+# string(x) with custom string metafunction is "ABC"
+# string(y) with custom string metafunction is...
+# error: metafunction `string` returned map{}

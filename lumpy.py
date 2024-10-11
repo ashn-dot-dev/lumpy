@@ -3250,7 +3250,12 @@ class BuiltinPrint(Builtin):
         Builtin.expect_argument_count(arguments, 1)
         metafunction = arguments[0].metafunction(String("string"))
         if metafunction is not None:
-            print(call(None, metafunction, arguments), end="")
+            result = call(None, metafunction, arguments)
+            if isinstance(result, Error):
+                return result
+            if not isinstance(result, String):
+                return Error(None, f"metafunction `string` returned {result}")
+            print(result.data, end="")
         elif isinstance(arguments[0], String):
             print(arguments[0].data, end="")
         else:
@@ -3265,7 +3270,12 @@ class BuiltinPrintln(Builtin):
         Builtin.expect_argument_count(arguments, 1)
         metafunction = arguments[0].metafunction(String("string"))
         if metafunction is not None:
-            print(call(None, metafunction, arguments), end="\n")
+            result = call(None, metafunction, arguments)
+            if isinstance(result, Error):
+                return result
+            if not isinstance(result, String):
+                return Error(None, f"metafunction `string` returned {result}")
+            print(result.data, end="\n")
         elif isinstance(arguments[0], String):
             print(arguments[0].data, end="\n")
         else:
@@ -3315,7 +3325,14 @@ class BuiltinString(Builtin):
         Builtin.expect_argument_count(arguments, 1)
         metafunction = arguments[0].metafunction(String("string"))
         if metafunction is not None:
-            return call(None, metafunction, arguments)
+            result = call(None, metafunction, arguments)
+            if isinstance(result, Error):
+                return result
+            if not isinstance(result, String):
+                return Error(
+                    None, f"metafunction `{self.name.data}` returned {result}"
+                )
+            return result
         if isinstance(arguments[0], String):
             return arguments[0]
         return String(str(arguments[0]))

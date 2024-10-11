@@ -1,0 +1,51 @@
+print(null); print("\n");
+print(true); print("\n");
+print(false); print("\n");
+print(123); print("\n");
+print(123.4); print("\n");
+print(Inf); print("\n");
+print(NaN); print("\n");
+print("foo"); print("\n");
+print(map{}); print("\n");
+print(set{}); print("\n");
+
+let meta = {
+    "string": function(value) {
+        return "ABC";
+    }
+};
+let x = map{};
+setmeta(x.&, meta);
+print(x); print("\n");
+
+let meta = {
+    "string": function(value) {
+        return map{};
+    }
+};
+let y = map{};
+setmeta(y.&, meta);
+try { print(y); } else err { print("error: " + string(err)); } print("\n");
+
+let meta = {
+    "string": function(value) {
+        error "oopsie";
+    }
+};
+let z = map{};
+setmeta(z.&, meta);
+try { print(z); } else err { print("error: " + string(err)); } print("\n");
+################################################################################
+# null
+# true
+# false
+# 123
+# 123.4
+# Inf
+# NaN
+# foo
+# map{}
+# set{}
+# ABC
+# error: metafunction `string` returned map{}
+# error: oopsie
