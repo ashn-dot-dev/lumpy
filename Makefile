@@ -10,7 +10,9 @@ bin/lumpy: lumpy.py
 		--onefile \
 		--output-dir="$$(pwd)/bin" \
 		--output-filename=lumpy \
-		--remove-output
+		--remove-output \
+		</dev/null # disable download prompt
+
 
 build: bin/lumpy
 
