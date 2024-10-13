@@ -3209,6 +3209,14 @@ class BuiltinGetmeta(Builtin):
         return arguments[0].meta
 
 
+class BuiltinUtype(Builtin):
+    name = String("utype")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        return String(arguments[0].type())
+
+
 class BuiltinType(Builtin):
     name = String("type")
 
@@ -3363,9 +3371,9 @@ class BuiltinUnion(BuiltinFromSource):
     def source() -> str:
         return """
         let union = function(a, b) {
-            let type_a = type(a);
-            let type_b = type(b);
-            if type_a == "map" and type_b == "map" {
+            let utype_a = utype(a);
+            let utype_b = utype(b);
+            if utype_a == "map" and utype_b == "map" {
                 let result = map{};
                 for k, v in a {
                     result.insert(k, v);
@@ -3375,7 +3383,7 @@ class BuiltinUnion(BuiltinFromSource):
                 }
                 return result;
             }
-            if type_a == "set" and type_b == "set" {
+            if utype_a == "set" and utype_b == "set" {
                 let result = set{};
                 for element in a {
                     result.insert(element);
@@ -3385,7 +3393,7 @@ class BuiltinUnion(BuiltinFromSource):
                 }
                 return result;
             }
-            error "expected two maps or two sets, received " + type_a + " and " + type_b;
+            error "expected two map-like or two set-like values, received " + type(a) + " and " + type(b);
         };
         return union;
         """
@@ -4353,6 +4361,7 @@ BASE_ENVIRONMENT.let(String("NaN"), Number.new(float("NaN")))
 BASE_ENVIRONMENT.let(String("Inf"), Number.new(float("Inf")))
 let_builtin(BASE_ENVIRONMENT.store, BuiltinSetmeta())
 let_builtin(BASE_ENVIRONMENT.store, BuiltinGetmeta())
+let_builtin(BASE_ENVIRONMENT.store, BuiltinUtype())
 let_builtin(BASE_ENVIRONMENT.store, BuiltinType())
 let_builtin(BASE_ENVIRONMENT.store, BuiltinRepr())
 let_builtin(BASE_ENVIRONMENT.store, BuiltinDump())

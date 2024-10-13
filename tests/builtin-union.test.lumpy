@@ -6,10 +6,17 @@ let a = {"foo": 123, "bar": 456, "baz": 789};
 let b = {"abc": 135, "def": 246, "ghi": 159};
 dumpln(union(a, b));
 
+let xyz = {"x", "y", "z"};
+setmeta(xyz.&, {"type": "custom"});
+dumpln(union({"a", "b", "c"}, xyz));
+
 try { dumpln(union(123, set{})); } else err { dumpln(err); }
 try { dumpln(union(set{}, 123)); } else err { dumpln(err); }
+try { dumpln(union(map{}, xyz)); } else err { dumpln(err); }
 ################################################################################
 # {"foo", "bar", "baz", "abc", "def", "ghi"}
 # {"foo": 123, "bar": 456, "baz": 789, "abc": 135, "def": 246, "ghi": 159}
-# "expected two maps or two sets, received number and set"
-# "expected two maps or two sets, received set and number"
+# {"a", "b", "c", "x", "y", "z"}
+# "expected two map-like or two set-like values, received number and set"
+# "expected two map-like or two set-like values, received set and number"
+# "expected two map-like or two set-like values, received map and custom"
