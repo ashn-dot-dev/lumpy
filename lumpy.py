@@ -3415,14 +3415,16 @@ class BuiltinIntersection(BuiltinFromSource):
             }
 
             let result = set{};
+            let contains = getmeta(result)::contains;
+            let insert = getmeta(result)::insert;
             for element in a {
-                if b.contains(element) {
-                    result.insert(element);
+                if contains(b.&, element) {
+                    insert(result.&, element);
                 }
             }
             for element in b {
-                if a.contains(element) {
-                    result.insert(element);
+                if contains(a.&, element) {
+                    insert(result.&, element);
                 }
             }
             return result;
@@ -3445,9 +3447,11 @@ class BuiltinDifference(BuiltinFromSource):
             }
 
             let result = set{};
+            let contains = getmeta(result)::contains;
+            let insert = getmeta(result)::insert;
             for element in a {
-                if not b.contains(element) {
-                    result.insert(element);
+                if not contains(b.&, element) {
+                    insert(result.&, element);
                 }
             }
             return result;
