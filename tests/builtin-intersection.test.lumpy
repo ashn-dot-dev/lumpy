@@ -2,9 +2,16 @@ let a = {"foo", "bar", "baz"};
 let b = {"abc", "foo", "bar"};
 dumpln(intersection(a, b));
 
+let xyz = {"x", "y", "z"};
+setmeta(xyz.&, union(getmeta(xyz), {"type": "custom"}));
+dumpln(intersection({"a", "x", "y"}, xyz));
+
 try { dumpln(intersection(123, set{})); } else err { dumpln(err); }
 try { dumpln(intersection(set{}, 123)); } else err { dumpln(err); }
+try { dumpln(intersection(xyz, 123)); } else err { dumpln(err); }
 ################################################################################
 # {"foo", "bar"}
-# "expected two sets, received number and set"
-# "expected two sets, received set and number"
+# {"x", "y"}
+# "expected two set-like values, received number and set"
+# "expected two set-like values, received set and number"
+# "expected two set-like values, received custom and number"

@@ -3375,21 +3375,23 @@ class BuiltinUnion(BuiltinFromSource):
             let utype_b = utype(b);
             if utype_a == "map" and utype_b == "map" {
                 let result = map{};
+                let insert = getmeta(result)::insert;
                 for k, v in a {
-                    result.insert(k, v);
+                    insert(result.&, k, v);
                 }
                 for k, v in b {
-                    result.insert(k, v);
+                    insert(result.&, k, v);
                 }
                 return result;
             }
             if utype_a == "set" and utype_b == "set" {
                 let result = set{};
+                let insert = getmeta(result)::insert;
                 for element in a {
-                    result.insert(element);
+                    insert(result.&, element);
                 }
                 for element in b {
-                    result.insert(element);
+                    insert(result.&, element);
                 }
                 return result;
             }
@@ -3406,10 +3408,10 @@ class BuiltinIntersection(BuiltinFromSource):
     def source() -> str:
         return """
         let intersection = function(a, b) {
-            let type_a = type(a);
-            let type_b = type(b);
-            if (type_a != "set" or type_b != "set") {
-                error "expected two sets, received " + type_a + " and " + type_b;
+            let utype_a = utype(a);
+            let utype_b = utype(b);
+            if (utype_a != "set" or utype_b != "set") {
+                error "expected two set-like values, received " + type(a) + " and " + type(b);
             }
 
             let result = set{};
@@ -3436,10 +3438,10 @@ class BuiltinDifference(BuiltinFromSource):
     def source() -> str:
         return """
         let difference = function(a, b) {
-            let type_a = type(a);
-            let type_b = type(b);
-            if (type_a != "set" or type_b != "set") {
-                error "expected two sets, received " + type_a + " and " + type_b;
+            let utype_a = utype(a);
+            let utype_b = utype(b);
+            if (utype_a != "set" or utype_b != "set") {
+                error "expected two set-like values, received " + type(a) + " and " + type(b);
             }
 
             let result = set{};
