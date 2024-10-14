@@ -3925,7 +3925,7 @@ class BuiltinStringJoin(Builtin):
             if not isinstance(value, String):
                 return Error(
                     None,
-                    f"expected string for vector element at index {index}, received {value.type()}",
+                    f"expected string-like value for vector element at index {index}, received {value.type()}",
                 )
             if index != 0:
                 s += arg0_data.data
