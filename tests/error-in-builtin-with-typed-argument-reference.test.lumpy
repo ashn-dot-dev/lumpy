@@ -1,0 +1,4 @@
+getmeta(123)::is_nan("foo");
+################################################################################
+# error: expected reference to number-like value for argument 0, received string
+# ...within is_nan@builtin called from error-in-builtin-with-typed-argument-reference.test.lumpy, line 1

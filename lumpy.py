@@ -739,7 +739,7 @@ class Builtin(Value):
         argument = arguments[index]
         if not isinstance(argument, ty):
             raise Exception(
-                f"expected {ty.type()} for argument {index}, received {argument.type()}"
+                f"expected {ty.type()}-like value for argument {index}, received {typename(argument)}"
             )
         return argument
 
@@ -752,7 +752,7 @@ class Builtin(Value):
             isinstance(argument, Reference) and isinstance(argument.data, ty)
         ):
             raise Exception(
-                f"expected reference to {ty.type()} for argument {index}, received {argument.type()}"
+                f"expected reference to {ty.type()}-like value for argument {index}, received {typename(argument)}"
             )
         return (argument, argument.data)
 
@@ -3195,7 +3195,7 @@ class BuiltinSetmeta(Builtin):
             arg0.data.meta = arguments[1]
             return Null.new()
         return Error(
-            None, f"expected null or map, received {arguments[1].type()}"
+            None, f"expected null or map-like argument, received {arguments[1].type()}"
         )
 
 
