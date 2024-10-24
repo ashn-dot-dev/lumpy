@@ -3410,24 +3410,39 @@ class BuiltinIntersection(BuiltinFromSource):
         let intersection = function(a, b) {
             let utype_a = utype(a);
             let utype_b = utype(b);
-            if (utype_a != "set" or utype_b != "set") {
-                error "expected two set-like values, received " + type(a) + " and " + type(b);
-            }
-
-            let result = set{};
-            let contains = getmeta(result)::contains;
-            let insert = getmeta(result)::insert;
-            for element in a {
-                if contains(b.&, element) {
-                    insert(result.&, element);
+            if utype_a == "map" and utype_b == "map" {
+                let result = map{};
+                let contains = getmeta(result)::contains;
+                let insert = getmeta(result)::insert;
+                for k, v in a {
+                    if contains(b.&, k) {
+                        insert(result.&, k, v);
+                    }
                 }
-            }
-            for element in b {
-                if contains(a.&, element) {
-                    insert(result.&, element);
+                for k, v in b {
+                    if contains(a.&, k) {
+                        insert(result.&, k, v);
+                    }
                 }
+                return result;
             }
-            return result;
+            if utype_a == "set" and utype_b == "set" {
+                let result = set{};
+                let contains = getmeta(result)::contains;
+                let insert = getmeta(result)::insert;
+                for element in a {
+                    if contains(b.&, element) {
+                        insert(result.&, element);
+                    }
+                }
+                for element in b {
+                    if contains(a.&, element) {
+                        insert(result.&, element);
+                    }
+                }
+                return result;
+            }
+            error "expected two map-like or two set-like values, received " + type(a) + " and " + type(b);
         };
         return intersection;
         """
