@@ -174,10 +174,12 @@ A brief language overview with more information can be found in
 ```
 
 An example game built in Lumpy using Pygame can be found under the
-`examples/minimalist-game-framework` directory, and may be played by running:
+`examples/minimalist-game-framework` directory. Install Pygame by following the
+steps in the "Development Setup" section below, and then run the example game
+with:
 
 ```sh
-/path/to/lumpy$ ./lumpy.py examples/minimalist-game-framework/game.lumpy
+(.venv-lumpy) /path/to/lumpy$ ./lumpy.py examples/minimalist-game-framework/game.lumpy
 ```
 
 ## Development Setup
