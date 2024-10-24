@@ -2,6 +2,10 @@ let a = {"foo", "bar", "baz", "qux"};
 let b = {"abc", "foo", "bar"};
 dumpln(difference(a, b));
 
+let a = {"foo": 123, "bar": 456, "baz": 789};
+let b = {"abc": 135, "foo": 246, "bar": 159};
+dumpln(difference(a, b));
+
 let xyz = {"x", "y", "z"};
 setmeta(xyz.&, union(getmeta(xyz), {"type": "custom"}));
 dumpln(difference({"a", "x", "y"}, xyz));
@@ -11,7 +15,8 @@ try { dumpln(difference(set{}, 123)); } else err { dumpln(err); }
 try { dumpln(difference(xyz, 123)); } else err { dumpln(err); }
 ################################################################################
 # {"baz", "qux"}
+# {"baz": 789}
 # {"a"}
-# "expected two set-like values, received number and set"
-# "expected two set-like values, received set and number"
-# "expected two set-like values, received custom and number"
+# "expected two map-like or two set-like values, received number and set"
+# "expected two map-like or two set-like values, received set and number"
+# "expected two map-like or two set-like values, received custom and number"
