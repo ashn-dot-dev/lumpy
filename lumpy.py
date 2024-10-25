@@ -3310,6 +3310,10 @@ class BuiltinBoolean(Builtin):
 
 class BuiltinNumber(Builtin):
     name = String("number")
+    # Based on Lexer.RE_NUMBER_HEX and Lexer.RE_NUMBER_HEX with additional
+    # end-of-string anchors to ensure the entire input is matched.
+    RE_NUMBER_HEX = re.compile(r"^0x[0-9a-fA-F]+$", re.ASCII)
+    RE_NUMBER_DEC = re.compile(r"^\d+(\.\d+)?$", re.ASCII)
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -3319,7 +3323,24 @@ class BuiltinNumber(Builtin):
             return Number.new(1 if arguments[0].data else 0)
         if isinstance(arguments[0], String):
             try:
-                return Number.new(float(arguments[0].data))
+                data = arguments[0].data
+                if data.startswith("+"):
+                    sign = +1
+                    data = data[1:]
+                elif data.startswith("-"):
+                    sign = -1
+                    data = data[1:]
+                else:
+                    sign = +1
+
+                if data == "Inf" or data == "inf":
+                    return Number.new(sign * math.inf)
+                if data == "NaN" or data == "nan":
+                    return Number.new(sign * math.nan)
+                match_hex = BuiltinNumber.RE_NUMBER_HEX.match(data)
+                match_dec = BuiltinNumber.RE_NUMBER_DEC.match(data)
+                if match_hex is not None or match_dec is not None:
+                    return Number.new(sign * float(data))
             except ValueError:
                 # Fallthough to end-of-function error case.
                 pass
