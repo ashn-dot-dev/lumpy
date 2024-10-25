@@ -3195,7 +3195,8 @@ class BuiltinSetmeta(Builtin):
             arg0.data.meta = arguments[1]
             return Null.new()
         return Error(
-            None, f"expected null or map-like argument, received {typename(arguments[1])}"
+            None,
+            f"expected null or map-like argument, received {typename(arguments[1])}",
         )
 
 
