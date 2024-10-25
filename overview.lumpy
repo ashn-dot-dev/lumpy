@@ -597,7 +597,7 @@ for k, v in m {
 print("\n");
 
 let m = {{"id": 123}: "foo", {"id": 456}: "bar", {"id": 789}: "baz"};
-println("Map Loops With Key References Are Not Permitted: for reference k in set " + repr(m));
+println("Map Loops With Key References Are Not Permitted: for reference k in map " + repr(m));
 try {
     for k.& in m { }
 }
@@ -608,7 +608,7 @@ else err {
 print("\n");
 
 let m = {"foo": {"value": 123}, "bar": {"value": 456}, "baz": {"value": 789}};
-println("Map Loops With Value References: for k, reference v in set " + repr(m) + " increment v.*.value by one");
+println("Map Loops With Value References: for k, reference v in map " + repr(m) + " increment v.*.value by one");
 for k, v.& in m {
     v.*.value = v.*.value + 1;
 }
