@@ -7,12 +7,9 @@ all: lint format check
 
 bin/lumpy: lumpy.py
 	python3 -m nuitka lumpy.py \
-		--onefile \
-		--output-dir="$$(pwd)/bin" \
-		--output-filename=lumpy \
+		--output-filename="$$(pwd)/bin/lumpy" \
 		--remove-output \
 		</dev/null # disable download prompt
-
 
 build: bin/lumpy
 
