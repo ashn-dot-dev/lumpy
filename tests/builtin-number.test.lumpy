@@ -6,13 +6,11 @@ println("number(\"+123\") is " + repr(number("+123")));
 println("number(\"-123\") is " + repr(number("-123")));
 println("number(\"123.4\") is " + repr(number("123.4")));
 println("number(\"Inf\") is " + repr(number("Inf")));
-println("number(\"inf\") is " + repr(number("inf")));
-println("number(\"+inf\") is " + repr(number("+inf")));
-println("number(\"-inf\") is " + repr(number("-inf")));
+println("number(\"+Inf\") is " + repr(number("+Inf")));
+println("number(\"-Inf\") is " + repr(number("-Inf")));
 println("number(\"NaN\") is " + repr(number("NaN")));
-println("number(\"nan\") is " + repr(number("nan")));
-println("number(\"+nan\") is " + repr(number("+nan")));
-println("number(\"-nan\") is " + repr(number("-nan")));
+println("number(\"+NaN\") is " + repr(number("+NaN")));
+println("number(\"-NaN\") is " + repr(number("-NaN")));
 
 print("\n");
 
@@ -31,13 +29,11 @@ try { number("--123"); } else err { println("number(\"--123\") produces " + repr
 # number("-123") is -123
 # number("123.4") is 123.4
 # number("Inf") is Inf
-# number("inf") is Inf
-# number("+inf") is Inf
-# number("-inf") is -Inf
+# number("+Inf") is Inf
+# number("-Inf") is -Inf
 # number("NaN") is NaN
-# number("nan") is NaN
-# number("+nan") is NaN
-# number("-nan") is NaN
+# number("+NaN") is NaN
+# number("-NaN") is NaN
 #
 # number(null) produces "cannot convert value null to number"
 # number("foo") produces "cannot convert value \"foo\" to number"

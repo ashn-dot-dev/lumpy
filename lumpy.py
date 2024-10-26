@@ -3334,9 +3334,9 @@ class BuiltinNumber(Builtin):
                 else:
                     sign = +1
 
-                if data == "Inf" or data == "inf":
+                if data == "Inf":
                     return Number.new(sign * math.inf)
-                if data == "NaN" or data == "nan":
+                if data == "NaN":
                     return Number.new(sign * math.nan)
                 match_hex = BuiltinNumber.RE_NUMBER_HEX.match(data)
                 match_dec = BuiltinNumber.RE_NUMBER_DEC.match(data)
