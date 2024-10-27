@@ -149,7 +149,7 @@ let meta = {
     },
 };
 setmeta(alice.&, meta);
-alice.birthday(); # alice.& is implicitly passed as the first parameter
+alice.birthday(); # alice.& is implicitly passed as the first argument
 println("alice after calling birthday (again) is " + repr(alice));
 ```
 
