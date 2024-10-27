@@ -313,7 +313,7 @@ print("\n");
 
 println("operator .*");
 println("123.&.* is " + repr(123.&.*));
-println("let m be map{}");
+println("let x be map{}");
 let x = map{};
 println("let y be x.&");
 let y = x.&;
