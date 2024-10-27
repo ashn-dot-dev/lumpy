@@ -22,12 +22,11 @@ println("Hello, world!");
 Hello, world!
 ```
 
-Lumpy uses value semantics, so assignment operations copy the contents or
-"value" of an object when performing the assignment. After an assignment
-statement such as `a = b`, the objects `a` and `b` will contain separate copies
-of the same value. Lumpy also performs equality comparisons based on structural
-equality, so if two object have the same contents, then they are considered to
-be equal.
+Lumpy uses value semantics, so assignment operations copy the contents (i.e.
+the "value") of an object when executed. After an assignment statement such as
+`a = b`, the objects `a` and `b` will contain separate copies of the same
+value. Lumpy also performs equality comparisons based on structural equality,
+so if two object have the same contents, then they are considered to be equal.
 
 ```
 # examples/value-semantics-and-structural-equality.lumpy
