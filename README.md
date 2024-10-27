@@ -113,7 +113,7 @@ References are first-class values in Lumpy, and pass-by-reference is achieved
 by taking a refrence to a value with the postfix `.&` operator, and then
 passing that value to a function. Lumpy has special syntax where
 `value.func(args)` implicitly passes a reference to `value` as the first
-parameter to metafunction `func`, similar to `this` within non-static member
+argument to metafunction `func`, similar to `this` within non-static member
 functions in C++ or `self` within non-static methods in Python. The special
 implicit refrence syntax provides a convenient way to support object-oriented
 patterns in Lumpy.
