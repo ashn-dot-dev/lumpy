@@ -70,10 +70,11 @@ z is ["foo", {"bar": "xyz"}, "baz"]
 y == z is true
 ```
 
-Objects in Lumpy have a metamap that may be used to alter and extend their
-functionality. In this example, the `==` and `!=` operators are overloaded to
-test for equality between two values based on their `id` fields rather than
-testing based on structural equality.
+Each object in Lumpy has a metamap that may be used to alter and extend its
+functionality. In this example, the `==` and `!=` operators are overloaded in
+the metamaps of objects `a` and `b`. The overloaded operators test for equality
+between these objects based on the objects' `id` fields rather than their
+structural identities.
 
 ```
 # examples/operator-overloading.lumpy
