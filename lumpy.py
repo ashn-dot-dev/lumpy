@@ -1391,9 +1391,9 @@ class AstExpression(AstNode):
     @abstractmethod
     def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
         """
-        Providing cow=True implies that this is an lvalue evaluation where
-        copy-on-write is required for a modification of value produced by the
-        eval-chain.
+        Providing cow=True implies that this expression is being evaluated in
+        an lvalue context where copy-on-write is required for a modification of
+        the value produced by the eval-chain.
         """
         raise NotImplementedError()
 
