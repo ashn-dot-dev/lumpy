@@ -1,0 +1,102 @@
+<program> ::= <statement>*
+
+<statement> ::= <statement-let>
+              | <statement-if-elif-else>
+              | <statement-for>
+              | <statement-while>
+              | <statement-break>
+              | <statement-continue>
+              | <statement-try>
+              | <statement-error>
+              | <statement-return>
+              | <statement-assign>
+              | <expression>
+
+<statement-let> ::= "let" <identifier> "=" <expression> ";"
+
+<statement-if-elif-else> ::= "if" <expression> <block> ("elif" <expression> <block>)* ("else" <block>)?
+
+<statement-for> ::= "for" <identifier> ".&"? ("," <identifier> ".&"?)? "in" <expression> <block>
+
+<statement-while> ::= "while" <expression> <block>
+
+<statement-break> ::= "break" ";"
+
+<statement-continue> ::= "continue" ";"
+
+<statement-try> ::= "try" <block> "else" <identifier>? <block>
+
+<statement-error> ::= "error" <expression> ";"
+
+<statement-return> ::= "return" <expression>? ";"
+
+<statement-assign> ::= <expression> "=" <expression> ";"
+
+<block> ::= "{" <statement>* "}"
+
+<expression> ::= <null>
+               | <boolean>
+               | <number>
+               | <string>
+               | <vector>
+               | <map>
+               | <set>
+               | <function>
+               | <identifier>
+               | "(" <expression> ")"
+               | "+" <expression>
+               | "-" <expression>
+               | "not" <expression>
+               | <expression> "and" <expression>
+               | <expression> "or" <expression>
+               | <expression> "==" <expression>
+               | <expression> "!=" <expression>
+               | <expression> "<=" <expression>
+               | <expression> ">=" <expression>
+               | <expression> "<" <expression>
+               | <expression> ">" <expression>
+               | <expression> "+" <expression>
+               | <expression> "-" <expression>
+               | <expression> "*" <expression>
+               | <expression> "/" <expression>
+               | <expression> "%" <expression>
+               | <expression> "(" (<expression> ("," <expression>)+ ","?) ")"
+               | <expression> "[" <expression> "]"
+               | <expression> "." <identifier>
+               | <expression> "::" <identifier>
+               | <expression> ".&"
+               | <expression> ".*"
+
+<identifier> ::= /[a-zA-Z_]\w*/
+
+<function> ::= "function" "(" (<identifier> ("," <identifier>)+ ",")? ")" <block>
+
+<set> ::= "{" <expression> ("," <expression>)+ ","? "}"
+        | "set" "{" "}"
+
+<map> ::= "{" <expression> ":" <expression> ("," <expression> ":" <expression>)+ ","? "}"
+        | "map" "{" "}"
+
+<vector> ::= "[" (<expression> ("," <expression>)+ ","?)* "]"
+
+<string> ::= '"' <character>* '"'
+           | "`" <printable>* "`"
+           | "```" <line-feed> <printable> "```"
+
+<character> ::= "\t"
+              | "\n"
+              | '\"'
+              | "\\"
+              | (<printable> - ('"' | "\"))
+
+<printable> ::= ? printable Unicode character ?
+
+<line-feed> ::= ? Unicode character U+000A ?
+
+<number> ::= /0x[0-9a-fA-F]+/
+           | /\d+(\.\d+)?/
+
+<boolean> ::= "true"
+            | "false"
+
+<null> ::= "null"
