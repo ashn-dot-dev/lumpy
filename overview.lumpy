@@ -85,15 +85,6 @@ println("===============");
 println("== Accessors ==");
 println("===============");
 
-let s = "hello world";
-println("s is " + repr(s));
-println("s[1] is " + repr(s[1]));
-println("set s[0] to \"y\"");
-s[0] = "y";
-println("s is " + repr(s));
-
-print("\n");
-
 let v = [123, 456, 789];
 println("v is " + repr(v));
 println("v[1] is " + repr(v[1]));
@@ -110,22 +101,6 @@ println("m[{\"key\": \"val\"}] is " + repr(m[{"key": "val"}]));
 println("m::foo is " + repr(m::foo) + " (equivalent to m[\"foo\"])");
 println("m.foo is " + repr(m.foo) + " (equivalent to m[\"foo\"] for field access)");
 try { m["qux"]; } else err { println("m[\"qux\"] produces " + repr(err)); }
-
-print("\n");
-
-println("============================");
-println("== String Value Semantics ==");
-println("============================");
-
-let s1 = "foobar";
-println("s1 is " + repr(s1));
-let s2 = s1;
-println("let s2 be s1");
-println("s2 is " + repr(s2));
-println("set s2[1] to \"u\"");
-s2[1] = "u";
-println("s1 is " + repr(s1));
-println("s2 is " + repr(s2));
 
 print("\n");
 

@@ -303,35 +303,6 @@ class String(Value):
     def __contains__(self, item) -> bool:
         return item in self.data
 
-    def __setitem__(self, key: Value, value: Value) -> None:
-        if not isinstance(key, Number):
-            raise KeyError("attempted string access using non-number key")
-        index = float(key.data)
-        if not index.is_integer():
-            raise KeyError("attempted string access using non-integer number")
-        index = int(index)
-        if index < 0:
-            raise KeyError("attempted string access using a negative index")
-        if not (isinstance(value, String) and len(value.data) == 1):
-            raise KeyError(
-                f"attempted string assignment with non-character value {value}"
-            )
-        characters = list(self.data)
-        characters[index] = value.data
-        self.data = "".join(characters)
-
-    def __getitem__(self, key: Value) -> Value:
-        if not isinstance(key, Number):
-            raise KeyError("attempted string access using non-number key")
-        index = float(key.data)
-        if not index.is_integer():
-            raise KeyError("attempted string access using non-integer number")
-        index = int(index)
-        if index < 0:
-            raise KeyError("attempted string access using a negative index")
-        index = int(index)
-        return String(self.data[index])
-
     @staticmethod
     def type() -> str:
         return "string"
@@ -2125,13 +2096,6 @@ class AstAccessIndex(AstExpression):
         field = self.field.eval(env)
         if isinstance(field, Error):
             return field
-        if isinstance(store, String):
-            try:
-                return store[field]
-            except (NotImplementedError, IndexError, KeyError):
-                return Error(
-                    self.location, f"invalid string access with index {field}"
-                )
         if isinstance(store, Vector):
             try:
                 return store[field]
@@ -2603,7 +2567,7 @@ class AstStatementAssignment(AstStatement):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        if not isinstance(store, (String, Vector, Map)):
+        if not isinstance(store, (Vector, Map)):
             return Error(
                 self.location,
                 f"attempted access into type `{typename(store)}` with type `{typename(field)}`",

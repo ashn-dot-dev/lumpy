@@ -11,14 +11,6 @@ try { dumpln( println[0]                         ); } else err { dumpln(err); }
 
 print("\n");
 
-let x = "foo";
-dumpln(x);
-x[1] = "u";
-dumpln(x);
-try { dumpln(x[3]); } else err { dumpln(err); }
-
-print("\n");
-
 let x = ["foo", "bar", "baz"];
 dumpln(x);
 x[1] = "xyz";
@@ -43,17 +35,13 @@ try { dumpln(x["f"]); } else err { dumpln(err); }
 # "attempted to access field of type `null` with type `number`"
 # "attempted to access field of type `boolean` with type `number`"
 # "attempted to access field of type `number` with type `number`"
-# "f"
+# "attempted to access field of type `string` with type `number`"
 # "foo"
 # 123
 # "attempted to access field of type `set` with type `string`"
 # "attempted to access field of type `reference` with type `number`"
 # "attempted to access field of type `function` with type `number`"
 # "attempted to access field of type `function` with type `number`"
-#
-# "foo"
-# "fuo"
-# "invalid string access with index 3"
 #
 # ["foo", "bar", "baz"]
 # ["foo", "xyz", "baz"]
