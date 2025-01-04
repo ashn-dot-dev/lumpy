@@ -3848,6 +3848,17 @@ class BuiltinNumberCeil(Builtin):
         return Number.new(math.ceil(float(arg0_data.data)))
 
 
+class BuiltinStringCount(Builtin):
+    name = String("count")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        arg0, arg0_data = Builtin.typed_argument_reference(
+            arguments, 0, String
+        )
+        return Number.new(len(arg0_data.utf8()))
+
+
 class BuiltinStringContains(Builtin):
     name = String("contains")
 
@@ -4347,6 +4358,7 @@ let_builtin(NUMBER_META, BuiltinNumberRound())
 let_builtin(NUMBER_META, BuiltinNumberFloor())
 let_builtin(NUMBER_META, BuiltinNumberCeil())
 
+let_builtin(STRING_META, BuiltinStringCount())
 let_builtin(STRING_META, BuiltinStringContains())
 let_builtin(STRING_META, BuiltinStringStartsWith())
 let_builtin(STRING_META, BuiltinStringEndsWith())
