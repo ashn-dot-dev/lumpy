@@ -314,6 +314,9 @@ class String(Value):
         if self.meta is not None:
             self.meta.cow()
 
+    def utf8(self) -> bytes:
+        return self.data.encode(encoding="utf-8")
+
 
 @final
 @dataclass
@@ -3901,7 +3904,7 @@ class BuiltinStringFind(Builtin):
             arguments, 0, String
         )
         arg1 = Builtin.typed_argument(arguments, 1, String)
-        found = arg0_data.data.find(arg1.data)
+        found = arg0_data.utf8().find(arg1.utf8())
         if found == -1:
             return Null.new()
         return Number.new(found)
@@ -3916,7 +3919,7 @@ class BuiltinStringRfind(Builtin):
             arguments, 0, String
         )
         arg1 = Builtin.typed_argument(arguments, 1, String)
-        found = arg0_data.data.rfind(arg1.data)
+        found = arg0_data.utf8().rfind(arg1.utf8())
         if found == -1:
             return Null.new()
         return Number.new(found)
@@ -3962,7 +3965,7 @@ class BuiltinStringSlice(Builtin):
         end = int(float(arg2.data))
         if bgn < 0:
             return Error(None, f"slice begin is less than zero")
-        if bgn > len(arg0_data.data):
+        if bgn > len(arg0_data.utf8()):
             return Error(
                 None, f"slice begin is greater than the string length"
             )
@@ -3972,7 +3975,10 @@ class BuiltinStringSlice(Builtin):
             return Error(None, f"slice end is greater than the string length")
         if end < bgn:
             return Error(None, f"slice end is less than slice begin")
-        return String(arg0_data.data[bgn:end])
+        try:
+            return String(arg0_data.utf8()[bgn:end].decode(encoding="utf-8"))
+        except UnicodeDecodeError:
+            return Error(None, f"invalid UTF-8 encoded string")
 
 
 class BuiltinStringSplit(Builtin):
