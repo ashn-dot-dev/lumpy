@@ -8,6 +8,7 @@ println("type({\"foo\", \"bar\"}) is " + repr(type({"foo", "bar"})));
 println("type(123.&) is " + repr(type(123.&)));
 println("type(function() {}) is " + repr(type(function() {})));
 println("type(println) is " + repr(type(println)));
+
 let meta = {"type": "foo"};
 let custom = {"custom": "type"};
 setmeta(custom.&, meta);

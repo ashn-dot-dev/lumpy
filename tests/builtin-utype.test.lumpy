@@ -1,0 +1,27 @@
+println("utype(null) is " + repr(utype(null)));
+println("utype(true) is " + repr(utype(true)));
+println("utype(123) is " + repr(utype(123)));
+println("utype(\"foo\") is " + repr(utype("foo")));
+println("utype([123, 456]) is " + repr(utype([123, 456])));
+println("utype({\"foo\": \"bar\"}) is " + repr(utype({"foo": "bar"})));
+println("utype({\"foo\", \"bar\"}) is " + repr(utype({"foo", "bar"})));
+println("utype(123.&) is " + repr(utype(123.&)));
+println("utype(function() {}) is " + repr(utype(function() {})));
+println("utype(println) is " + repr(utype(println)));
+
+let meta = {"type": "foo"};
+let custom = {"custom": "type"};
+setmeta(custom.&, meta);
+println("utype(custom) is " + repr(utype(custom)));
+################################################################################
+# utype(null) is "null"
+# utype(true) is "boolean"
+# utype(123) is "number"
+# utype("foo") is "string"
+# utype([123, 456]) is "vector"
+# utype({"foo": "bar"}) is "map"
+# utype({"foo", "bar"}) is "set"
+# utype(123.&) is "reference"
+# utype(function() {}) is "function"
+# utype(println) is "function"
+# utype(custom) is "map"
