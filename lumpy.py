@@ -1118,7 +1118,7 @@ class Lexer:
             if not (nybbles[0] in HEX_MAPPING and nybbles[1] in HEX_MAPPING):
                 raise ParseError(
                     self.location,
-                    f'expected hexadecimal escape sequence, found `{sequence}`',
+                    f"expected hexadecimal escape sequence, found `{sequence}`",
                 )
             byte = (HEX_MAPPING[nybbles[0]] << 4) | HEX_MAPPING[nybbles[1]]
             return bytes([byte])
@@ -1129,7 +1129,7 @@ class Lexer:
             )
             raise ParseError(
                 self.location,
-                f'expected escape sequence, found `{sequence}`',
+                f"expected escape sequence, found `{sequence}`",
             )
 
         character = self._current_character()
