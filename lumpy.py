@@ -285,8 +285,16 @@ class String(Value):
     data: str
     meta: Optional["Map"] = None
 
+    def __init__(
+        self, data: Union[bytes, str], meta: Optional["Map"] = None
+    ) -> None:
+        if isinstance(data, bytes):
+            data = data.decode("utf-8")
+        self.data = data
+        self.meta = meta
+
     @staticmethod
-    def new(data: str) -> "String":
+    def new(data: Union[bytes, str]) -> "String":
         return String(data, STRING_META.copy())
 
     def __hash__(self) -> int:
@@ -314,7 +322,12 @@ class String(Value):
         if self.meta is not None:
             self.meta.cow()
 
-    def utf8(self) -> bytes:
+    @property
+    def runes(self) -> str:
+        return self.data
+
+    @property
+    def bytes(self) -> bytes:
         return self.data.encode(encoding="utf-8")
 
 
@@ -642,7 +655,7 @@ class Function(Value):
         return id(self.ast) == id(other.ast)
 
     def __str__(self):
-        name = self.ast.name.data if self.ast.name is not None else "function"
+        name = self.ast.name.runes if self.ast.name is not None else "function"
         ugly = any(c not in ascii_letters + digits + "_" + ":" for c in name)
         name = f'"{escape(name)}"' if ugly else name
         if self.ast.location is not None:
@@ -680,7 +693,7 @@ class Builtin(Value):
         return self.function == other.function
 
     def __str__(self):
-        return f"{self.name.data}@builtin"
+        return f"{self.name.runes}@builtin"
 
     @staticmethod
     def type() -> str:
@@ -1315,7 +1328,7 @@ class Error:
 
     def __str__(self):
         if isinstance(self.value, String):
-            return f"{self.value.data}"
+            return f"{self.value.runes}"
         return f"{self.value}"
 
 
@@ -1327,7 +1340,7 @@ def typename(value: Value) -> str:
     if metavalue is None:
         return value.type()
     if isinstance(metavalue, String):
-        return metavalue.data
+        return metavalue.runes
     return str(metavalue)
 
 
@@ -1414,7 +1427,7 @@ class AstIdentifier(AstExpression):
         value: Optional[Value] = env.get(self.name)
         if value is None:
             return Error(
-                self.location, f"identifier `{self.name.data}` is not defined"
+                self.location, f"identifier `{self.name.runes}` is not defined"
             )
         if cow:
             value.cow()
@@ -2537,7 +2550,7 @@ class AstStatementAssignment(AstStatement):
             if lookup is None:
                 return Error(
                     self.location,
-                    f"identifier `{self.lhs.name.data}` is not defined",
+                    f"identifier `{self.lhs.name.runes}` is not defined",
                 )
             store = lookup.store
             field = self.lhs.name
@@ -2834,7 +2847,7 @@ class Parser:
                 if parameters[i].name == parameters[j].name:
                     raise ParseError(
                         parameters[j].location,
-                        f"duplicate function paramter `{parameters[i].name.data}`",
+                        f"duplicate function paramter `{parameters[i].name.runes}`",
                     )
         return AstFunction(location, parameters, body)
 
@@ -2999,7 +3012,7 @@ class Parser:
             expression.name = identifier.name
         if isinstance(expression, AstMap):
             update_named_functions(
-                expression, identifier.name.data + str(TokenKind.SCOPE)
+                expression, identifier.name.runes + str(TokenKind.SCOPE)
             )
         return AstStatementLet(location, identifier, expression)
 
@@ -3066,7 +3079,7 @@ class Parser:
         if identifier_v is not None and identifier_k.name == identifier_v.name:
             raise ParseError(
                 identifier_k.location,
-                f"duplicate iterator name `{identifier_k.name.data}`",
+                f"duplicate iterator name `{identifier_k.name.runes}`",
             )
         return AstStatementFor(
             location,
@@ -3206,7 +3219,8 @@ class BuiltinDump(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
-        print(arguments[0], end="")
+        sys.stdout.buffer.write(str(arguments[0]).encode("utf-8"))
+        sys.stdout.buffer.flush()
         return Null.new()
 
 
@@ -3215,7 +3229,8 @@ class BuiltinDumpln(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
-        print(arguments[0], end="\n")
+        sys.stdout.buffer.write(str(arguments[0]).encode("utf-8") + b"\n")
+        sys.stdout.buffer.flush()
         return Null.new()
 
 
@@ -3231,11 +3246,12 @@ class BuiltinPrint(Builtin):
                 return result
             if not isinstance(result, String):
                 return Error(None, f"metafunction `string` returned {result}")
-            print(result.data, end="")
+            sys.stdout.buffer.write(result.bytes)
         elif isinstance(arguments[0], String):
-            print(arguments[0].data, end="")
+            sys.stdout.buffer.write(arguments[0].bytes)
         else:
-            print(arguments[0], end="")
+            sys.stdout.buffer.write(str(arguments[0]).encode("utf-8"))
+        sys.stdout.buffer.flush()
         return Null.new()
 
 
@@ -3251,11 +3267,12 @@ class BuiltinPrintln(Builtin):
                 return result
             if not isinstance(result, String):
                 return Error(None, f"metafunction `string` returned {result}")
-            print(result.data, end="\n")
+            sys.stdout.buffer.write(result.bytes + b"\n")
         elif isinstance(arguments[0], String):
-            print(arguments[0].data, end="\n")
+            sys.stdout.buffer.write(arguments[0].bytes + b"\n")
         else:
-            print(arguments[0], end="\n")
+            sys.stdout.buffer.write(str(arguments[0]).encode("utf-8") + b"\n")
+        sys.stdout.buffer.flush()
         return Null.new()
 
 
@@ -3269,9 +3286,9 @@ class BuiltinBoolean(Builtin):
         if isinstance(arguments[0], Number):
             underlying = float(arguments[0].data)
             return Boolean.new(not (math.isnan(underlying) or underlying == 0))
-        if isinstance(arguments[0], String) and arguments[0].data == "true":
+        if isinstance(arguments[0], String) and arguments[0].bytes == b"true":
             return Boolean.new(True)
-        if isinstance(arguments[0], String) and arguments[0].data == "false":
+        if isinstance(arguments[0], String) and arguments[0].bytes == b"false":
             return Boolean.new(False)
         return Error(None, f"cannot convert value {arguments[0]} to boolean")
 
@@ -3291,7 +3308,7 @@ class BuiltinNumber(Builtin):
             return Number.new(1 if arguments[0].data else 0)
         if isinstance(arguments[0], String):
             try:
-                data = arguments[0].data
+                data = arguments[0].runes
                 if data.startswith("+"):
                     sign = +1
                     data = data[1:]
@@ -3327,7 +3344,7 @@ class BuiltinString(Builtin):
                 return result
             if not isinstance(result, String):
                 return Error(
-                    None, f"metafunction `{self.name.data}` returned {result}"
+                    None, f"metafunction `{self.name.runes}` returned {result}"
                 )
             return result
         if isinstance(arguments[0], String):
@@ -3340,8 +3357,6 @@ class BuiltinVector(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
-        if isinstance(arguments[0], String):
-            return Vector([String(x) for x in arguments[0].data])
         if isinstance(arguments[0], Vector):
             return arguments[0]
         if isinstance(arguments[0], Map):
@@ -3535,12 +3550,12 @@ class BuiltinImport(Builtin):
         module_directory = module[String("directory")]
         assert isinstance(module_directory, String)
         # Always search the current module directory first
-        paths = [module_directory.data]
+        paths: list[str] = [module_directory.runes]
         LUMPY_SEARCH_PATH = os.environ.get("LUMPY_SEARCH_PATH")
         if LUMPY_SEARCH_PATH is not None:
             paths += LUMPY_SEARCH_PATH.split(":")
         for p in paths:
-            path = Path(p + "/" + arg0.data)
+            path = Path(p + "/" + arg0.runes)
             module[String("directory")] = String(
                 os.path.dirname(os.path.realpath(path))
             )
@@ -3565,7 +3580,7 @@ class BuiltinExtend(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
-        source = Builtin.typed_argument(arguments, 0, String).data
+        source = Builtin.typed_argument(arguments, 0, String).runes
         try:
             exec(source, globals())
         except:
@@ -3579,7 +3594,7 @@ class BuiltinFsRead(Builtin):
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         arg0 = Builtin.typed_argument(arguments, 0, String)
-        with open(arg0.data, "r") as f:
+        with open(arg0.runes, "rb") as f:
             data = f.read()
         return String(data)
 
@@ -3591,8 +3606,8 @@ class BuiltinFsWrite(Builtin):
         Builtin.expect_argument_count(arguments, 2)
         arg0 = Builtin.typed_argument(arguments, 0, String)
         arg1 = Builtin.typed_argument(arguments, 1, String)
-        with open(arg0.data, "w") as f:
-            data = f.write(arg1.data)
+        with open(arg0.runes, "wb") as f:
+            data = f.write(arg1.bytes)
         return Null.new()
 
 
@@ -3603,8 +3618,8 @@ class BuiltinFsAppend(Builtin):
         Builtin.expect_argument_count(arguments, 2)
         arg0 = Builtin.typed_argument(arguments, 0, String)
         arg1 = Builtin.typed_argument(arguments, 1, String)
-        with open(arg0.data, "a") as f:
-            data = f.write(arg1.data)
+        with open(arg0.runes, "ab") as f:
+            data = f.write(arg1.bytes)
         return Null.new()
 
 
@@ -3856,7 +3871,7 @@ class BuiltinStringCount(Builtin):
         arg0, arg0_data = Builtin.typed_argument_reference(
             arguments, 0, String
         )
-        return Number.new(len(arg0_data.utf8()))
+        return Number.new(len(arg0_data.bytes))
 
 
 class BuiltinStringContains(Builtin):
@@ -3868,7 +3883,7 @@ class BuiltinStringContains(Builtin):
             arguments, 0, String
         )
         arg1 = Builtin.typed_argument(arguments, 1, String)
-        return Boolean.new(arg1.data in arg0_data.data)
+        return Boolean.new(arg1.bytes in arg0_data.bytes)
 
 
 class BuiltinStringStartsWith(Builtin):
@@ -3880,7 +3895,7 @@ class BuiltinStringStartsWith(Builtin):
             arguments, 0, String
         )
         arg1 = Builtin.typed_argument(arguments, 1, String)
-        return Boolean.new(arg0_data.data.startswith(arg1.data))
+        return Boolean.new(arg0_data.bytes.startswith(arg1.bytes))
 
 
 class BuiltinStringEndsWith(Builtin):
@@ -3892,7 +3907,7 @@ class BuiltinStringEndsWith(Builtin):
             arguments, 0, String
         )
         arg1 = Builtin.typed_argument(arguments, 1, String)
-        return Boolean.new(arg0_data.data.endswith(arg1.data))
+        return Boolean.new(arg0_data.bytes.endswith(arg1.bytes))
 
 
 class BuiltinStringTrim(Builtin):
@@ -3903,7 +3918,7 @@ class BuiltinStringTrim(Builtin):
         arg0, arg0_data = Builtin.typed_argument_reference(
             arguments, 0, String
         )
-        return String.new(arg0_data.data.strip())
+        return String.new(arg0_data.bytes.strip())
 
 
 class BuiltinStringFind(Builtin):
@@ -3915,7 +3930,7 @@ class BuiltinStringFind(Builtin):
             arguments, 0, String
         )
         arg1 = Builtin.typed_argument(arguments, 1, String)
-        found = arg0_data.utf8().find(arg1.utf8())
+        found = arg0_data.bytes.find(arg1.bytes)
         if found == -1:
             return Null.new()
         return Number.new(found)
@@ -3930,7 +3945,7 @@ class BuiltinStringRfind(Builtin):
             arguments, 0, String
         )
         arg1 = Builtin.typed_argument(arguments, 1, String)
-        found = arg0_data.utf8().rfind(arg1.utf8())
+        found = arg0_data.bytes.rfind(arg1.bytes)
         if found == -1:
             return Null.new()
         return Number.new(found)
@@ -3945,7 +3960,7 @@ class BuiltinStringJoin(Builtin):
             arguments, 0, String
         )
         arg1 = Builtin.typed_argument(arguments, 1, Vector)
-        s = str()
+        data = bytes()
         for index, value in enumerate(arg1.data):
             if not isinstance(value, String):
                 return Error(
@@ -3953,9 +3968,9 @@ class BuiltinStringJoin(Builtin):
                     f"expected string-like value for vector element at index {index}, received {typename(value)}",
                 )
             if index != 0:
-                s += arg0_data.data
-            s += value.data
-        return String.new(s)
+                data += arg0_data.bytes
+            data += value.bytes
+        return String.new(data)
 
 
 class BuiltinStringSlice(Builtin):
@@ -3976,18 +3991,18 @@ class BuiltinStringSlice(Builtin):
         end = int(float(arg2.data))
         if bgn < 0:
             return Error(None, f"slice begin is less than zero")
-        if bgn > len(arg0_data.utf8()):
+        if bgn > len(arg0_data.bytes):
             return Error(
                 None, f"slice begin is greater than the string length"
             )
         if end < 0:
             return Error(None, f"slice end is less than zero")
-        if end > len(arg0_data.data):
+        if end > len(arg0_data.bytes):
             return Error(None, f"slice end is greater than the string length")
         if end < bgn:
             return Error(None, f"slice end is less than slice begin")
         try:
-            return String(arg0_data.utf8()[bgn:end].decode(encoding="utf-8"))
+            return String(arg0_data.bytes[bgn:end].decode(encoding="utf-8"))
         except UnicodeDecodeError:
             return Error(None, f"invalid UTF-8 encoded string")
 
@@ -4001,9 +4016,9 @@ class BuiltinStringSplit(Builtin):
             arguments, 0, String
         )
         arg1 = Builtin.typed_argument(arguments, 1, String)
-        if len(arg1.data) == 0:
-            return Vector.new([String(x) for x in arg0_data.data])
-        split = arg0_data.data.split(arg1.data)
+        if len(arg1.bytes) == 0:
+            return Vector.new([String(x.to_bytes()) for x in arg0_data.bytes])
+        split = arg0_data.bytes.split(arg1.bytes)
         return Vector.new([String(x) for x in split])
 
 
@@ -4016,11 +4031,11 @@ class BuiltinStringCut(Builtin):
             arguments, 0, String
         )
         arg1 = Builtin.typed_argument(arguments, 1, String)
-        found = arg0_data.data.find(arg1.data)
+        found = arg0_data.bytes.find(arg1.bytes)
         if found == -1:
             return Null.new()
-        prefix = String(arg0_data.data[0:found])
-        suffix = String(arg0_data.data[found + len(arg1.data) :])
+        prefix = String(arg0_data.bytes[0:found])
+        suffix = String(arg0_data.bytes[found + len(arg1.bytes) :])
         return Map.new(
             {
                 String("prefix"): prefix,
