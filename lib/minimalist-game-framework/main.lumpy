@@ -243,20 +243,20 @@ class BuiltinMinGFInit(Builtin):
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 3)
-        w = Builtin.typed_argument(arguments, 0, Number)
-        h = Builtin.typed_argument(arguments, 1, Number)
-        title = Builtin.typed_argument(arguments, 2, String)
+        w = int(Builtin.typed_argument(arguments, 0, Number))
+        h = int(Builtin.typed_argument(arguments, 1, Number))
+        title = Builtin.typed_argument(arguments, 2, String).runes
 
         if pygame.get_init():
             raise Exception("minimalist-game-framework is already initialized")
 
         pygame.init()
 
-        pygame.display.set_caption(title.data)
+        pygame.display.set_caption(title)
 
         global _mingf_running, _mingf_screen, _mingf_clock, _mingf_start
         _mingf_running = True
-        _mingf_screen = pygame.display.set_mode(size=(int(w), int(h)), vsync=1)
+        _mingf_screen = pygame.display.set_mode(size=(w, h), vsync=1)
         _mingf_clock = pygame.time.Clock()
         _mingf_start = time.time_ns()
         return Null.new()
@@ -343,7 +343,7 @@ class BuiltinMinGFImageLoad(Builtin):
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
-        path = Builtin.typed_argument(arguments, 0, String).data
+        path = Builtin.typed_argument(arguments, 0, String).runes
         image = pygame.image.load(path).convert_alpha()
         return External(image, _MINGF_IMAGE_META.copy())
 
@@ -375,7 +375,7 @@ class BuiltinMinGFFontLoad(Builtin):
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 2)
-        path = Builtin.typed_argument(arguments, 0, String).data
+        path = Builtin.typed_argument(arguments, 0, String).runes
         size = Builtin.typed_argument(arguments, 1, Number).data
         font = pygame.font.Font(path, size=int(size))
         return External.new(font)
@@ -386,7 +386,7 @@ class BuiltinMinGFSoundLoad(Builtin):
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
-        path = Builtin.typed_argument(arguments, 0, String).data
+        path = Builtin.typed_argument(arguments, 0, String).runes
         sound = pygame.mixer.Sound(path)
         return External.new(sound)
 
@@ -428,12 +428,12 @@ class BuiltinMinGFSoundPlayEx(Builtin):
 
         loop = False
         for k, v in extras.data.items():
-            if isinstance(k, String) and k.data == "loop":
+            if isinstance(k, String) and k.runes == "loop":
                 assert isinstance(v, Boolean), "expected loop to be a boolean"
                 loop = v.data
                 continue
 
-            raise Exception(f"unexpected extras key {k}")
+            raise Exception(f"unexpected extras key {k.runes}")
 
         channel = sound.play(loops=-1 if loop else 0)
         if channel is not None:
@@ -458,7 +458,7 @@ class BuiltinMinGFMouseHeld(Builtin):
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
-        key = Builtin.typed_argument(arguments, 0, String).data.upper()
+        key = Builtin.typed_argument(arguments, 0, String).runes.upper()
         if not key in _MINGF_STRING_MOUSEMAP:
             return Boolean.new(False)
         return Boolean.new(_MINGF_STRING_MOUSEMAP[key].held)
@@ -469,7 +469,7 @@ class BuiltinMinGFMousePressed(Builtin):
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
-        key = Builtin.typed_argument(arguments, 0, String).data.upper()
+        key = Builtin.typed_argument(arguments, 0, String).runes.upper()
         if not key in _MINGF_STRING_MOUSEMAP:
             return Boolean.new(False)
         return Boolean.new(_MINGF_STRING_MOUSEMAP[key].pressed)
@@ -480,7 +480,7 @@ class BuiltinMinGFMouseReleased(Builtin):
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
-        key = Builtin.typed_argument(arguments, 0, String).data.upper()
+        key = Builtin.typed_argument(arguments, 0, String).runes.upper()
         if not key in _MINGF_STRING_MOUSEMAP:
             return Boolean.new(False)
         return Boolean.new(_MINGF_STRING_MOUSEMAP[key].released)
@@ -491,7 +491,7 @@ class BuiltinMinGFKeyHeld(Builtin):
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
-        key = Builtin.typed_argument(arguments, 0, String).data.upper()
+        key = Builtin.typed_argument(arguments, 0, String).runes.upper()
         if not key in _MINGF_STRING_KEYMAP:
             return Boolean.new(False)
         return Boolean.new(_MINGF_STRING_KEYMAP[key].held)
@@ -502,7 +502,7 @@ class BuiltinMinGFKeyPressed(Builtin):
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
-        key = Builtin.typed_argument(arguments, 0, String).data.upper()
+        key = Builtin.typed_argument(arguments, 0, String).runes.upper()
         if not key in _MINGF_STRING_KEYMAP:
             return Boolean.new(False)
         return Boolean.new(_MINGF_STRING_KEYMAP[key].pressed)
@@ -513,7 +513,7 @@ class BuiltinMinGFKeyReleased(Builtin):
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
-        key = Builtin.typed_argument(arguments, 0, String).data.upper()
+        key = Builtin.typed_argument(arguments, 0, String).runes.upper()
         if not key in _MINGF_STRING_KEYMAP:
             return Boolean.new(False)
         return Boolean.new(_MINGF_STRING_KEYMAP[key].released)
@@ -527,7 +527,7 @@ class BuiltinMinGFMeasureText(Builtin):
         ext = Builtin.typed_argument(arguments, 0, External)
         assert isinstance(ext.data, pygame.Font), "expected font"
         font = ext.data
-        text = Builtin.typed_argument(arguments, 1, String).data
+        text = Builtin.typed_argument(arguments, 1, String).runes
         size = font.size(text)
         return Map({
             String("x"): Number.new(float(size[0])),
@@ -632,17 +632,17 @@ class BuiltinMinGFDrawImageEx(Builtin):
         pivot_x = image.width / 2
         pivot_y = image.height / 2
         for k, v in extras.data.items():
-            if isinstance(k, String) and k.data == "flip-x":
+            if isinstance(k, String) and k.runes == "flip-x":
                 assert isinstance(v, Boolean), "expected flip-x to be a boolean"
                 flip_x = v.data
                 continue
 
-            if isinstance(k, String) and k.data == "flip-y":
+            if isinstance(k, String) and k.runes == "flip-y":
                 assert isinstance(v, Boolean), "expected flip-y to be a boolean"
                 flip_y = v.data
                 continue
 
-            if isinstance(k, String) and k.data == "scale":
+            if isinstance(k, String) and k.runes == "scale":
                 # X and Y scaling factors applied before rotation.
                 if isinstance(v, Number):
                     scale_x = float(v)
@@ -654,13 +654,13 @@ class BuiltinMinGFDrawImageEx(Builtin):
                     scale_y = float(v[String("y")])
                 continue
 
-            if isinstance(k, String) and k.data == "angle":
+            if isinstance(k, String) and k.runes == "angle":
                 # Angle of rotation around the pivot of the image.
                 assert isinstance(v, Number), "expected angle to be a number"
                 angle = float(extras[String("angle")])
                 continue
 
-            if isinstance(k, String) and k.data == "pivot":
+            if isinstance(k, String) and k.runes == "pivot":
                 # Pivot of the image.
                 assert isinstance(v[String("x")], Number), "expected pivot::x to be a number"
                 assert isinstance(v[String("y")], Number), "expected pivot::y to be a number"
@@ -668,7 +668,7 @@ class BuiltinMinGFDrawImageEx(Builtin):
                 pivot_y = float(v[String("y")])
                 continue
 
-            raise Exception(f"unexpected extras key {k}")
+            raise Exception(f"unexpected extras key {k.runes}")
 
         original_w = image.get_width()
         original_h = image.get_height()
@@ -709,7 +709,7 @@ class BuiltinMinGFDrawText(Builtin):
         font = ext.data
         vec2 = Builtin.typed_argument(arguments, 1, Map)
         color = Builtin.typed_argument(arguments, 2, Map)
-        text = Builtin.typed_argument(arguments, 3, String).data
+        text = Builtin.typed_argument(arguments, 3, String).runes
         text = font.render(
             text,
             antialias=True,

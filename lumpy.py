@@ -282,15 +282,13 @@ class Number(Value):
 @final
 @dataclass
 class String(Value):
-    data: str
+    data: bytes
     meta: Optional["Map"] = None
 
     def __init__(
         self, data: Union[bytes, str], meta: Optional["Map"] = None
     ) -> None:
-        if isinstance(data, bytes):
-            data = data.decode("utf-8")
-        self.data = data
+        self.data = data if isinstance(data, bytes) else data.encode("utf-8")
         self.meta = meta
 
     @staticmethod
@@ -306,7 +304,7 @@ class String(Value):
         return self.data == other.data
 
     def __str__(self) -> str:
-        return f'"{escape(self.data)}"'
+        return f'"{escape(self.runes)}"'
 
     def __contains__(self, item) -> bool:
         return item in self.data
@@ -324,11 +322,11 @@ class String(Value):
 
     @property
     def runes(self) -> str:
-        return self.data
+        return self.data.decode(encoding="utf-8")
 
     @property
     def bytes(self) -> bytes:
-        return self.data.encode(encoding="utf-8")
+        return self.data
 
 
 @final
