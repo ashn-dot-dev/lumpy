@@ -1149,7 +1149,7 @@ class Lexer:
     def _lex_raw_string(self) -> Token:
         start = self.position
         self._expect_character("`")
-        string = ""
+        string = b""
         if self._current_character() == "`" and self._peek_character() == "`":
             self._advance_character()
             self._advance_character()
@@ -1162,7 +1162,7 @@ class Lexer:
                 )
             self._advance_character()
             while not self._is_eof() and self._current_character() != "`":
-                string += self._current_character()
+                string += self._current_character().encode("utf-8")
                 self._advance_character()
             self._expect_character("`")
             self._expect_character("`")
@@ -1170,7 +1170,7 @@ class Lexer:
             literal = self.source[start + 4 : self.position - 3]
         else:
             while not self._is_eof() and self._current_character() != "`":
-                string += self._current_character()
+                string += self._current_character().encode("utf-8")
                 self._advance_character()
             self._expect_character("`")
             literal = self.source[start : self.position]
