@@ -27,7 +27,9 @@ dumpln( "hello\tworld" );
 dumpln( "hello\nworld" );
 dumpln( "hello\\world" );
 dumpln( "hello\"world" );
-dumpln( `hello world`  );
+dumpln( "hello\x5Fworld" ); # 0x5F is ASCII _
+dumpln( "hello\x5fworld" ); # 0x5F is ASCII _
+dumpln( `hello world` );
 dumpln(
 `hello
 world`

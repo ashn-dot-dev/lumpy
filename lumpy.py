@@ -916,7 +916,7 @@ class Token:
     literal: str
     location: Optional[SourceLocation] = None
     number: Optional[float] = None
-    string: Optional[str] = None
+    string: Optional[bytes] = None
 
     def __str__(self) -> str:
         if self.kind == TokenKind.EOF:
@@ -1042,7 +1042,7 @@ class Lexer:
         self.position += len(text)
         return self._new_token(TokenKind.NUMBER, text, number=float(text))
 
-    def _lex_string_character(self) -> str:
+    def _lex_string_character(self) -> bytes:
         if self._is_eof():
             raise ParseError(
                 self.location,
@@ -1064,17 +1064,17 @@ class Lexer:
         if self._current_character() == "\\" and self._peek_character() == "t":
             self._advance_character()
             self._advance_character()
-            return "\t"
+            return b"\t"
 
         if self._current_character() == "\\" and self._peek_character() == "n":
             self._advance_character()
             self._advance_character()
-            return "\n"
+            return b"\n"
 
         if self._current_character() == "\\" and self._peek_character() == '"':
             self._advance_character()
             self._advance_character()
-            return '"'
+            return b'"'
 
         if (
             self._current_character() == "\\"
@@ -1082,7 +1082,46 @@ class Lexer:
         ):
             self._advance_character()
             self._advance_character()
-            return "\\"
+            return b"\\"
+
+        if self._current_character() == "\\" and self._peek_character() == "x":
+            self._advance_character()
+            self._advance_character()
+            nybbles = self._current_character() + self._peek_character()
+            self._advance_character()
+            self._advance_character()
+            sequence = "\\x" + nybbles
+            HEX_MAPPING = {
+                "0": 0x0,
+                "1": 0x1,
+                "2": 0x2,
+                "3": 0x3,
+                "4": 0x4,
+                "5": 0x5,
+                "6": 0x6,
+                "7": 0x7,
+                "8": 0x8,
+                "9": 0x9,
+                "A": 0xA,
+                "B": 0xB,
+                "C": 0xC,
+                "D": 0xD,
+                "E": 0xE,
+                "F": 0xF,
+                "a": 0xA,
+                "b": 0xB,
+                "c": 0xC,
+                "d": 0xD,
+                "e": 0xE,
+                "f": 0xF,
+            }
+            if not (nybbles[0] in HEX_MAPPING and nybbles[1] in HEX_MAPPING):
+                raise ParseError(
+                    self.location,
+                    f'expected hexadecimal escape sequence, found `{sequence}`',
+                )
+            byte = (HEX_MAPPING[nybbles[0]] << 4) | HEX_MAPPING[nybbles[1]]
+            return bytes([byte])
 
         if self._current_character() == "\\":
             sequence = escape(
@@ -1090,17 +1129,17 @@ class Lexer:
             )
             raise ParseError(
                 self.location,
-                f'expected escape sequence, found "{sequence}"',
+                f'expected escape sequence, found `{sequence}`',
             )
 
         character = self._current_character()
         self._advance_character()
-        return character
+        return character.encode("utf-8")
 
     def _lex_string(self) -> Token:
         start = self.position
         self._expect_character('"')
-        string = ""
+        string = b""
         while not self._is_eof() and self._current_character() != '"':
             string += self._lex_string_character()
         self._expect_character('"')
@@ -1354,7 +1393,7 @@ def binary_operator_metafunction(
     return None
 
 
-def update_named_functions(map: "AstMap", prefix: str = ""):
+def update_named_functions(map: "AstMap", prefix: bytes = b""):
     """
     Update the name values of named functions that are children somewhere in
     this map, either direct map-level value or a decendent of another map.
@@ -1363,7 +1402,9 @@ def update_named_functions(map: "AstMap", prefix: str = ""):
         if isinstance(k, AstString) and isinstance(v, AstFunction):
             v.name = String(prefix + k.data)
         if isinstance(k, AstString) and isinstance(v, AstMap):
-            update_named_functions(v, prefix + k.data + str(TokenKind.SCOPE))
+            update_named_functions(
+                v, prefix + k.data + str(TokenKind.SCOPE).encode("utf-8")
+            )
 
 
 class AstNode(ABC):
@@ -1465,7 +1506,7 @@ class AstNumber(AstExpression):
 @dataclass
 class AstString(AstExpression):
     location: Optional[SourceLocation]
-    data: str
+    data: bytes
 
     def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
         return String.new(self.data)
@@ -3010,7 +3051,8 @@ class Parser:
             expression.name = identifier.name
         if isinstance(expression, AstMap):
             update_named_functions(
-                expression, identifier.name.runes + str(TokenKind.SCOPE)
+                expression,
+                identifier.name.bytes + str(TokenKind.SCOPE).encode("utf-8"),
             )
         return AstStatementLet(location, identifier, expression)
 
