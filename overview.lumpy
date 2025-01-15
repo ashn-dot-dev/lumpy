@@ -30,6 +30,7 @@ dumpln( "hello\"world" );
 dumpln( "hello\x5Fworld" ); # 0x5F is ASCII _
 dumpln( "hello\x5fworld" ); # 0x5F is ASCII _
 dumpln( "hello\xf0\x9f\x8d\x94world" ); # 0xf0, 0x9f, 0x8d, 0x94 is UTF-8 🍔
+dumpln( "hello🍔world" );
 dumpln( `hello world` );
 dumpln(
 `hello
