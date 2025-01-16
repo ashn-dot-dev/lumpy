@@ -987,7 +987,7 @@ class Lexer:
         if self._is_eof():
             raise ParseError(
                 self.location,
-                f'expected `{escape(character)}`, found end-of-file',
+                f"expected `{escape(character)}`, found end-of-file",
             )
         if current != character:
             raise ParseError(
