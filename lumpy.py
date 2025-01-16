@@ -13,6 +13,7 @@ from typing import (
     Optional,
     Self,
     SupportsFloat,
+    TextIO,
     Tuple,
     Type,
     TypeVar,
@@ -3259,8 +3260,7 @@ class BuiltinDump(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
-        sys.stdout.buffer.write(str(arguments[0]).encode("utf-8"))
-        sys.stdout.buffer.flush()
+        print(str(arguments[0]), end="")
         return Null.new()
 
 
@@ -3269,8 +3269,7 @@ class BuiltinDumpln(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
-        sys.stdout.buffer.write(str(arguments[0]).encode("utf-8") + b"\n")
-        sys.stdout.buffer.flush()
+        print(str(arguments[0]), end="\n")
         return Null.new()
 
 
@@ -3286,12 +3285,11 @@ class BuiltinPrint(Builtin):
                 return result
             if not isinstance(result, String):
                 return Error(None, f"metafunction `string` returned {result}")
-            sys.stdout.buffer.write(result.bytes)
+            print(result.runes, end="")
         elif isinstance(arguments[0], String):
-            sys.stdout.buffer.write(arguments[0].bytes)
+            print(arguments[0].runes, end="")
         else:
-            sys.stdout.buffer.write(str(arguments[0]).encode("utf-8"))
-        sys.stdout.buffer.flush()
+            print(str(arguments[0]), end="")
         return Null.new()
 
 
@@ -3307,12 +3305,11 @@ class BuiltinPrintln(Builtin):
                 return result
             if not isinstance(result, String):
                 return Error(None, f"metafunction `string` returned {result}")
-            sys.stdout.buffer.write(result.bytes + b"\n")
+            print(result.runes, end="\n")
         elif isinstance(arguments[0], String):
-            sys.stdout.buffer.write(arguments[0].bytes + b"\n")
+            print(arguments[0].runes, end="\n")
         else:
-            sys.stdout.buffer.write(str(arguments[0]).encode("utf-8") + b"\n")
-        sys.stdout.buffer.flush()
+            print(str(arguments[0]), end="\n")
         return Null.new()
 
 
