@@ -680,7 +680,7 @@ class Builtin(Value):
     meta: Optional["Map"] = None
 
     def __post_init__(self):
-        # Builtins should the name of the builtin as a class property.
+        # Builtins should add the name of the builtin as a class property.
         self.name: String
 
     def __hash__(self) -> int:
@@ -704,7 +704,16 @@ class Builtin(Value):
     def call(self, arguments: list[Value]) -> Union[Value, "Error"]:
         try:
             result = self.function(arguments)
-            return Null.new() if result is None else result
+            if isinstance(result, Error):
+                return result
+            if isinstance(result, Value):
+                return result
+            # Special cases in which a builtin does not return a Lumpy value or
+            # error. If None is returned (likely a missing return statement),
+            # automatically return a null value. If a non-None object is
+            # returned, automatically convert that object into an external
+            # value wrapping the object.
+            return Null.new() if result is None else External.new(result)
         except Exception as e:
             message = f"{e}"
             if len(message) == 0:

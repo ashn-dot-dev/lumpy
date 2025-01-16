@@ -1,0 +1,14 @@
+let source =
+```
+class BuiltinFoo(Builtin):
+    name = String("foo")
+
+    def function(self, arguments):
+        return None
+
+let_builtin(BASE_ENVIRONMENT.store, BuiltinFoo())
+```;
+extend(source);
+dumpln(foo());
+################################################################################
+# null
