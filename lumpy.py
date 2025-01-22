@@ -3834,6 +3834,15 @@ class BuiltinMathTan(Builtin):
         return Number.new(math.tan(arg0.data))
 
 
+class BuiltinRandomSeed(Builtin):
+    name = String("random::seed")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        random.seed(hash(arguments[0]))
+        return Null.new()
+
+
 class BuiltinRandomNumber(Builtin):
     name = String("random::number")
 
@@ -4548,6 +4557,7 @@ BASE_ENVIRONMENT.let(
     String("random"),
     Map.new(
         {
+            String("seed"): BuiltinRandomSeed(),
             String("number"): BuiltinRandomNumber(),
         }
     ),
