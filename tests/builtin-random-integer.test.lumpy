@@ -1,7 +1,7 @@
 random::seed("foo");
 let min = 0;
 let max = 0;
-for i in 1000 {
+for i in 10000 {
     let x = random::integer(-10, +10);
     assert(x.is_integer());
     assert(x >= -10);
