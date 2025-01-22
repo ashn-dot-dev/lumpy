@@ -614,6 +614,50 @@ else err {
 
 print("\n");
 
+let fizzbuzzer = {
+    "type": "fizzbuzzer",
+    "new": function(n, max) {
+        let self = {"n": n, "max": max};
+        setmeta(self.&, fizzbuzzer);
+        return self;
+    },
+    "next": function(self) {
+        let n = self.*.n;
+        if n > self.*.max {
+            error null;
+        }
+        self.*.n = self.*.n + 1;
+        if n % 3 == 0 and n % 5 == 0 {
+            return "fizzbuzz";
+        }
+        if n % 3 == 0 {
+            return "fizz";
+        }
+        if n % 5 == 0 {
+            return "buzz";
+        }
+        return n;
+    },
+};
+let fb = fizzbuzzer::new(1, 15);
+println("Custom Iterator Loop: for x in " + repr(fb) + " with metamap " + repr(getmeta(fb)));
+for x in fb {
+    println(x);
+}
+
+print("\n");
+
+let fb = fizzbuzzer::new(1, 15);
+println("Custom Iterator Loops With References Are Not Permitted: for reference x in " + repr(fb) + " with metamap " + repr(getmeta(fb)));
+try {
+    for x.& in fb { }
+}
+else err {
+    println("error: " + string(err));
+}
+
+print("\n");
+
 println("let x be 1");
 let x = 1;
 println("while x <= 5 print x and then increment x by 1");

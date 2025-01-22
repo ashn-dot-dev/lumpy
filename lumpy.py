@@ -2345,7 +2345,35 @@ class AstStatementFor(AstStatement):
         collection = collection.copy()
 
         loop_env = Environment(env)
-        if isinstance(collection, Number):
+        if metafunction := collection.metafunction(String("next")):
+            if self.identifier_v is not None:
+                return Error(
+                    self.location,
+                    f"attempted key-value iteration over iterator `{typename(collection)}`",
+                )
+            if self.k_is_reference:
+                return Error(
+                    self.location,
+                    f"cannot use a key-reference over iterator `{typename(collection)}`",
+                )
+            reference = Reference.new(collection)
+            while True:
+                iterated = call(self.location, metafunction, [reference])
+                if isinstance(iterated, Error):
+                    if isinstance(iterated.value, Null):
+                        break  # end-of-iteration
+                    return iterated
+                loop_env.let(self.identifier_k.name, iterated)
+                result = self.block.eval(loop_env)
+                if isinstance(result, Return):
+                    return result
+                if isinstance(result, Break):
+                    return None
+                if isinstance(result, Continue):
+                    continue
+                if isinstance(result, Error):
+                    return result
+        elif isinstance(collection, Number):
             if self.identifier_v is not None:
                 return Error(
                     self.location,
