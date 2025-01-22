@@ -1,0 +1,30 @@
+random::seed("foo");
+let min = 0;
+let max = 0;
+for i in 1000 {
+    let x = random::integer(-10, +10);
+    assert(x.is_integer());
+    assert(x >= -10);
+    assert(x <= +10);
+    if x < min { min = x; }
+    if x > max { max = x; }
+}
+assert(min == -10); # incredibly likely
+assert(max == +10); # incredibly likely
+
+try {
+    random::integer(-1.5, +1);
+}
+else err {
+    dumpln(err);
+}
+
+try {
+    random::integer(-1, +1.5);
+}
+else err {
+    dumpln(err);
+}
+################################################################################
+# "expected integer, received -1.5"
+# "expected integer, received 1.5"

@@ -3853,6 +3853,20 @@ class BuiltinRandomNumber(Builtin):
         return Number.new(random.uniform(float(arg0.data), float(arg1.data)))
 
 
+class BuiltinRandomInteger(Builtin):
+    name = String("random::integer")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 2)
+        arg0 = Builtin.typed_argument(arguments, 0, Number)
+        if not float(arg0).is_integer():
+            return Error(None, f"expected integer, received {arg0}")
+        arg1 = Builtin.typed_argument(arguments, 1, Number)
+        if not float(arg1).is_integer():
+            return Error(None, f"expected integer, received {arg1}")
+        return Number.new(random.randint(int(arg0), int(arg1)))
+
+
 class BuiltinNumberIsNaN(Builtin):
     name = String("is_nan")
 
@@ -4559,6 +4573,7 @@ BASE_ENVIRONMENT.let(
         {
             String("seed"): BuiltinRandomSeed(),
             String("number"): BuiltinRandomNumber(),
+            String("integer"): BuiltinRandomInteger(),
         }
     ),
 )
