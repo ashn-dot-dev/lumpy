@@ -1,0 +1,26 @@
+# Import a module that does not exist.
+try {
+    import("nope.lumpy");
+}
+else err {
+    println(err);
+}
+
+# Import a module that does not exist using a valid directory that does exist.
+try {
+    import("../examples");
+}
+else err {
+    println(err);
+}
+
+# Import a module that does exist by the path to its main file.
+let left_pad = import("../lib/left-pad/main.lumpy");
+assert(utype(left_pad) == "function");
+
+# Import a module that does exist by the path to its directory.
+let left_pad = import("../lib/left-pad");
+assert(utype(left_pad) == "function");
+################################################################################
+# module "nope.lumpy" not found
+# module "../examples" not found

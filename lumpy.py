@@ -3630,6 +3630,11 @@ class BuiltinImport(Builtin):
             paths += LUMPY_SEARCH_PATH.split(":")
         for p in paths:
             path = Path(p + "/" + arg0.runes)
+            if path.is_dir():
+                # If the path is a directory, such as in the case of a library,
+                # load the entry point to to the library and/or group of files,
+                # using the name <directory>/main.lumpy by convention.
+                path = path / "main.lumpy"
             module[String("directory")] = String(
                 os.path.dirname(os.path.realpath(path))
             )
