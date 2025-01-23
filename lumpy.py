@@ -727,7 +727,7 @@ class Builtin(Value):
             message = f"{e}"
             if len(message) == 0:
                 message = f"encountered exception {type(e).__name__}"
-            return Error(None, String(message))
+            return Error(None, String.new(message))
 
     @staticmethod
     def expect_argument_count(arguments: list[Value], count: int) -> None:
@@ -1419,7 +1419,7 @@ def update_named_functions(map: "AstMap", prefix: bytes = b""):
     """
     for k, v in map.elements:
         if isinstance(k, AstString) and isinstance(v, AstFunction):
-            v.name = String(prefix + k.data)
+            v.name = String.new(prefix + k.data)
         if isinstance(k, AstString) and isinstance(v, AstMap):
             update_named_functions(
                 v, prefix + k.data + str(TokenKind.SCOPE).encode("utf-8")
@@ -1987,7 +1987,7 @@ class AstAdd(AstExpression):
         if isinstance(lhs, Number) and isinstance(rhs, Number):
             return Number.new(float(lhs.data) + float(rhs.data))
         if isinstance(lhs, String) and isinstance(rhs, String):
-            return String(lhs.data + rhs.data)
+            return String.new(lhs.data + rhs.data)
         return Error(
             self.location,
             f"attempted + operation with types `{typename(lhs)}` and `{typename(rhs)}`",
