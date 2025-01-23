@@ -29,6 +29,8 @@ import re
 import sys
 import traceback
 
+rng = random.Random()
+
 
 def escape(text: str) -> str:
     MAPPING = {
@@ -3844,7 +3846,7 @@ class BuiltinRandomSeed(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
-        random.seed(hash(arguments[0]))
+        rng.seed(hash(arguments[0]))
         return Null.new()
 
 
@@ -3855,7 +3857,7 @@ class BuiltinRandomNumber(Builtin):
         Builtin.expect_argument_count(arguments, 2)
         arg0 = Builtin.typed_argument(arguments, 0, Number)
         arg1 = Builtin.typed_argument(arguments, 1, Number)
-        return Number.new(random.uniform(float(arg0.data), float(arg1.data)))
+        return Number.new(rng.uniform(float(arg0.data), float(arg1.data)))
 
 
 class BuiltinRandomInteger(Builtin):
@@ -3869,7 +3871,7 @@ class BuiltinRandomInteger(Builtin):
         arg1 = Builtin.typed_argument(arguments, 1, Number)
         if not float(arg1).is_integer():
             return Error(None, f"expected integer, received {arg1}")
-        return Number.new(random.randint(int(arg0), int(arg1)))
+        return Number.new(rng.randint(int(arg0), int(arg1)))
 
 
 class BuiltinNumberIsNaN(Builtin):
