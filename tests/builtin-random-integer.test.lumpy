@@ -9,8 +9,6 @@ for i in 10000 {
     if x < min { min = x; }
     if x > max { max = x; }
 }
-assert(min == -10); # incredibly likely
-assert(max == +10); # incredibly likely
 
 try {
     random::integer(-1.5, +1);

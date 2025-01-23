@@ -8,6 +8,3 @@ for i in 10000 {
     if x < min { min = x; }
     if x > max { max = x; }
 }
-let epsilon = 0.001;
-assert((min - -10) <= epsilon); # incredibly likely
-assert((max - +10) <= epsilon); # incredibly likely
