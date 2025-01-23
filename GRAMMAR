@@ -83,10 +83,11 @@
            | "`" <printable>* "`"
            | "```" <line-feed> <printable> "```"
 
-<character> ::= "\t"
-              | "\n"
-              | '\"'
-              | "\\"
+<character> ::= "\t" # tab
+              | "\n" # newline
+              | '\"' # double quote
+              | "\\" # backslash
+              | /\\x[0-9a-fA-F][0-9a-fA-F]/ # hex byte, e.g. \xFF -> 0xFF
               | (<printable> - ('"' | "\"))
 
 <printable> ::= ? printable Unicode character ?
