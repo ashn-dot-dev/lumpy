@@ -6,6 +6,7 @@ from collections import UserDict, UserList
 from dataclasses import dataclass
 from pathlib import Path
 from string import ascii_letters, digits, printable, whitespace
+from types import ModuleType
 from typing import (
     Any,
     Callable,
@@ -28,6 +29,12 @@ import random
 import re
 import sys
 import traceback
+
+readline: Optional[ModuleType]
+try:
+    import readline  # REPL readline support
+except ImportError:
+    readline = None
 
 rng = random.Random()
 
@@ -4652,8 +4659,16 @@ def main() -> None:
                     s += f" called from {element.location}"
                 print(s, file=sys.stderr)
     else:
+        HOME = os.environ.get("LUMPY_HOME", Path.home())
+        HISTFILE = Path(HOME) / ".lumpy-history"
+        HISTFILE_SIZE = 4096
+        if readline and os.path.exists(HISTFILE):
+            readline.read_history_file(HISTFILE)
         repl = Repl()
         repl.interact(banner="", exitmsg="")
+        if readline:
+            readline.set_history_length(HISTFILE_SIZE)
+            readline.write_history_file(HISTFILE)
 
 
 if __name__ == "__main__":

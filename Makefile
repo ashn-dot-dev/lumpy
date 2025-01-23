@@ -29,6 +29,7 @@ format:
 	python3 -m black --line-length=79 lumpy.py
 
 clean:
+	rm -f .lumpy-history
 	rm -f bin/lumpy
 	rm -rf __pycache__
 	rm -rf .mypy_cache
