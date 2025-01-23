@@ -1,0 +1,17 @@
+let left_pad = import("../main.lumpy");
+
+dumpln(left_pad("foo", -1));
+dumpln(left_pad("foo", +0));
+dumpln(left_pad("foo", +1));
+dumpln(left_pad("foo", +2));
+dumpln(left_pad("foo", +3));
+dumpln(left_pad("foo", +4));
+dumpln(left_pad("foo", +5));
+################################################################################
+# "foo"
+# "foo"
+# "foo"
+# "foo"
+# "foo"
+# " foo"
+# "  foo"

@@ -1,0 +1,16 @@
+# Left-pad string `str` with spaces up to the provided length `len`.
+let left_pad = function(str, len) {
+    assert(utype(str) == "string");
+    assert(utype(len) == "number" and len.is_integer());
+    len = len - str.count();
+    if len <= 0 {
+        return str;
+    }
+    let pad = "";
+    for i in len {
+        pad = pad + " ";
+    }
+    return pad + str;
+};
+
+return left_pad;
