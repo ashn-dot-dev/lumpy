@@ -7,9 +7,9 @@ import time
 import pygame
 
 
-_MINGF_COLOR = BASE_ENVIRONMENT.get(String("_MINGF_COLOR"))
-_MINGF_RECT = BASE_ENVIRONMENT.get(String("_MINGF_RECT"));
-_MINGF_VEC2 = BASE_ENVIRONMENT.get(String("_MINGF_VEC2"));
+LUMPY_LIB_MINGF_COLOR = BASE_ENVIRONMENT.get(String("LUMPY_LIB_MINGF_COLOR"))
+LUMPY_LIB_MINGF_RECT = BASE_ENVIRONMENT.get(String("LUMPY_LIB_MINGF_RECT"));
+LUMPY_LIB_MINGF_VEC2 = BASE_ENVIRONMENT.get(String("LUMPY_LIB_MINGF_VEC2"));
 
 
 @dataclass
@@ -19,219 +19,219 @@ class MinGFPressState:
     released: bool = False
 
 
-_MINGF_MOUSE_LBUTTON = MinGFPressState()
-_MINGF_MOUSE_RBUTTON = MinGFPressState()
-_MINGF_MOUSE_MBUTTON = MinGFPressState()
+LUMPY_LIB_MINGF_MOUSE_LBUTTON = MinGFPressState()
+LUMPY_LIB_MINGF_MOUSE_RBUTTON = MinGFPressState()
+LUMPY_LIB_MINGF_MOUSE_MBUTTON = MinGFPressState()
 
-_MINGF_PYGAME_MOUSEMAP = {
-    1: _MINGF_MOUSE_LBUTTON,
-    3: _MINGF_MOUSE_RBUTTON,
-    2: _MINGF_MOUSE_MBUTTON,
+LUMPY_LIB_MINGF_PYGAME_MOUSEMAP = {
+    1: LUMPY_LIB_MINGF_MOUSE_LBUTTON,
+    3: LUMPY_LIB_MINGF_MOUSE_RBUTTON,
+    2: LUMPY_LIB_MINGF_MOUSE_MBUTTON,
 }
 
-_MINGF_STRING_MOUSEMAP = {
-    "LBUTTON": _MINGF_MOUSE_LBUTTON, "LEFT": _MINGF_MOUSE_LBUTTON,
-    "RBUTTON": _MINGF_MOUSE_RBUTTON, "RIGHT": _MINGF_MOUSE_RBUTTON,
-    "MBUTTON": _MINGF_MOUSE_MBUTTON, "MIDDLE": _MINGF_MOUSE_MBUTTON,
+LUMPY_LIB_MINGF_STRING_MOUSEMAP = {
+    "LBUTTON": LUMPY_LIB_MINGF_MOUSE_LBUTTON, "LEFT": LUMPY_LIB_MINGF_MOUSE_LBUTTON,
+    "RBUTTON": LUMPY_LIB_MINGF_MOUSE_RBUTTON, "RIGHT": LUMPY_LIB_MINGF_MOUSE_RBUTTON,
+    "MBUTTON": LUMPY_LIB_MINGF_MOUSE_MBUTTON, "MIDDLE": LUMPY_LIB_MINGF_MOUSE_MBUTTON,
 }
 
-_KEY_UARROW = MinGFPressState()
-_KEY_DARROW = MinGFPressState()
-_KEY_LARROW = MinGFPressState()
-_KEY_RARROW = MinGFPressState()
-_KEY_LSHIFT = MinGFPressState()
-_KEY_RSHIFT = MinGFPressState()
-_KEY_LCTRL = MinGFPressState()
-_KEY_RCTRL = MinGFPressState()
-_KEY_LALT = MinGFPressState()
-_KEY_RALT = MinGFPressState()
-_KEY_BACKSPACE = MinGFPressState()
-_KEY_SPACE = MinGFPressState()
-_KEY_ENTER = MinGFPressState()
-_KEY_TAB = MinGFPressState()
-_KEY_F1 = MinGFPressState()
-_KEY_F2 = MinGFPressState()
-_KEY_F3 = MinGFPressState()
-_KEY_F4 = MinGFPressState()
-_KEY_F5 = MinGFPressState()
-_KEY_F6 = MinGFPressState()
-_KEY_F7 = MinGFPressState()
-_KEY_F8 = MinGFPressState()
-_KEY_F9 = MinGFPressState()
-_KEY_F10 = MinGFPressState()
-_KEY_F11 = MinGFPressState()
-_KEY_F12 = MinGFPressState()
-_KEY_0 = MinGFPressState()
-_KEY_1 = MinGFPressState()
-_KEY_2 = MinGFPressState()
-_KEY_3 = MinGFPressState()
-_KEY_4 = MinGFPressState()
-_KEY_5 = MinGFPressState()
-_KEY_6 = MinGFPressState()
-_KEY_7 = MinGFPressState()
-_KEY_8 = MinGFPressState()
-_KEY_9 = MinGFPressState()
-_KEY_A = MinGFPressState()
-_KEY_B = MinGFPressState()
-_KEY_C = MinGFPressState()
-_KEY_D = MinGFPressState()
-_KEY_E = MinGFPressState()
-_KEY_F = MinGFPressState()
-_KEY_G = MinGFPressState()
-_KEY_H = MinGFPressState()
-_KEY_I = MinGFPressState()
-_KEY_J = MinGFPressState()
-_KEY_K = MinGFPressState()
-_KEY_L = MinGFPressState()
-_KEY_M = MinGFPressState()
-_KEY_N = MinGFPressState()
-_KEY_O = MinGFPressState()
-_KEY_P = MinGFPressState()
-_KEY_Q = MinGFPressState()
-_KEY_R = MinGFPressState()
-_KEY_S = MinGFPressState()
-_KEY_T = MinGFPressState()
-_KEY_U = MinGFPressState()
-_KEY_V = MinGFPressState()
-_KEY_W = MinGFPressState()
-_KEY_X = MinGFPressState()
-_KEY_Y = MinGFPressState()
-_KEY_Z = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_UARROW = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_DARROW = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_LARROW = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_RARROW = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_LSHIFT = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_RSHIFT = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_LCTRL = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_RCTRL = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_LALT = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_RALT = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_BACKSPACE = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_SPACE = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_ENTER = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_TAB = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_F1 = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_F2 = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_F3 = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_F4 = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_F5 = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_F6 = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_F7 = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_F8 = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_F9 = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_F10 = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_F11 = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_F12 = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_0 = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_1 = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_2 = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_3 = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_4 = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_5 = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_6 = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_7 = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_8 = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_9 = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_A = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_B = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_C = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_D = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_E = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_F = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_G = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_H = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_I = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_J = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_K = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_L = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_M = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_N = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_O = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_P = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_Q = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_R = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_S = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_T = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_U = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_V = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_W = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_X = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_Y = MinGFPressState()
+LUMPY_LIB_MINGF_KEY_Z = MinGFPressState()
 
-_MINGF_PYGAME_KEYMAP = {
-    pygame.K_UP: _KEY_UARROW,
-    pygame.K_DOWN: _KEY_DARROW,
-    pygame.K_LEFT: _KEY_LARROW,
-    pygame.K_RIGHT: _KEY_RARROW,
-    pygame.K_LSHIFT: _KEY_LSHIFT,
-    pygame.K_RSHIFT: _KEY_RSHIFT,
-    pygame.K_LCTRL: _KEY_LCTRL,
-    pygame.K_RCTRL: _KEY_RCTRL,
-    pygame.K_LALT: _KEY_LALT,
-    pygame.K_RALT: _KEY_RALT,
-    pygame.K_BACKSPACE: _KEY_BACKSPACE,
-    pygame.K_SPACE: _KEY_SPACE,
-    pygame.K_RETURN: _KEY_ENTER,
-    pygame.K_TAB: _KEY_TAB,
-    pygame.K_F1: _KEY_F1,
-    pygame.K_F2: _KEY_F2,
-    pygame.K_F3: _KEY_F3,
-    pygame.K_F4: _KEY_F4,
-    pygame.K_F5: _KEY_F5,
-    pygame.K_F6: _KEY_F6,
-    pygame.K_F7: _KEY_F7,
-    pygame.K_F8: _KEY_F8,
-    pygame.K_F9: _KEY_F9,
-    pygame.K_F10: _KEY_F10,
-    pygame.K_F11: _KEY_F11,
-    pygame.K_F12: _KEY_F12,
-    pygame.K_0: _KEY_0,
-    pygame.K_1: _KEY_1,
-    pygame.K_2: _KEY_2,
-    pygame.K_3: _KEY_3,
-    pygame.K_4: _KEY_4,
-    pygame.K_5: _KEY_5,
-    pygame.K_6: _KEY_6,
-    pygame.K_7: _KEY_7,
-    pygame.K_8: _KEY_8,
-    pygame.K_9: _KEY_9,
-    pygame.K_a: _KEY_A,
-    pygame.K_b: _KEY_B,
-    pygame.K_c: _KEY_C,
-    pygame.K_d: _KEY_D,
-    pygame.K_e: _KEY_E,
-    pygame.K_f: _KEY_F,
-    pygame.K_g: _KEY_G,
-    pygame.K_h: _KEY_H,
-    pygame.K_i: _KEY_I,
-    pygame.K_j: _KEY_J,
-    pygame.K_k: _KEY_K,
-    pygame.K_l: _KEY_L,
-    pygame.K_m: _KEY_M,
-    pygame.K_n: _KEY_N,
-    pygame.K_o: _KEY_O,
-    pygame.K_p: _KEY_P,
-    pygame.K_q: _KEY_Q,
-    pygame.K_r: _KEY_R,
-    pygame.K_s: _KEY_S,
-    pygame.K_t: _KEY_T,
-    pygame.K_u: _KEY_U,
-    pygame.K_v: _KEY_V,
-    pygame.K_w: _KEY_W,
-    pygame.K_x: _KEY_X,
-    pygame.K_y: _KEY_Y,
-    pygame.K_z: _KEY_Z,
+LUMPY_LIB_MINGF_PYGAME_KEYMAP = {
+    pygame.K_UP: LUMPY_LIB_MINGF_KEY_UARROW,
+    pygame.K_DOWN: LUMPY_LIB_MINGF_KEY_DARROW,
+    pygame.K_LEFT: LUMPY_LIB_MINGF_KEY_LARROW,
+    pygame.K_RIGHT: LUMPY_LIB_MINGF_KEY_RARROW,
+    pygame.K_LSHIFT: LUMPY_LIB_MINGF_KEY_LSHIFT,
+    pygame.K_RSHIFT: LUMPY_LIB_MINGF_KEY_RSHIFT,
+    pygame.K_LCTRL: LUMPY_LIB_MINGF_KEY_LCTRL,
+    pygame.K_RCTRL: LUMPY_LIB_MINGF_KEY_RCTRL,
+    pygame.K_LALT: LUMPY_LIB_MINGF_KEY_LALT,
+    pygame.K_RALT: LUMPY_LIB_MINGF_KEY_RALT,
+    pygame.K_BACKSPACE: LUMPY_LIB_MINGF_KEY_BACKSPACE,
+    pygame.K_SPACE: LUMPY_LIB_MINGF_KEY_SPACE,
+    pygame.K_RETURN: LUMPY_LIB_MINGF_KEY_ENTER,
+    pygame.K_TAB: LUMPY_LIB_MINGF_KEY_TAB,
+    pygame.K_F1: LUMPY_LIB_MINGF_KEY_F1,
+    pygame.K_F2: LUMPY_LIB_MINGF_KEY_F2,
+    pygame.K_F3: LUMPY_LIB_MINGF_KEY_F3,
+    pygame.K_F4: LUMPY_LIB_MINGF_KEY_F4,
+    pygame.K_F5: LUMPY_LIB_MINGF_KEY_F5,
+    pygame.K_F6: LUMPY_LIB_MINGF_KEY_F6,
+    pygame.K_F7: LUMPY_LIB_MINGF_KEY_F7,
+    pygame.K_F8: LUMPY_LIB_MINGF_KEY_F8,
+    pygame.K_F9: LUMPY_LIB_MINGF_KEY_F9,
+    pygame.K_F10: LUMPY_LIB_MINGF_KEY_F10,
+    pygame.K_F11: LUMPY_LIB_MINGF_KEY_F11,
+    pygame.K_F12: LUMPY_LIB_MINGF_KEY_F12,
+    pygame.K_0: LUMPY_LIB_MINGF_KEY_0,
+    pygame.K_1: LUMPY_LIB_MINGF_KEY_1,
+    pygame.K_2: LUMPY_LIB_MINGF_KEY_2,
+    pygame.K_3: LUMPY_LIB_MINGF_KEY_3,
+    pygame.K_4: LUMPY_LIB_MINGF_KEY_4,
+    pygame.K_5: LUMPY_LIB_MINGF_KEY_5,
+    pygame.K_6: LUMPY_LIB_MINGF_KEY_6,
+    pygame.K_7: LUMPY_LIB_MINGF_KEY_7,
+    pygame.K_8: LUMPY_LIB_MINGF_KEY_8,
+    pygame.K_9: LUMPY_LIB_MINGF_KEY_9,
+    pygame.K_a: LUMPY_LIB_MINGF_KEY_A,
+    pygame.K_b: LUMPY_LIB_MINGF_KEY_B,
+    pygame.K_c: LUMPY_LIB_MINGF_KEY_C,
+    pygame.K_d: LUMPY_LIB_MINGF_KEY_D,
+    pygame.K_e: LUMPY_LIB_MINGF_KEY_E,
+    pygame.K_f: LUMPY_LIB_MINGF_KEY_F,
+    pygame.K_g: LUMPY_LIB_MINGF_KEY_G,
+    pygame.K_h: LUMPY_LIB_MINGF_KEY_H,
+    pygame.K_i: LUMPY_LIB_MINGF_KEY_I,
+    pygame.K_j: LUMPY_LIB_MINGF_KEY_J,
+    pygame.K_k: LUMPY_LIB_MINGF_KEY_K,
+    pygame.K_l: LUMPY_LIB_MINGF_KEY_L,
+    pygame.K_m: LUMPY_LIB_MINGF_KEY_M,
+    pygame.K_n: LUMPY_LIB_MINGF_KEY_N,
+    pygame.K_o: LUMPY_LIB_MINGF_KEY_O,
+    pygame.K_p: LUMPY_LIB_MINGF_KEY_P,
+    pygame.K_q: LUMPY_LIB_MINGF_KEY_Q,
+    pygame.K_r: LUMPY_LIB_MINGF_KEY_R,
+    pygame.K_s: LUMPY_LIB_MINGF_KEY_S,
+    pygame.K_t: LUMPY_LIB_MINGF_KEY_T,
+    pygame.K_u: LUMPY_LIB_MINGF_KEY_U,
+    pygame.K_v: LUMPY_LIB_MINGF_KEY_V,
+    pygame.K_w: LUMPY_LIB_MINGF_KEY_W,
+    pygame.K_x: LUMPY_LIB_MINGF_KEY_X,
+    pygame.K_y: LUMPY_LIB_MINGF_KEY_Y,
+    pygame.K_z: LUMPY_LIB_MINGF_KEY_Z,
 }
 
-_MINGF_STRING_KEYMAP = {
-    "UARROW": _KEY_UARROW, "UP": _KEY_UARROW,
-    "DARROW": _KEY_DARROW, "DOWN": _KEY_DARROW,
-    "LARROW": _KEY_LARROW, "LEFT": _KEY_LARROW,
-    "RARROW": _KEY_RARROW, "RIGHT": _KEY_RARROW,
-    "LSHIFT": _KEY_LSHIFT,
-    "RSHIFT": _KEY_RSHIFT,
-    "LCTRL": _KEY_LCTRL,
-    "RCTRL": _KEY_RCTRL,
-    "LALT": _KEY_LALT,
-    "RALT": _KEY_RALT,
-    "BACKSPACE": _KEY_BACKSPACE,
-    "SPACE": _KEY_SPACE,
-    "ENTER": _KEY_ENTER, "RETURN": _KEY_ENTER,
-    "TAB": _KEY_TAB,
-    "F1": _KEY_F1,
-    "F2": _KEY_F2,
-    "F3": _KEY_F3,
-    "F4": _KEY_F4,
-    "F5": _KEY_F5,
-    "F6": _KEY_F6,
-    "F7": _KEY_F7,
-    "F8": _KEY_F8,
-    "F9": _KEY_F9,
-    "F10": _KEY_F10,
-    "F11": _KEY_F11,
-    "F12": _KEY_F12,
-    "0": _KEY_0,
-    "1": _KEY_1,
-    "2": _KEY_2,
-    "3": _KEY_3,
-    "4": _KEY_4,
-    "5": _KEY_5,
-    "6": _KEY_6,
-    "7": _KEY_7,
-    "8": _KEY_8,
-    "9": _KEY_9,
-    "A": _KEY_A,
-    "B": _KEY_B,
-    "C": _KEY_C,
-    "D": _KEY_D,
-    "E": _KEY_E,
-    "F": _KEY_F,
-    "G": _KEY_G,
-    "H": _KEY_H,
-    "I": _KEY_I,
-    "J": _KEY_J,
-    "K": _KEY_K,
-    "L": _KEY_L,
-    "M": _KEY_M,
-    "N": _KEY_N,
-    "O": _KEY_O,
-    "P": _KEY_P,
-    "Q": _KEY_Q,
-    "R": _KEY_R,
-    "S": _KEY_S,
-    "T": _KEY_T,
-    "U": _KEY_U,
-    "V": _KEY_V,
-    "W": _KEY_W,
-    "X": _KEY_X,
-    "Y": _KEY_Y,
-    "Z": _KEY_Z,
+LUMPY_LIB_MINGF_STRING_KEYMAP = {
+    "UARROW": LUMPY_LIB_MINGF_KEY_UARROW, "UP": LUMPY_LIB_MINGF_KEY_UARROW,
+    "DARROW": LUMPY_LIB_MINGF_KEY_DARROW, "DOWN": LUMPY_LIB_MINGF_KEY_DARROW,
+    "LARROW": LUMPY_LIB_MINGF_KEY_LARROW, "LEFT": LUMPY_LIB_MINGF_KEY_LARROW,
+    "RARROW": LUMPY_LIB_MINGF_KEY_RARROW, "RIGHT": LUMPY_LIB_MINGF_KEY_RARROW,
+    "LSHIFT": LUMPY_LIB_MINGF_KEY_LSHIFT,
+    "RSHIFT": LUMPY_LIB_MINGF_KEY_RSHIFT,
+    "LCTRL": LUMPY_LIB_MINGF_KEY_LCTRL,
+    "RCTRL": LUMPY_LIB_MINGF_KEY_RCTRL,
+    "LALT": LUMPY_LIB_MINGF_KEY_LALT,
+    "RALT": LUMPY_LIB_MINGF_KEY_RALT,
+    "BACKSPACE": LUMPY_LIB_MINGF_KEY_BACKSPACE,
+    "SPACE": LUMPY_LIB_MINGF_KEY_SPACE,
+    "ENTER": LUMPY_LIB_MINGF_KEY_ENTER, "RETURN": LUMPY_LIB_MINGF_KEY_ENTER,
+    "TAB": LUMPY_LIB_MINGF_KEY_TAB,
+    "F1": LUMPY_LIB_MINGF_KEY_F1,
+    "F2": LUMPY_LIB_MINGF_KEY_F2,
+    "F3": LUMPY_LIB_MINGF_KEY_F3,
+    "F4": LUMPY_LIB_MINGF_KEY_F4,
+    "F5": LUMPY_LIB_MINGF_KEY_F5,
+    "F6": LUMPY_LIB_MINGF_KEY_F6,
+    "F7": LUMPY_LIB_MINGF_KEY_F7,
+    "F8": LUMPY_LIB_MINGF_KEY_F8,
+    "F9": LUMPY_LIB_MINGF_KEY_F9,
+    "F10": LUMPY_LIB_MINGF_KEY_F10,
+    "F11": LUMPY_LIB_MINGF_KEY_F11,
+    "F12": LUMPY_LIB_MINGF_KEY_F12,
+    "0": LUMPY_LIB_MINGF_KEY_0,
+    "1": LUMPY_LIB_MINGF_KEY_1,
+    "2": LUMPY_LIB_MINGF_KEY_2,
+    "3": LUMPY_LIB_MINGF_KEY_3,
+    "4": LUMPY_LIB_MINGF_KEY_4,
+    "5": LUMPY_LIB_MINGF_KEY_5,
+    "6": LUMPY_LIB_MINGF_KEY_6,
+    "7": LUMPY_LIB_MINGF_KEY_7,
+    "8": LUMPY_LIB_MINGF_KEY_8,
+    "9": LUMPY_LIB_MINGF_KEY_9,
+    "A": LUMPY_LIB_MINGF_KEY_A,
+    "B": LUMPY_LIB_MINGF_KEY_B,
+    "C": LUMPY_LIB_MINGF_KEY_C,
+    "D": LUMPY_LIB_MINGF_KEY_D,
+    "E": LUMPY_LIB_MINGF_KEY_E,
+    "F": LUMPY_LIB_MINGF_KEY_F,
+    "G": LUMPY_LIB_MINGF_KEY_G,
+    "H": LUMPY_LIB_MINGF_KEY_H,
+    "I": LUMPY_LIB_MINGF_KEY_I,
+    "J": LUMPY_LIB_MINGF_KEY_J,
+    "K": LUMPY_LIB_MINGF_KEY_K,
+    "L": LUMPY_LIB_MINGF_KEY_L,
+    "M": LUMPY_LIB_MINGF_KEY_M,
+    "N": LUMPY_LIB_MINGF_KEY_N,
+    "O": LUMPY_LIB_MINGF_KEY_O,
+    "P": LUMPY_LIB_MINGF_KEY_P,
+    "Q": LUMPY_LIB_MINGF_KEY_Q,
+    "R": LUMPY_LIB_MINGF_KEY_R,
+    "S": LUMPY_LIB_MINGF_KEY_S,
+    "T": LUMPY_LIB_MINGF_KEY_T,
+    "U": LUMPY_LIB_MINGF_KEY_U,
+    "V": LUMPY_LIB_MINGF_KEY_V,
+    "W": LUMPY_LIB_MINGF_KEY_W,
+    "X": LUMPY_LIB_MINGF_KEY_X,
+    "Y": LUMPY_LIB_MINGF_KEY_Y,
+    "Z": LUMPY_LIB_MINGF_KEY_Z,
 }
 
-_mingf_running = False
-_mingf_screen = None
-_mingf_clock = None
-_mingf_start = None
+lumpy_lib_mingf_running = False
+lumpy_lib_mingf_screen = None
+lumpy_lib_mingf_clock = None
+lumpy_lib_mingf_start = None
 
 
 def elapsed_seconds(start_ns, current_ns):
@@ -254,11 +254,14 @@ class BuiltinMinGFInit(Builtin):
 
         pygame.display.set_caption(title)
 
-        global _mingf_running, _mingf_screen, _mingf_clock, _mingf_start
-        _mingf_running = True
-        _mingf_screen = pygame.display.set_mode(size=(w, h), vsync=1)
-        _mingf_clock = pygame.time.Clock()
-        _mingf_start = time.time_ns()
+        global lumpy_lib_mingf_running
+        global lumpy_lib_mingf_screen
+        global lumpy_lib_mingf_clock
+        global lumpy_lib_mingf_start
+        lumpy_lib_mingf_running = True
+        lumpy_lib_mingf_screen = pygame.display.set_mode(size=(w, h), vsync=1)
+        lumpy_lib_mingf_clock = pygame.time.Clock()
+        lumpy_lib_mingf_start = time.time_ns()
         return Null.new()
 
 
@@ -268,8 +271,8 @@ class BuiltinMinGFFini(Builtin):
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 0)
 
-        global _mingf_running
-        _mingf_running = False
+        global lumpy_lib_mingf_running
+        lumpy_lib_mingf_running = False
         pygame.quit()
         return Null.new()
 
@@ -282,34 +285,34 @@ class BuiltinMinGFTick(Builtin):
 
         # End of the Current Frame
         pygame.display.flip()
-        _mingf_clock.tick_busy_loop(60)
+        lumpy_lib_mingf_clock.tick_busy_loop(60)
 
         # Start of the Following Frame
-        _mingf_screen.fill((0x00, 0x00, 0x00))
-        for key in _MINGF_PYGAME_KEYMAP.values():
+        lumpy_lib_mingf_screen.fill((0x00, 0x00, 0x00))
+        for key in LUMPY_LIB_MINGF_PYGAME_KEYMAP.values():
             key.pressed = False
             key.released = False
-        for button in _MINGF_PYGAME_MOUSEMAP.values():
+        for button in LUMPY_LIB_MINGF_PYGAME_MOUSEMAP.values():
             button.pressed = False
             button.released = False
         for event in pygame.event.get():
-            global _mingf_running
+            global lumpy_lib_mingf_running
             if event.type == pygame.QUIT:
-                _mingf_running = False
+                lumpy_lib_mingf_running = False
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                _mingf_running = False
-            if event.type == pygame.KEYDOWN and event.key in _MINGF_PYGAME_KEYMAP:
-                _MINGF_PYGAME_KEYMAP[event.key].held = True
-                _MINGF_PYGAME_KEYMAP[event.key].pressed = True
-            if event.type == pygame.KEYUP and event.key in _MINGF_PYGAME_KEYMAP:
-                _MINGF_PYGAME_KEYMAP[event.key].held = False
-                _MINGF_PYGAME_KEYMAP[event.key].released = True
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button in _MINGF_PYGAME_MOUSEMAP:
-                _MINGF_PYGAME_MOUSEMAP[event.button].held = True
-                _MINGF_PYGAME_MOUSEMAP[event.button].pressed = True
-            if event.type == pygame.MOUSEBUTTONUP and event.button in _MINGF_PYGAME_MOUSEMAP:
-                _MINGF_PYGAME_MOUSEMAP[event.button].held = False
-                _MINGF_PYGAME_MOUSEMAP[event.button].released = True
+                lumpy_lib_mingf_running = False
+            if event.type == pygame.KEYDOWN and event.key in LUMPY_LIB_MINGF_PYGAME_KEYMAP:
+                LUMPY_LIB_MINGF_PYGAME_KEYMAP[event.key].held = True
+                LUMPY_LIB_MINGF_PYGAME_KEYMAP[event.key].pressed = True
+            if event.type == pygame.KEYUP and event.key in LUMPY_LIB_MINGF_PYGAME_KEYMAP:
+                LUMPY_LIB_MINGF_PYGAME_KEYMAP[event.key].held = False
+                LUMPY_LIB_MINGF_PYGAME_KEYMAP[event.key].released = True
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button in LUMPY_LIB_MINGF_PYGAME_MOUSEMAP:
+                LUMPY_LIB_MINGF_PYGAME_MOUSEMAP[event.button].held = True
+                LUMPY_LIB_MINGF_PYGAME_MOUSEMAP[event.button].pressed = True
+            if event.type == pygame.MOUSEBUTTONUP and event.button in LUMPY_LIB_MINGF_PYGAME_MOUSEMAP:
+                LUMPY_LIB_MINGF_PYGAME_MOUSEMAP[event.button].held = False
+                LUMPY_LIB_MINGF_PYGAME_MOUSEMAP[event.button].released = True
 
         return Null.new()
 
@@ -319,7 +322,7 @@ class BuiltinMinGFRunning(Builtin):
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 0)
-        return Boolean.new(_mingf_running)
+        return Boolean.new(lumpy_lib_mingf_running)
 
 
 class BuiltinMinGFNow(Builtin):
@@ -327,7 +330,7 @@ class BuiltinMinGFNow(Builtin):
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 0)
-        return Number.new(elapsed_seconds(_mingf_start, time.time_ns()))
+        return Number.new(elapsed_seconds(lumpy_lib_mingf_start, time.time_ns()))
 
 
 class BuiltinMinGFFps(Builtin):
@@ -335,7 +338,7 @@ class BuiltinMinGFFps(Builtin):
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 0)
-        return Number.new(_mingf_clock.get_fps())
+        return Number.new(lumpy_lib_mingf_clock.get_fps())
 
 
 class BuiltinMinGFImageLoad(Builtin):
@@ -345,7 +348,7 @@ class BuiltinMinGFImageLoad(Builtin):
         Builtin.expect_argument_count(arguments, 1)
         path = Builtin.typed_argument(arguments, 0, String).runes
         image = pygame.image.load(path).convert_alpha()
-        return External(image, _MINGF_IMAGE_META.copy())
+        return External(image, LUMPY_LIB_MINGF_IMAGE_META.copy())
 
 
 class BuiltinMinGFImageW(Builtin):
@@ -450,7 +453,7 @@ class BuiltinMinGFMousePosition(Builtin):
         return Map({
             String("x"): Number.new(position[0]),
             String("y"): Number.new(position[1]),
-        }, _MINGF_VEC2.copy())
+        }, LUMPY_LIB_MINGF_VEC2.copy())
 
 
 class BuiltinMinGFMouseHeld(Builtin):
@@ -459,9 +462,9 @@ class BuiltinMinGFMouseHeld(Builtin):
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
         key = Builtin.typed_argument(arguments, 0, String).runes.upper()
-        if not key in _MINGF_STRING_MOUSEMAP:
+        if not key in LUMPY_LIB_MINGF_STRING_MOUSEMAP:
             return Boolean.new(False)
-        return Boolean.new(_MINGF_STRING_MOUSEMAP[key].held)
+        return Boolean.new(LUMPY_LIB_MINGF_STRING_MOUSEMAP[key].held)
 
 
 class BuiltinMinGFMousePressed(Builtin):
@@ -470,9 +473,9 @@ class BuiltinMinGFMousePressed(Builtin):
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
         key = Builtin.typed_argument(arguments, 0, String).runes.upper()
-        if not key in _MINGF_STRING_MOUSEMAP:
+        if not key in LUMPY_LIB_MINGF_STRING_MOUSEMAP:
             return Boolean.new(False)
-        return Boolean.new(_MINGF_STRING_MOUSEMAP[key].pressed)
+        return Boolean.new(LUMPY_LIB_MINGF_STRING_MOUSEMAP[key].pressed)
 
 
 class BuiltinMinGFMouseReleased(Builtin):
@@ -481,9 +484,9 @@ class BuiltinMinGFMouseReleased(Builtin):
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
         key = Builtin.typed_argument(arguments, 0, String).runes.upper()
-        if not key in _MINGF_STRING_MOUSEMAP:
+        if not key in LUMPY_LIB_MINGF_STRING_MOUSEMAP:
             return Boolean.new(False)
-        return Boolean.new(_MINGF_STRING_MOUSEMAP[key].released)
+        return Boolean.new(LUMPY_LIB_MINGF_STRING_MOUSEMAP[key].released)
 
 
 class BuiltinMinGFKeyHeld(Builtin):
@@ -492,9 +495,9 @@ class BuiltinMinGFKeyHeld(Builtin):
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
         key = Builtin.typed_argument(arguments, 0, String).runes.upper()
-        if not key in _MINGF_STRING_KEYMAP:
+        if not key in LUMPY_LIB_MINGF_STRING_KEYMAP:
             return Boolean.new(False)
-        return Boolean.new(_MINGF_STRING_KEYMAP[key].held)
+        return Boolean.new(LUMPY_LIB_MINGF_STRING_KEYMAP[key].held)
 
 
 class BuiltinMinGFKeyPressed(Builtin):
@@ -503,9 +506,9 @@ class BuiltinMinGFKeyPressed(Builtin):
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
         key = Builtin.typed_argument(arguments, 0, String).runes.upper()
-        if not key in _MINGF_STRING_KEYMAP:
+        if not key in LUMPY_LIB_MINGF_STRING_KEYMAP:
             return Boolean.new(False)
-        return Boolean.new(_MINGF_STRING_KEYMAP[key].pressed)
+        return Boolean.new(LUMPY_LIB_MINGF_STRING_KEYMAP[key].pressed)
 
 
 class BuiltinMinGFKeyReleased(Builtin):
@@ -514,9 +517,9 @@ class BuiltinMinGFKeyReleased(Builtin):
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
         key = Builtin.typed_argument(arguments, 0, String).runes.upper()
-        if not key in _MINGF_STRING_KEYMAP:
+        if not key in LUMPY_LIB_MINGF_STRING_KEYMAP:
             return Boolean.new(False)
-        return Boolean.new(_MINGF_STRING_KEYMAP[key].released)
+        return Boolean.new(LUMPY_LIB_MINGF_STRING_KEYMAP[key].released)
 
 
 class BuiltinMinGFMeasureText(Builtin):
@@ -532,7 +535,7 @@ class BuiltinMinGFMeasureText(Builtin):
         return Map({
             String("x"): Number.new(float(size[0])),
             String("y"): Number.new(float(size[1])),
-        }, _MINGF_VEC2.copy())
+        }, LUMPY_LIB_MINGF_VEC2.copy())
 
 
 class BuiltinMinGFDrawRectEmpty(Builtin):
@@ -544,7 +547,7 @@ class BuiltinMinGFDrawRectEmpty(Builtin):
         color = Builtin.typed_argument(arguments, 1, Map)
         thickness = Builtin.typed_argument(arguments, 2, Number)
         pygame.draw.rect(
-            _mingf_screen,
+            lumpy_lib_mingf_screen,
             pygame.Color(
                 int(color[String("r")]),
                 int(color[String("g")]),
@@ -570,7 +573,7 @@ class BuiltinMinGFDrawRectSolid(Builtin):
         rect = Builtin.typed_argument(arguments, 0, Map)
         color = Builtin.typed_argument(arguments, 1, Map)
         pygame.draw.rect(
-            _mingf_screen,
+            lumpy_lib_mingf_screen,
             pygame.Color(
                 int(color[String("r")]),
                 int(color[String("g")]),
@@ -601,7 +604,7 @@ class BuiltinMinGFDrawImage(Builtin):
             float(vec2[String("y")]),
         )
 
-        _mingf_screen.blit(image, position)
+        lumpy_lib_mingf_screen.blit(image, position)
         return Null.new()
 
 
@@ -695,7 +698,7 @@ class BuiltinMinGFDrawImageEx(Builtin):
             rect.x -= (w / 2 - pivot.x)
             rect.y -= (h / 2 - pivot.y)
 
-        _mingf_screen.blit(image, rect)
+        lumpy_lib_mingf_screen.blit(image, rect)
         return Null.new()
 
 
@@ -720,21 +723,21 @@ class BuiltinMinGFDrawText(Builtin):
                 int(color[String("a")]),
             )
         )
-        _mingf_screen.blit(
+        lumpy_lib_mingf_screen.blit(
             text,
             (float(vec2[String("x")]), float(vec2[String("y")]))
         )
         return Null.new()
 
 
-_MINGF_IMAGE_META = Map.new({
+LUMPY_LIB_MINGF_IMAGE_META = Map.new({
     String("w"): BuiltinMinGFImageW(),
     String("h"): BuiltinMinGFImageH(),
 })
-_MINGF = Map.new({
-    String("color"): _MINGF_COLOR.copy(),
-    String("vec2"): _MINGF_VEC2.copy(),
-    String("rect"): _MINGF_RECT.copy(),
+LUMPY_LIB_MINGF = Map.new({
+    String("color"): LUMPY_LIB_MINGF_COLOR.copy(),
+    String("vec2"): LUMPY_LIB_MINGF_VEC2.copy(),
+    String("rect"): LUMPY_LIB_MINGF_RECT.copy(),
     String("init"): BuiltinMinGFInit(),
     String("fini"): BuiltinMinGFFini(),
     String("tick"): BuiltinMinGFTick(),
@@ -774,15 +777,21 @@ _MINGF = Map.new({
         String("text"): BuiltinMinGFDrawText(),
     }),
 })
-BASE_ENVIRONMENT.let(String("_MINGF"), _MINGF)
+BASE_ENVIRONMENT.let(String("LUMPY_LIB_MINGF"), LUMPY_LIB_MINGF)
 ```;
 
-extend(`BASE_ENVIRONMENT.let(String("_MINGF_COLOR"), Null.new())`);
-extend(`BASE_ENVIRONMENT.let(String("_MINGF_RECT"), Null.new())`);
-extend(`BASE_ENVIRONMENT.let(String("_MINGF_VEC2"), Null.new())`);
-_MINGF_COLOR = import("color.lumpy");
-_MINGF_RECT = import("rect.lumpy");
-_MINGF_VEC2 = import("vec2.lumpy");
+extend(`BASE_ENVIRONMENT.let(String("LUMPY_LIB_MINGF_COLOR"), Null.new())`);
+extend(`BASE_ENVIRONMENT.let(String("LUMPY_LIB_MINGF_RECT"), Null.new())`);
+extend(`BASE_ENVIRONMENT.let(String("LUMPY_LIB_MINGF_VEC2"), Null.new())`);
+LUMPY_LIB_MINGF_COLOR = import("color.lumpy");
+LUMPY_LIB_MINGF_RECT = import("rect.lumpy");
+LUMPY_LIB_MINGF_VEC2 = import("vec2.lumpy");
 extend(source);
 
-return _MINGF;
+try {
+    return LUMPY_LIB_MINGF;
+}
+else {
+    extend(source);
+    return LUMPY_LIB_MINGF;
+}
