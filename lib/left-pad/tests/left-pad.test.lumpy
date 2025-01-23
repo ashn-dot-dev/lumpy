@@ -1,12 +1,26 @@
 let left_pad = import("../main.lumpy");
 
-dumpln(left_pad("foo", -1));
-dumpln(left_pad("foo", +0));
-dumpln(left_pad("foo", +1));
-dumpln(left_pad("foo", +2));
-dumpln(left_pad("foo", +3));
-dumpln(left_pad("foo", +4));
-dumpln(left_pad("foo", +5));
+dumpln(left_pad("foo", -1, " "));
+dumpln(left_pad("foo", +0, " "));
+dumpln(left_pad("foo", +1, " "));
+dumpln(left_pad("foo", +2, " "));
+dumpln(left_pad("foo", +3, " "));
+dumpln(left_pad("foo", +4, " "));
+dumpln(left_pad("foo", +5, " "));
+dumpln(left_pad("foo", +5, "x"));
+
+print("\n");
+
+# Multi-character `pad` where `str + pad * n` exactly matches `len` for some n.
+dumpln(left_pad("foo", +5, "  "));
+dumpln(left_pad("foo", +7, "  "));
+
+print("\n");
+
+# Multi-character `pad` where `str + pad * n` exceeds `len` for some n.
+# In this case, the minimum padding up to but not exceeding `len` is used.
+dumpln(left_pad("foo", +6, "  ")); # maximum length is 5
+dumpln(left_pad("foo", +8, "  ")); # maximum length is 7
 ################################################################################
 # "foo"
 # "foo"
@@ -15,3 +29,10 @@ dumpln(left_pad("foo", +5));
 # "foo"
 # " foo"
 # "  foo"
+# "xxfoo"
+#
+# "  foo"
+# "    foo"
+#
+# "  foo"
+# "    foo"

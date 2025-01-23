@@ -5,5 +5,5 @@ Example library similar to npm's
 
 ```
 let left_pad = import("left-pad");
-dumpln(left_pad("foo", 5)); # prints "  foo"
+dumpln(left_pad("foo", 5, " ")); # prints "  foo"
 ```
