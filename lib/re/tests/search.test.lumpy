@@ -1,0 +1,28 @@
+let re = import("../main.lumpy");
+
+let result = re::search(`bar`, "nope");
+dumpln(type(result));
+
+print("\n");
+
+let result = re::search(`bar`, "foobarbaz");
+dumpln(type(result));
+dumpln(result.group(0));
+
+print("\n");
+
+let result = re::search(`(\w+) (\w+)`, "Isaac Newton, physicist");
+dumpln(type(result));
+dumpln(result.group(0));
+dumpln(result.group(1));
+dumpln(result.group(2));
+################################################################################
+# "null"
+#
+# "re::match-result"
+# "bar"
+#
+# "re::match-result"
+# "Isaac Newton"
+# "Isaac"
+# "Newton"

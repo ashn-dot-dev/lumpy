@@ -1,0 +1,17 @@
+let re = import("../main.lumpy");
+
+let result = re::match(`(\w+)🧠(\w+)`, "Isaac🧠Newton, physicist");
+dumpln(result.end(0));
+dumpln(result.end(1));
+dumpln(result.end(2));
+try {
+    result.end(3);
+}
+else err {
+    dumpln(err);
+}
+################################################################################
+# 15
+# 5
+# 15
+# "no such group"

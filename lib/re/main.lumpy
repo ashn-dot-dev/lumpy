@@ -1,0 +1,116 @@
+let source =
+```
+import re
+
+
+class BuiltinReMatchGroup(Builtin):
+    name = String("re::match-result::group")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 2)
+        arg0 = Builtin.typed_argument(arguments, 0, Reference)
+        arg1 = Builtin.typed_argument(arguments, 1, Number)
+        assert(isinstance(arg0.data, External))
+        assert(isinstance(arg0.data.data, re.Match))
+        match = arg0.data.data
+        assert(float(arg1).is_integer())
+        group = int(arg1)
+        result = match.group(group)
+        if result is None:
+            return Null.new()
+        return String.new(result)
+
+
+class BuiltinReMatchStart(Builtin):
+    name = String("re::match-result::start")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 2)
+        arg0 = Builtin.typed_argument(arguments, 0, Reference)
+        arg1 = Builtin.typed_argument(arguments, 1, Number)
+        assert(isinstance(arg0.data, External))
+        assert(isinstance(arg0.data.data, re.Match))
+        match = arg0.data.data
+        assert(float(arg1).is_integer())
+        group = int(arg1)
+        result = match.start(group)
+        return Number.new(result)
+
+
+class BuiltinReMatchEnd(Builtin):
+    name = String("re::match-result::end")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 2)
+        arg0 = Builtin.typed_argument(arguments, 0, Reference)
+        arg1 = Builtin.typed_argument(arguments, 1, Number)
+        assert(isinstance(arg0.data, External))
+        assert(isinstance(arg0.data.data, re.Match))
+        match = arg0.data.data
+        assert(float(arg1).is_integer())
+        group = int(arg1)
+        result = match.end(group)
+        return Number.new(result)
+
+
+class BuiltinReSearch(Builtin):
+    name = String("re::search")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 2)
+        pattern = Builtin.typed_argument(arguments, 0, String)
+        string = Builtin.typed_argument(arguments, 1, String)
+        result = re.search(pattern.bytes, string.bytes)
+        if result is None:
+            return Null.new()
+        return External(result, LUMPY_LIB_RE_MATCH_RESULT_META.copy());
+
+
+class BuiltinReMatch(Builtin):
+    name = String("re::match")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 2)
+        pattern = Builtin.typed_argument(arguments, 0, String)
+        string = Builtin.typed_argument(arguments, 1, String)
+        result = re.match(pattern.bytes, string.bytes)
+        if result is None:
+            return Null.new()
+        return External(result, LUMPY_LIB_RE_MATCH_RESULT_META.copy());
+
+
+class BuiltinReFullmatch(Builtin):
+    name = String("re::fullmatch")
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 2)
+        pattern = Builtin.typed_argument(arguments, 0, String)
+        string = Builtin.typed_argument(arguments, 1, String)
+        result = re.fullmatch(pattern.bytes, string.bytes)
+        if result is None:
+            return Null.new()
+        return External(result, LUMPY_LIB_RE_MATCH_RESULT_META.copy());
+
+
+LUMPY_LIB_RE_MATCH_RESULT_META = Map.new({
+    String("type"): String.new("re::match-result"),
+    String("group"): BuiltinReMatchGroup(),
+    String("start"): BuiltinReMatchStart(),
+    String("end"): BuiltinReMatchEnd(),
+})
+LUMPY_LIB_RE = Map.new({
+    String("match-result"): LUMPY_LIB_RE_MATCH_RESULT_META.copy(),
+    String("search"): BuiltinReSearch(),
+    String("match"): BuiltinReMatch(),
+    String("fullmatch"): BuiltinReFullmatch(),
+})
+BASE_ENVIRONMENT.let(String("LUMPY_LIB_RE"), LUMPY_LIB_RE)
+```;
+
+try {
+    return LUMPY_LIB_RE;
+}
+else {
+    extend(source);
+    return LUMPY_LIB_RE;
+}
