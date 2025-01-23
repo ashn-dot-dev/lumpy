@@ -3629,7 +3629,7 @@ class BuiltinImport(Builtin):
         arg0 = Builtin.typed_argument(arguments, 0, String)
         env = Environment(BASE_ENVIRONMENT)
         module = env.get(String("module"))
-        assert module is not None
+        assert module is not None, "expected `module` to be in the environment"
         module_directory = module[String("directory")]
         assert isinstance(module_directory, String)
         # Always search the current module directory first
@@ -4577,7 +4577,7 @@ BASE_ENVIRONMENT.let(
     String("module"),
     Map.new(
         {
-            String("directory"): Null.new(),
+            String("directory"): String.new(os.getcwd()),
         }
     ),
 )
@@ -4633,7 +4633,7 @@ def main() -> None:
         argv.insert(0, args.file)
         env = Environment(BASE_ENVIRONMENT)
         module = env.get(String("module"))
-        assert module is not None
+        assert module is not None, "expected `module` to be in the environment"
         module[String("directory")] = String(
             os.path.dirname(os.path.realpath(args.file))
         )
