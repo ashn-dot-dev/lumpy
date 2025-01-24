@@ -766,14 +766,14 @@ println("==============");
 println("== Try-Else ==");
 println("==============");
 
-try { println("inside try block"); } else err { println("inside try-else block: " + err); }
-try { error "some user defined error"; } else err { println("inside try-else block: " + err); }
-try { let x = []; x[1]; } else err { println("inside try-else block: " + err); }
-try { let x = []; x[1] = 123; } else err { println("inside try-else block: " + err); }
-try { let x = map{}; x["foo"]; } else err { println("inside try-else block: " + err); }
-try { let x = map{}; x["foo"] = 123; } else err { println("inside try-else block: " + err); }
-try { let x = map{}; x::foo; } else err { println("inside try-else block: " + err); }
-try { let x = map{}; x.foo; } else err { println("inside try-else block: " + err); }
+try { println("inside try block"); } else err { println("inside try-else block: " + string(err)); }
+try { error "some user defined error"; } else err { println("inside try-else block: " + string(err)); }
+try { let x = []; x[1]; } else err { println("inside try-else block: " + string(err)); }
+try { let x = []; x[1] = 123; } else err { println("inside try-else block: " + string(err)); }
+try { let x = map{}; x["foo"]; } else err { println("inside try-else block: " + string(err)); }
+try { let x = map{}; x["foo"] = 123; } else err { println("inside try-else block: " + string(err)); }
+try { let x = map{}; x::foo; } else err { println("inside try-else block: " + string(err)); }
+try { let x = map{}; x.foo; } else err { println("inside try-else block: " + string(err)); }
 
 print("\n");
 
