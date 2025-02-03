@@ -3827,7 +3827,7 @@ class BuiltinMathSin(Builtin):
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         arg0 = Builtin.typed_argument(arguments, 0, Number)
-        return Number.new(math.sin(arg0.data))
+        return Number.new(math.sin(float(arg0.data)))
 
 
 class BuiltinMathCos(Builtin):
@@ -3836,7 +3836,7 @@ class BuiltinMathCos(Builtin):
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         arg0 = Builtin.typed_argument(arguments, 0, Number)
-        return Number.new(math.cos(arg0.data))
+        return Number.new(math.cos(float(arg0.data)))
 
 
 class BuiltinMathTan(Builtin):
@@ -3845,7 +3845,44 @@ class BuiltinMathTan(Builtin):
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         arg0 = Builtin.typed_argument(arguments, 0, Number)
-        return Number.new(math.tan(arg0.data))
+        return Number.new(math.tan(float(arg0.data)))
+
+
+class BuiltinMathAsin(Builtin):
+    name = String("math::asin")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        arg0 = Builtin.typed_argument(arguments, 0, Number)
+        return Number.new(math.asin(float(arg0.data)))
+
+
+class BuiltinMathAcos(Builtin):
+    name = String("math::acos")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        arg0 = Builtin.typed_argument(arguments, 0, Number)
+        return Number.new(math.acos(float(arg0.data)))
+
+
+class BuiltinMathAtan(Builtin):
+    name = String("math::atan")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        arg0 = Builtin.typed_argument(arguments, 0, Number)
+        return Number.new(math.atan(float(arg0.data)))
+
+
+class BuiltinMathAtan2(Builtin):
+    name = String("math::atan2")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 2)
+        arg0 = Builtin.typed_argument(arguments, 0, Number)
+        arg1 = Builtin.typed_argument(arguments, 1, Number)
+        return Number.new(math.atan2(float(arg0.data), float(arg1.data)))
 
 
 class BuiltinRandomSeed(Builtin):
@@ -4570,6 +4607,10 @@ BASE_ENVIRONMENT.let(
             String("sin"): BuiltinMathSin(),
             String("cos"): BuiltinMathCos(),
             String("tan"): BuiltinMathTan(),
+            String("asin"): BuiltinMathAsin(),
+            String("acos"): BuiltinMathAcos(),
+            String("atan"): BuiltinMathAtan(),
+            String("atan2"): BuiltinMathAtan2(),
         }
     ),
 )
