@@ -3783,6 +3783,33 @@ class BuiltinMathAbs(Builtin):
         return Number.new(math.fabs(arg0.data))
 
 
+class BuiltinMathExp(Builtin):
+    name = String("math::exp")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        arg0 = Builtin.typed_argument(arguments, 0, Number)
+        return Number.new(math.exp(float(arg0.data)))
+
+
+class BuiltinMathExp2(Builtin):
+    name = String("math::exp2")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        arg0 = Builtin.typed_argument(arguments, 0, Number)
+        return Number.new(math.exp2(float(arg0.data)))
+
+
+class BuiltinMathExp10(Builtin):
+    name = String("math::exp10")
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        arg0 = Builtin.typed_argument(arguments, 0, Number)
+        return Number.new(math.pow(10, float(arg0.data)))
+
+
 class BuiltinMathLog(Builtin):
     name = String("math::log")
 
@@ -4629,6 +4656,9 @@ BASE_ENVIRONMENT.let(
             String("floor"): BuiltinMathFloor(),
             String("ceil"): BuiltinMathCeil(),
             String("abs"): BuiltinMathAbs(),
+            String("exp"): BuiltinMathExp(),
+            String("exp2"): BuiltinMathExp2(),
+            String("exp10"): BuiltinMathExp10(),
             String("log"): BuiltinMathLog(),
             String("log2"): BuiltinMathLog2(),
             String("log10"): BuiltinMathLog10(),
