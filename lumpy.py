@@ -4592,6 +4592,7 @@ BASE_ENVIRONMENT.let(
     String("math"),
     Map.new(
         {
+            String("e"): Number.new(math.e),
             String("pi"): Number.new(math.pi),
             String("is_nan"): BuiltinMathIsNaN(),
             String("is_inf"): BuiltinMathIsInf(),
