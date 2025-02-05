@@ -3780,7 +3780,7 @@ class BuiltinMathAbs(Builtin):
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         arg0 = Builtin.typed_argument(arguments, 0, Number)
-        return Number.new(math.fabs(arg0.data))
+        return Number.new(math.fabs(float(arg0.data)))
 
 
 class BuiltinMathExp(Builtin):
@@ -3844,7 +3844,7 @@ class BuiltinMathPow(Builtin):
         Builtin.expect_argument_count(arguments, 2)
         arg0 = Builtin.typed_argument(arguments, 0, Number)
         arg1 = Builtin.typed_argument(arguments, 1, Number)
-        return Number.new(math.pow(arg0.data, arg1.data))
+        return Number.new(math.pow(float(arg0.data), float(arg1.data)))
 
 
 class BuiltinMathSqrt(Builtin):
@@ -3853,7 +3853,7 @@ class BuiltinMathSqrt(Builtin):
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         arg0 = Builtin.typed_argument(arguments, 0, Number)
-        return Number.new(math.sqrt(arg0.data))
+        return Number.new(math.sqrt(float(arg0.data)))
 
 
 class BuiltinMathClamp(BuiltinFromSource):
