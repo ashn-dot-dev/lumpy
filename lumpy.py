@@ -3282,7 +3282,7 @@ class BuiltinUtype(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
-        return String(arguments[0].type())
+        return String.new(arguments[0].type())
 
 
 class BuiltinType(Builtin):
@@ -3290,7 +3290,7 @@ class BuiltinType(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
-        return String(typename(arguments[0]))
+        return String.new(typename(arguments[0]))
 
 
 class BuiltinRepr(Builtin):
@@ -3298,7 +3298,7 @@ class BuiltinRepr(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
-        return String(str(arguments[0]))
+        return String.new(str(arguments[0]))
 
 
 class BuiltinDump(Builtin):
@@ -3432,7 +3432,7 @@ class BuiltinString(Builtin):
             return result
         if isinstance(arguments[0], String):
             return arguments[0]
-        return String(str(arguments[0]))
+        return String.new(str(arguments[0]))
 
 
 class BuiltinVector(Builtin):
@@ -3684,7 +3684,7 @@ class BuiltinFsRead(Builtin):
         arg0 = Builtin.typed_argument(arguments, 0, String)
         with open(arg0.runes, "rb") as f:
             data = f.read()
-        return String(data)
+        return String.new(data)
 
 
 class BuiltinFsWrite(Builtin):
@@ -4204,7 +4204,9 @@ class BuiltinStringSlice(Builtin):
         if end < bgn:
             return Error(None, f"slice end is less than slice begin")
         try:
-            return String(arg0_data.bytes[bgn:end].decode(encoding="utf-8"))
+            return String.new(
+                arg0_data.bytes[bgn:end].decode(encoding="utf-8")
+            )
         except UnicodeDecodeError:
             return Error(None, f"invalid UTF-8 encoded string")
 
@@ -4219,9 +4221,11 @@ class BuiltinStringSplit(Builtin):
         )
         arg1 = Builtin.typed_argument(arguments, 1, String)
         if len(arg1.bytes) == 0:
-            return Vector.new([String(x.to_bytes()) for x in arg0_data.bytes])
+            return Vector.new(
+                [String.new(x.to_bytes()) for x in arg0_data.bytes]
+            )
         split = arg0_data.bytes.split(arg1.bytes)
-        return Vector.new([String(x) for x in split])
+        return Vector.new([String.new(x) for x in split])
 
 
 class BuiltinStringCut(Builtin):
@@ -4236,12 +4240,12 @@ class BuiltinStringCut(Builtin):
         found = arg0_data.bytes.find(arg1.bytes)
         if found == -1:
             return Null.new()
-        prefix = String(arg0_data.bytes[0:found])
-        suffix = String(arg0_data.bytes[found + len(arg1.bytes) :])
+        prefix = String.new(arg0_data.bytes[0:found])
+        suffix = String.new(arg0_data.bytes[found + len(arg1.bytes) :])
         return Map.new(
             {
-                String("prefix"): prefix,
-                String("suffix"): suffix,
+                String.new("prefix"): prefix,
+                String.new("suffix"): suffix,
             }
         )
 
