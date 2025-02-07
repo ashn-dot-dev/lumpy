@@ -7,9 +7,9 @@ import time
 import pygame
 
 
-LUMPY_LIB_MINGF_COLOR = BASE_ENVIRONMENT.get(String("LUMPY_LIB_MINGF_COLOR"))
-LUMPY_LIB_MINGF_RECT = BASE_ENVIRONMENT.get(String("LUMPY_LIB_MINGF_RECT"));
-LUMPY_LIB_MINGF_VEC2 = BASE_ENVIRONMENT.get(String("LUMPY_LIB_MINGF_VEC2"));
+LUMPY_LIB_MINGF_COLOR = BASE_ENVIRONMENT.get(String.new("LUMPY_LIB_MINGF_COLOR"))
+LUMPY_LIB_MINGF_RECT = BASE_ENVIRONMENT.get(String.new("LUMPY_LIB_MINGF_RECT"));
+LUMPY_LIB_MINGF_VEC2 = BASE_ENVIRONMENT.get(String.new("LUMPY_LIB_MINGF_VEC2"));
 
 
 @dataclass
@@ -451,8 +451,8 @@ class BuiltinMinGFMousePosition(Builtin):
         Builtin.expect_argument_count(arguments, 0)
         position = pygame.mouse.get_pos()
         return Map({
-            String("x"): Number.new(position[0]),
-            String("y"): Number.new(position[1]),
+            String.new("x"): Number.new(position[0]),
+            String.new("y"): Number.new(position[1]),
         }, LUMPY_LIB_MINGF_VEC2.copy())
 
 
@@ -533,8 +533,8 @@ class BuiltinMinGFMeasureText(Builtin):
         text = Builtin.typed_argument(arguments, 1, String).runes
         size = font.size(text)
         return Map({
-            String("x"): Number.new(float(size[0])),
-            String("y"): Number.new(float(size[1])),
+            String.new("x"): Number.new(float(size[0])),
+            String.new("y"): Number.new(float(size[1])),
         }, LUMPY_LIB_MINGF_VEC2.copy())
 
 
@@ -731,58 +731,58 @@ class BuiltinMinGFDrawText(Builtin):
 
 
 LUMPY_LIB_MINGF_IMAGE_META = Map.new({
-    String("w"): BuiltinMinGFImageW(),
-    String("h"): BuiltinMinGFImageH(),
+    String.new("w"): BuiltinMinGFImageW(),
+    String.new("h"): BuiltinMinGFImageH(),
 })
 LUMPY_LIB_MINGF = Map.new({
-    String("color"): LUMPY_LIB_MINGF_COLOR.copy(),
-    String("vec2"): LUMPY_LIB_MINGF_VEC2.copy(),
-    String("rect"): LUMPY_LIB_MINGF_RECT.copy(),
-    String("init"): BuiltinMinGFInit(),
-    String("fini"): BuiltinMinGFFini(),
-    String("tick"): BuiltinMinGFTick(),
-    String("running"): BuiltinMinGFRunning(),
-    String("now"): BuiltinMinGFNow(),
-    String("fps"): BuiltinMinGFFps(),
-    String("image"): Map.new({
-        String("load"): BuiltinMinGFImageLoad(),
+    String.new("color"): LUMPY_LIB_MINGF_COLOR.copy(),
+    String.new("vec2"): LUMPY_LIB_MINGF_VEC2.copy(),
+    String.new("rect"): LUMPY_LIB_MINGF_RECT.copy(),
+    String.new("init"): BuiltinMinGFInit(),
+    String.new("fini"): BuiltinMinGFFini(),
+    String.new("tick"): BuiltinMinGFTick(),
+    String.new("running"): BuiltinMinGFRunning(),
+    String.new("now"): BuiltinMinGFNow(),
+    String.new("fps"): BuiltinMinGFFps(),
+    String.new("image"): Map.new({
+        String.new("load"): BuiltinMinGFImageLoad(),
     }),
-    String("font"): Map.new({
-        String("load"): BuiltinMinGFFontLoad(),
+    String.new("font"): Map.new({
+        String.new("load"): BuiltinMinGFFontLoad(),
     }),
-    String("sound"): Map.new({
-        String("load"): BuiltinMinGFSoundLoad(),
-        String("play"): BuiltinMinGFSoundPlay(),
-        String("play_ex"): BuiltinMinGFSoundPlayEx(),
+    String.new("sound"): Map.new({
+        String.new("load"): BuiltinMinGFSoundLoad(),
+        String.new("play"): BuiltinMinGFSoundPlay(),
+        String.new("play_ex"): BuiltinMinGFSoundPlayEx(),
     }),
-    String("mouse"): Map.new({
-        String("position"): BuiltinMinGFMousePosition(),
-        String("held"): BuiltinMinGFMouseHeld(),
-        String("pressed"): BuiltinMinGFMousePressed(),
-        String("released"): BuiltinMinGFMouseReleased(),
+    String.new("mouse"): Map.new({
+        String.new("position"): BuiltinMinGFMousePosition(),
+        String.new("held"): BuiltinMinGFMouseHeld(),
+        String.new("pressed"): BuiltinMinGFMousePressed(),
+        String.new("released"): BuiltinMinGFMouseReleased(),
     }),
-    String("key"): Map.new({
-        String("held"): BuiltinMinGFKeyHeld(),
-        String("pressed"): BuiltinMinGFKeyPressed(),
-        String("released"): BuiltinMinGFKeyReleased(),
+    String.new("key"): Map.new({
+        String.new("held"): BuiltinMinGFKeyHeld(),
+        String.new("pressed"): BuiltinMinGFKeyPressed(),
+        String.new("released"): BuiltinMinGFKeyReleased(),
     }),
-    String("measure"): Map.new({
-        String("text"): BuiltinMinGFMeasureText(),
+    String.new("measure"): Map.new({
+        String.new("text"): BuiltinMinGFMeasureText(),
     }),
-    String("draw"): Map.new({
-        String("rect_empty"): BuiltinMinGFDrawRectEmpty(),
-        String("rect_solid"): BuiltinMinGFDrawRectSolid(),
-        String("image"): BuiltinMinGFDrawImage(),
-        String("image_ex"): BuiltinMinGFDrawImageEx(),
-        String("text"): BuiltinMinGFDrawText(),
+    String.new("draw"): Map.new({
+        String.new("rect_empty"): BuiltinMinGFDrawRectEmpty(),
+        String.new("rect_solid"): BuiltinMinGFDrawRectSolid(),
+        String.new("image"): BuiltinMinGFDrawImage(),
+        String.new("image_ex"): BuiltinMinGFDrawImageEx(),
+        String.new("text"): BuiltinMinGFDrawText(),
     }),
 })
-BASE_ENVIRONMENT.let(String("LUMPY_LIB_MINGF"), LUMPY_LIB_MINGF)
+BASE_ENVIRONMENT.let(String.new("LUMPY_LIB_MINGF"), LUMPY_LIB_MINGF)
 ```;
 
-extend(`BASE_ENVIRONMENT.let(String("LUMPY_LIB_MINGF_COLOR"), Null.new())`);
-extend(`BASE_ENVIRONMENT.let(String("LUMPY_LIB_MINGF_RECT"), Null.new())`);
-extend(`BASE_ENVIRONMENT.let(String("LUMPY_LIB_MINGF_VEC2"), Null.new())`);
+extend(`BASE_ENVIRONMENT.let(String.new("LUMPY_LIB_MINGF_COLOR"), Null.new())`);
+extend(`BASE_ENVIRONMENT.let(String.new("LUMPY_LIB_MINGF_RECT"), Null.new())`);
+extend(`BASE_ENVIRONMENT.let(String.new("LUMPY_LIB_MINGF_VEC2"), Null.new())`);
 LUMPY_LIB_MINGF_COLOR = import("color.lumpy");
 LUMPY_LIB_MINGF_RECT = import("rect.lumpy");
 LUMPY_LIB_MINGF_VEC2 = import("vec2.lumpy");

@@ -93,18 +93,18 @@ class BuiltinReFullmatch(Builtin):
 
 
 LUMPY_LIB_RE_MATCH_RESULT_META = Map.new({
-    String("type"): String.new("re::match-result"),
-    String("group"): BuiltinReMatchGroup(),
-    String("start"): BuiltinReMatchStart(),
-    String("end"): BuiltinReMatchEnd(),
+    String.new("type"): String.new("re::match-result"),
+    String.new("group"): BuiltinReMatchGroup(),
+    String.new("start"): BuiltinReMatchStart(),
+    String.new("end"): BuiltinReMatchEnd(),
 })
 LUMPY_LIB_RE = Map.new({
-    String("match-result"): LUMPY_LIB_RE_MATCH_RESULT_META.copy(),
-    String("search"): BuiltinReSearch(),
-    String("match"): BuiltinReMatch(),
-    String("fullmatch"): BuiltinReFullmatch(),
+    String.new("match-result"): LUMPY_LIB_RE_MATCH_RESULT_META.copy(),
+    String.new("search"): BuiltinReSearch(),
+    String.new("match"): BuiltinReMatch(),
+    String.new("fullmatch"): BuiltinReFullmatch(),
 })
-BASE_ENVIRONMENT.let(String("LUMPY_LIB_RE"), LUMPY_LIB_RE)
+BASE_ENVIRONMENT.let(String.new("LUMPY_LIB_RE"), LUMPY_LIB_RE)
 ```;
 
 try {

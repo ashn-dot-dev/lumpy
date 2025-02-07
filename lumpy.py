@@ -3644,7 +3644,7 @@ class BuiltinImport(Builtin):
                 # load the entry point to to the library and/or group of files,
                 # using the name <directory>/main.lumpy by convention.
                 path = path / "main.lumpy"
-            module[String("directory")] = String(
+            module[String.new("directory")] = String.new(
                 os.path.dirname(os.path.realpath(path))
             )
             try:
@@ -4566,55 +4566,68 @@ def eval_file(
     return eval_source(source, env, SourceLocation(str(path), 1))
 
 
+def let_builtin_raw(map: Map, builtin: Builtin) -> None:
+    """
+    Add a builtin to the provided map using the name of the builtin as a key.
+    The key string is created without a metamap.
+    """
+    map[String(builtin.name.bytes)] = builtin
+
+
+let_builtin_raw(NUMBER_META, BuiltinNumberIsNaN())
+let_builtin_raw(NUMBER_META, BuiltinNumberIsInf())
+let_builtin_raw(NUMBER_META, BuiltinNumberIsInteger())
+let_builtin_raw(NUMBER_META, BuiltinNumberFixed())
+let_builtin_raw(NUMBER_META, BuiltinNumberTrunc())
+let_builtin_raw(NUMBER_META, BuiltinNumberRound())
+let_builtin_raw(NUMBER_META, BuiltinNumberFloor())
+let_builtin_raw(NUMBER_META, BuiltinNumberCeil())
+
+let_builtin_raw(STRING_META, BuiltinStringCount())
+let_builtin_raw(STRING_META, BuiltinStringContains())
+let_builtin_raw(STRING_META, BuiltinStringStartsWith())
+let_builtin_raw(STRING_META, BuiltinStringEndsWith())
+let_builtin_raw(STRING_META, BuiltinStringTrim())
+let_builtin_raw(STRING_META, BuiltinStringFind())
+let_builtin_raw(STRING_META, BuiltinStringRfind())
+let_builtin_raw(STRING_META, BuiltinStringSlice())
+let_builtin_raw(STRING_META, BuiltinStringSplit())
+let_builtin_raw(STRING_META, BuiltinStringJoin())
+let_builtin_raw(STRING_META, BuiltinStringCut())
+
+let_builtin_raw(VECTOR_META, BuiltinVectorCount())
+let_builtin_raw(VECTOR_META, BuiltinVectorContains())
+let_builtin_raw(VECTOR_META, BuiltinVectorFind())
+let_builtin_raw(VECTOR_META, BuiltinVectorRfind())
+let_builtin_raw(VECTOR_META, BuiltinVectorPush())
+let_builtin_raw(VECTOR_META, BuiltinVectorPop())
+let_builtin_raw(VECTOR_META, BuiltinVectorInsert())
+let_builtin_raw(VECTOR_META, BuiltinVectorRemove())
+let_builtin_raw(VECTOR_META, BuiltinVectorSlice())
+let_builtin_raw(VECTOR_META, BuiltinVectorReversed())
+let_builtin_raw(VECTOR_META, BuiltinVectorSorted(None, BASE_ENVIRONMENT))
+
+let_builtin_raw(MAP_META, BuiltinMapCount())
+let_builtin_raw(MAP_META, BuiltinMapContains())
+let_builtin_raw(MAP_META, BuiltinMapInsert())
+let_builtin_raw(MAP_META, BuiltinMapRemove())
+
+let_builtin_raw(SET_META, BuiltinSetCount())
+let_builtin_raw(SET_META, BuiltinSetContains())
+let_builtin_raw(SET_META, BuiltinSetInsert())
+let_builtin_raw(SET_META, BuiltinSetRemove())
+
+
 def let_builtin(map: Map, builtin: Builtin) -> None:
-    map[builtin.name] = builtin
+    """
+    Add a builtin to the provided map using the name of the builtin as a key.
+    The key string is created with a nominal string metamap.
+    """
+    map[String.new(builtin.name.bytes)] = builtin
 
 
-let_builtin(NUMBER_META, BuiltinNumberIsNaN())
-let_builtin(NUMBER_META, BuiltinNumberIsInf())
-let_builtin(NUMBER_META, BuiltinNumberIsInteger())
-let_builtin(NUMBER_META, BuiltinNumberFixed())
-let_builtin(NUMBER_META, BuiltinNumberTrunc())
-let_builtin(NUMBER_META, BuiltinNumberRound())
-let_builtin(NUMBER_META, BuiltinNumberFloor())
-let_builtin(NUMBER_META, BuiltinNumberCeil())
-
-let_builtin(STRING_META, BuiltinStringCount())
-let_builtin(STRING_META, BuiltinStringContains())
-let_builtin(STRING_META, BuiltinStringStartsWith())
-let_builtin(STRING_META, BuiltinStringEndsWith())
-let_builtin(STRING_META, BuiltinStringTrim())
-let_builtin(STRING_META, BuiltinStringFind())
-let_builtin(STRING_META, BuiltinStringRfind())
-let_builtin(STRING_META, BuiltinStringSlice())
-let_builtin(STRING_META, BuiltinStringSplit())
-let_builtin(STRING_META, BuiltinStringJoin())
-let_builtin(STRING_META, BuiltinStringCut())
-
-let_builtin(VECTOR_META, BuiltinVectorCount())
-let_builtin(VECTOR_META, BuiltinVectorContains())
-let_builtin(VECTOR_META, BuiltinVectorFind())
-let_builtin(VECTOR_META, BuiltinVectorRfind())
-let_builtin(VECTOR_META, BuiltinVectorPush())
-let_builtin(VECTOR_META, BuiltinVectorPop())
-let_builtin(VECTOR_META, BuiltinVectorInsert())
-let_builtin(VECTOR_META, BuiltinVectorRemove())
-let_builtin(VECTOR_META, BuiltinVectorSlice())
-let_builtin(VECTOR_META, BuiltinVectorReversed())
-let_builtin(VECTOR_META, BuiltinVectorSorted(None, BASE_ENVIRONMENT))
-
-let_builtin(MAP_META, BuiltinMapCount())
-let_builtin(MAP_META, BuiltinMapContains())
-let_builtin(MAP_META, BuiltinMapInsert())
-let_builtin(MAP_META, BuiltinMapRemove())
-
-let_builtin(SET_META, BuiltinSetCount())
-let_builtin(SET_META, BuiltinSetContains())
-let_builtin(SET_META, BuiltinSetInsert())
-let_builtin(SET_META, BuiltinSetRemove())
-
-BASE_ENVIRONMENT.let(String("NaN"), Number.new(float("NaN")))
-BASE_ENVIRONMENT.let(String("Inf"), Number.new(float("Inf")))
+BASE_ENVIRONMENT.let(String.new("NaN"), Number.new(float("NaN")))
+BASE_ENVIRONMENT.let(String.new("Inf"), Number.new(float("Inf")))
 let_builtin(BASE_ENVIRONMENT.store, BuiltinSetmeta())
 let_builtin(BASE_ENVIRONMENT.store, BuiltinGetmeta())
 let_builtin(BASE_ENVIRONMENT.store, BuiltinUtype())
@@ -4637,63 +4650,63 @@ let_builtin(BASE_ENVIRONMENT.store, BuiltinMax())
 let_builtin(BASE_ENVIRONMENT.store, BuiltinImport())
 let_builtin(BASE_ENVIRONMENT.store, BuiltinExtend())
 BASE_ENVIRONMENT.let(
-    String("fs"),
+    String.new("fs"),
     Map.new(
         {
-            String("read"): BuiltinFsRead(),
-            String("write"): BuiltinFsWrite(),
-            String("append"): BuiltinFsAppend(),
+            String.new("read"): BuiltinFsRead(),
+            String.new("write"): BuiltinFsWrite(),
+            String.new("append"): BuiltinFsAppend(),
         }
     ),
 )
 BASE_ENVIRONMENT.let(
-    String("math"),
+    String.new("math"),
     Map.new(
         {
-            String("e"): Number.new(math.e),
-            String("pi"): Number.new(math.pi),
-            String("is_nan"): BuiltinMathIsNaN(),
-            String("is_inf"): BuiltinMathIsInf(),
-            String("is_integer"): BuiltinMathIsInteger(),
-            String("trunc"): BuiltinMathTrunc(),
-            String("round"): BuiltinMathRound(),
-            String("floor"): BuiltinMathFloor(),
-            String("ceil"): BuiltinMathCeil(),
-            String("abs"): BuiltinMathAbs(),
-            String("exp"): BuiltinMathExp(),
-            String("exp2"): BuiltinMathExp2(),
-            String("exp10"): BuiltinMathExp10(),
-            String("log"): BuiltinMathLog(),
-            String("log2"): BuiltinMathLog2(),
-            String("log10"): BuiltinMathLog10(),
-            String("pow"): BuiltinMathPow(),
-            String("sqrt"): BuiltinMathSqrt(),
-            String("clamp"): BuiltinMathClamp(),
-            String("sin"): BuiltinMathSin(),
-            String("cos"): BuiltinMathCos(),
-            String("tan"): BuiltinMathTan(),
-            String("asin"): BuiltinMathAsin(),
-            String("acos"): BuiltinMathAcos(),
-            String("atan"): BuiltinMathAtan(),
-            String("atan2"): BuiltinMathAtan2(),
+            String.new("e"): Number.new(math.e),
+            String.new("pi"): Number.new(math.pi),
+            String.new("is_nan"): BuiltinMathIsNaN(),
+            String.new("is_inf"): BuiltinMathIsInf(),
+            String.new("is_integer"): BuiltinMathIsInteger(),
+            String.new("trunc"): BuiltinMathTrunc(),
+            String.new("round"): BuiltinMathRound(),
+            String.new("floor"): BuiltinMathFloor(),
+            String.new("ceil"): BuiltinMathCeil(),
+            String.new("abs"): BuiltinMathAbs(),
+            String.new("exp"): BuiltinMathExp(),
+            String.new("exp2"): BuiltinMathExp2(),
+            String.new("exp10"): BuiltinMathExp10(),
+            String.new("log"): BuiltinMathLog(),
+            String.new("log2"): BuiltinMathLog2(),
+            String.new("log10"): BuiltinMathLog10(),
+            String.new("pow"): BuiltinMathPow(),
+            String.new("sqrt"): BuiltinMathSqrt(),
+            String.new("clamp"): BuiltinMathClamp(),
+            String.new("sin"): BuiltinMathSin(),
+            String.new("cos"): BuiltinMathCos(),
+            String.new("tan"): BuiltinMathTan(),
+            String.new("asin"): BuiltinMathAsin(),
+            String.new("acos"): BuiltinMathAcos(),
+            String.new("atan"): BuiltinMathAtan(),
+            String.new("atan2"): BuiltinMathAtan2(),
         }
     ),
 )
 BASE_ENVIRONMENT.let(
-    String("module"),
+    String.new("module"),
     Map.new(
         {
-            String("directory"): String.new(os.getcwd()),
+            String.new("directory"): String.new(os.getcwd()),
         }
     ),
 )
 BASE_ENVIRONMENT.let(
-    String("random"),
+    String.new("random"),
     Map.new(
         {
-            String("seed"): BuiltinRandomSeed(),
-            String("number"): BuiltinRandomNumber(),
-            String("integer"): BuiltinRandomInteger(),
+            String.new("seed"): BuiltinRandomSeed(),
+            String.new("number"): BuiltinRandomNumber(),
+            String.new("integer"): BuiltinRandomInteger(),
         }
     ),
 )
@@ -4740,11 +4753,11 @@ def main() -> None:
         env = Environment(BASE_ENVIRONMENT)
         module = env.get(String("module"))
         assert module is not None, "expected `module` to be in the environment"
-        module[String("directory")] = String(
+        module[String.new("directory")] = String.new(
             os.path.dirname(os.path.realpath(args.file))
         )
         env.let(
-            String("argv"),
+            String.new("argv"),
             Vector([String.new(x) for x in argv]),
         )
         try:
