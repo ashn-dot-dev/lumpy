@@ -1,7 +1,7 @@
 let source =
 ```
 class BuiltinFoo(Builtin):
-    name = String("foo")
+    name = "foo"
 
     def function(self, arguments):
         return None

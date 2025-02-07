@@ -1,7 +1,7 @@
 let source =
 ```
 class BuiltinExternalInteger(Builtin):
-    name = String("externint")
+    name = "externint"
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 0)

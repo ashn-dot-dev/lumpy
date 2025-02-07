@@ -5,7 +5,7 @@
 let source =
 ```
 class BuiltinScream(Builtin):
-    name = String("scream")
+    name = "scream"
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 0)

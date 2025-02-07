@@ -4,7 +4,7 @@ import re
 
 
 class BuiltinReMatchGroup(Builtin):
-    name = String("re::match-result::group")
+    name = "re::match-result::group"
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 2)
@@ -22,7 +22,7 @@ class BuiltinReMatchGroup(Builtin):
 
 
 class BuiltinReMatchStart(Builtin):
-    name = String("re::match-result::start")
+    name = "re::match-result::start"
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 2)
@@ -38,7 +38,7 @@ class BuiltinReMatchStart(Builtin):
 
 
 class BuiltinReMatchEnd(Builtin):
-    name = String("re::match-result::end")
+    name = "re::match-result::end"
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 2)
@@ -54,7 +54,7 @@ class BuiltinReMatchEnd(Builtin):
 
 
 class BuiltinReSearch(Builtin):
-    name = String("re::search")
+    name = "re::search"
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 2)
@@ -67,7 +67,7 @@ class BuiltinReSearch(Builtin):
 
 
 class BuiltinReMatch(Builtin):
-    name = String("re::match")
+    name = "re::match"
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 2)
@@ -80,7 +80,7 @@ class BuiltinReMatch(Builtin):
 
 
 class BuiltinReFullmatch(Builtin):
-    name = String("re::fullmatch")
+    name = "re::fullmatch"
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 2)

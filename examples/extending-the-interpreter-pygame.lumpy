@@ -31,7 +31,7 @@ clock = None
 font = None
 
 class BuiltinGameInit(Builtin):
-    name = String("init")
+    name = "init"
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 0)
