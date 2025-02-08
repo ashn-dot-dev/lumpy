@@ -3863,6 +3863,15 @@ class BuiltinMathSqrt(Builtin):
         return Number.new(math.sqrt(float(arg0.data)))
 
 
+class BuiltinMathCbrt(Builtin):
+    name = "math::cbrt"
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        arg0 = Builtin.typed_argument(arguments, 0, Number)
+        return Number.new(math.cbrt(float(arg0.data)))
+
+
 class BuiltinMathClamp(BuiltinFromSource):
     name = "math::clamp"
 
@@ -4688,6 +4697,7 @@ BASE_ENVIRONMENT.let(
             String.new("log10"): BuiltinMathLog10(),
             String.new("pow"): BuiltinMathPow(),
             String.new("sqrt"): BuiltinMathSqrt(),
+            String.new("cbrt"): BuiltinMathCbrt(),
             String.new("clamp"): BuiltinMathClamp(),
             String.new("sin"): BuiltinMathSin(),
             String.new("cos"): BuiltinMathCos(),
