@@ -3958,6 +3958,33 @@ class BuiltinMathAtan2(Builtin):
         return Number.new(math.atan2(float(arg0.data), float(arg1.data)))
 
 
+class BuiltinMathSinh(Builtin):
+    name = "math::sinh"
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        arg0 = Builtin.typed_argument(arguments, 0, Number)
+        return Number.new(math.sinh(float(arg0.data)))
+
+
+class BuiltinMathCosh(Builtin):
+    name = "math::cosh"
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        arg0 = Builtin.typed_argument(arguments, 0, Number)
+        return Number.new(math.cosh(float(arg0.data)))
+
+
+class BuiltinMathTanh(Builtin):
+    name = "math::tanh"
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 1)
+        arg0 = Builtin.typed_argument(arguments, 0, Number)
+        return Number.new(math.tanh(float(arg0.data)))
+
+
 class BuiltinRandomSeed(Builtin):
     name = "random::seed"
 
@@ -4709,6 +4736,9 @@ BASE_ENVIRONMENT.let(
             String.new("acos"): BuiltinMathAcos(),
             String.new("atan"): BuiltinMathAtan(),
             String.new("atan2"): BuiltinMathAtan2(),
+            String.new("sinh"): BuiltinMathSinh(),
+            String.new("cosh"): BuiltinMathCosh(),
+            String.new("tanh"): BuiltinMathTanh(),
         }
     ),
 )
