@@ -1,0 +1,1 @@
+assert(module::file == "builtin-module-file.test.lumpy"); # /path/to/lumpy/tests/builtin-module-file.test.lumpy
