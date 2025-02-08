@@ -1,0 +1,1 @@
+assert(module::path.ends_with("tests/builtin-module-path.test.lumpy")); # /path/to/lumpy/tests/builtin-module-path.test.lumpy

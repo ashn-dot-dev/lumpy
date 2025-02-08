@@ -3630,6 +3630,7 @@ class BuiltinImport(Builtin):
         env = Environment(BASE_ENVIRONMENT)
         module = env.get(String("module"))
         assert module is not None, "expected `module` to be in the environment"
+        module_path = module[String("path")]
         module_directory = module[String("directory")]
         assert isinstance(module_directory, String)
         # Always search the current module directory first
@@ -3641,11 +3642,13 @@ class BuiltinImport(Builtin):
             path = Path(p + "/" + arg0.runes)
             if path.is_dir():
                 # If the path is a directory, such as in the case of a library,
-                # load the entry point to to the library and/or group of files,
-                # using the name <directory>/main.lumpy by convention.
+                # load the entry point to the library and/or group of files,
+                # using the name `<directory>/main.lumpy` by convention.
                 path = path / "main.lumpy"
+            absolute = str(path.absolute())
+            module[String.new("path")] = String.new(absolute)
             module[String.new("directory")] = String.new(
-                os.path.dirname(os.path.realpath(path))
+                os.path.dirname(absolute)
             )
             try:
                 result = eval_file(path, env)
@@ -3655,6 +3658,7 @@ class BuiltinImport(Builtin):
         else:
             result = Error(None, f"module {arg0} not found")
         # Always restore module fields
+        module[String("path")] = module_path
         module[String("directory")] = module_directory
         if isinstance(result, Error):
             return result
@@ -4696,6 +4700,7 @@ BASE_ENVIRONMENT.let(
     String.new("module"),
     Map.new(
         {
+            String.new("path"): Null.new(),
             String.new("directory"): String.new(os.getcwd()),
         }
     ),
@@ -4753,9 +4758,9 @@ def main() -> None:
         env = Environment(BASE_ENVIRONMENT)
         module = env.get(String("module"))
         assert module is not None, "expected `module` to be in the environment"
-        module[String.new("directory")] = String.new(
-            os.path.dirname(os.path.realpath(args.file))
-        )
+        path = os.path.realpath(args.file)
+        module[String.new("path")] = String.new(path)
+        module[String.new("directory")] = String.new(os.path.dirname(path))
         env.let(
             String.new("argv"),
             Vector([String.new(x) for x in argv]),
