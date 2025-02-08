@@ -787,7 +787,12 @@ class BuiltinFromSource(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, "Error"]:
         assert isinstance(self.evaled, Function)
-        return call(None, self.evaled, arguments)
+        result = call(None, self.evaled, arguments)
+        if isinstance(result, Error):
+            # Remove internal trace elements so that the trace appears to start
+            # from the builtin, similar to builtins defined using host code.
+            result.trace = list()
+        return result
 
     @staticmethod
     @abstractmethod
@@ -3583,9 +3588,7 @@ class BuiltinAssert(BuiltinFromSource):
                 error "assertion failure";
             }
         };
-        return function(condition) {
-            try { assert(condition); } else err { error err; }
-        };
+        return assert;
         """
 
 
