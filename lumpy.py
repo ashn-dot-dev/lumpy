@@ -3340,6 +3340,17 @@ class BuiltinInput(Builtin):
         return String.new(sys.stdin.read())
 
 
+class BuiltinInputln(Builtin):
+    name = "inputln"
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 0)
+        line = sys.stdin.readline()
+        if len(line) == 0:
+            return Null.new()
+        return String.new(line[:-1] if line[-1] == "\n" else line)
+
+
 class BuiltinDump(Builtin):
     name = "dump"
 
@@ -4741,6 +4752,7 @@ let_builtin(BASE_ENVIRONMENT.store, BuiltinUtype())
 let_builtin(BASE_ENVIRONMENT.store, BuiltinType())
 let_builtin(BASE_ENVIRONMENT.store, BuiltinRepr())
 let_builtin(BASE_ENVIRONMENT.store, BuiltinInput())
+let_builtin(BASE_ENVIRONMENT.store, BuiltinInputln())
 let_builtin(BASE_ENVIRONMENT.store, BuiltinDump())
 let_builtin(BASE_ENVIRONMENT.store, BuiltinDumpln())
 let_builtin(BASE_ENVIRONMENT.store, BuiltinPrint())
