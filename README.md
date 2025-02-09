@@ -189,7 +189,7 @@ with:
 /path/to/lumpy$ . .venv-lumpy/bin/activate
 (.venv-lumpy) /path/to/lumpy$ python3 -m pip install -r requirements.txt
 (.venv-lumpy) /path/to/lumpy$ make check   # run tests
-(.venv-lumpy) /path/to/lumpy$ make lint    # lint with mypy
+(.venv-lumpy) /path/to/lumpy$ make lint    # lint with mypy and flake8
 (.venv-lumpy) /path/to/lumpy$ make format  # format using black
 (.venv-lumpy) /path/to/lumpy$ make build   # build standalone executable
 (.venv-lumpy) /path/to/lumpy$ make install # install standalone tools

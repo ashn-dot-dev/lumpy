@@ -22,8 +22,15 @@ install: build
 check:
 	LUMPY_HOME="$(realpath .)" sh bin/lumpy-test
 
+# Flake8 Ignored Errors:
+#   E203 - Conflicts with Black.
+#   E221 - Disabled for manual vertically-aligned code.
+#   E241 - Disabled for manual vertically-aligned code.
+#   E501 - Conflicts with Black.
+#   W503 - Conflicts with Black.
 lint:
 	python3 -m mypy --check-untyped-defs lumpy.py
+	python3 -m flake8 lumpy.py --ignore=E203,E221,E241,E501,W503
 
 format:
 	python3 -m black --line-length=79 lumpy.py

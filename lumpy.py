@@ -14,7 +14,6 @@ from typing import (
     Optional,
     Self,
     SupportsFloat,
-    TextIO,
     Tuple,
     Type,
     TypeVar,
@@ -822,7 +821,7 @@ class External(Value):
 
     @staticmethod
     def type() -> str:
-        return f"external"
+        return "external"
 
     def copy(self) -> "External":
         # External values are explicitly not given a metamap by default.
@@ -944,10 +943,15 @@ class Token:
 
     def __str__(self) -> str:
         if self.kind == TokenKind.EOF:
-            return f"end-of-file"
+            return "end-of-file"
         if self.kind == TokenKind.ILLEGAL:
-            prettyable = lambda c: c in printable and c not in whitespace
-            prettyrepr = lambda c: c if prettyable(c) else f"{ord(c):#04x}"
+
+            def prettyable(c):
+                return c in printable and c not in whitespace
+
+            def prettyrepr(c):
+                return c if prettyable(c) else f"{ord(c):#04x}"
+
             return "".join(map(prettyrepr, self.literal))
         if self.kind == TokenKind.IDENTIFIER:
             return f"{self.literal}"
@@ -2718,13 +2722,13 @@ class AstStatementAssignment(AstStatement):
 class Precedence(enum.IntEnum):
     # fmt: off
     LOWEST  = enum.auto()
-    OR      = enum.auto() # or
-    AND     = enum.auto() # and
-    COMPARE = enum.auto() # == != <= >= < >
-    ADD_SUB = enum.auto() # + -
-    MUL_DIV = enum.auto() # * /
-    PREFIX  = enum.auto() # +x -x
-    POSTFIX = enum.auto() # foo(bar, 123) foo[42] .& .*
+    OR      = enum.auto()  # or
+    AND     = enum.auto()  # and
+    COMPARE = enum.auto()  # == != <= >= < >
+    ADD_SUB = enum.auto()  # + -
+    MUL_DIV = enum.auto()  # * /
+    PREFIX  = enum.auto()  # +x -x
+    POSTFIX = enum.auto()  # foo(bar, 123) foo[42] .& .*
     # fmt: on
 
 
@@ -2913,7 +2917,6 @@ class Parser:
             self._advance_token()
         map_elements: list[Tuple[AstExpression, AstExpression]] = list()
         set_elements: list[AstExpression] = list()
-        named_functions: set[AstFunction] = set()
 
         location = self._expect_current(TokenKind.LBRACE).location
         while not self._check_current(TokenKind.RBRACE):
@@ -3493,10 +3496,12 @@ class BuiltinVector(Builtin):
         if isinstance(arguments[0], Vector):
             return arguments[0]
         if isinstance(arguments[0], Map):
-            kv = lambda k, v: Vector([k.copy(), v.copy()])
+
+            def kv(k, v):
+                return Vector([k.copy(), v.copy()])
+
             return Vector([kv(k, v) for k, v in arguments[0].data.items()])
         if isinstance(arguments[0], Set):
-            kv = lambda k, v: Vector([k.copy(), v.copy()])
             return Vector([x.copy() for x in arguments[0].data])
         return Error(None, f"cannot convert value {arguments[0]} to vector")
 
@@ -3726,7 +3731,7 @@ class BuiltinExtend(Builtin):
         source = Builtin.typed_argument(arguments, 0, String).runes
         try:
             exec(source, globals())
-        except:
+        except Exception:
             return Error(None, String.new(traceback.format_exc()))
         return Null.new()
 
@@ -3750,7 +3755,7 @@ class BuiltinFsWrite(Builtin):
         arg0 = Builtin.typed_argument(arguments, 0, String)
         arg1 = Builtin.typed_argument(arguments, 1, String)
         with open(arg0.runes, "wb") as f:
-            data = f.write(arg1.bytes)
+            f.write(arg1.bytes)
         return Null.new()
 
 
@@ -3762,7 +3767,7 @@ class BuiltinFsAppend(Builtin):
         arg0 = Builtin.typed_argument(arguments, 0, String)
         arg1 = Builtin.typed_argument(arguments, 1, String)
         with open(arg0.runes, "ab") as f:
-            data = f.write(arg1.bytes)
+            f.write(arg1.bytes)
         return Null.new()
 
 
@@ -4310,23 +4315,21 @@ class BuiltinStringSlice(Builtin):
         bgn = int(float(arg1.data))
         end = int(float(arg2.data))
         if bgn < 0:
-            return Error(None, f"slice begin is less than zero")
+            return Error(None, "slice begin is less than zero")
         if bgn > len(arg0_data.bytes):
-            return Error(
-                None, f"slice begin is greater than the string length"
-            )
+            return Error(None, "slice begin is greater than the string length")
         if end < 0:
-            return Error(None, f"slice end is less than zero")
+            return Error(None, "slice end is less than zero")
         if end > len(arg0_data.bytes):
-            return Error(None, f"slice end is greater than the string length")
+            return Error(None, "slice end is greater than the string length")
         if end < bgn:
-            return Error(None, f"slice end is less than slice begin")
+            return Error(None, "slice end is less than slice begin")
         try:
             return String.new(
                 arg0_data.bytes[bgn:end].decode(encoding="utf-8")
             )
         except UnicodeDecodeError:
-            return Error(None, f"invalid UTF-8 encoded string")
+            return Error(None, "invalid UTF-8 encoded string")
 
 
 class BuiltinStringSplit(Builtin):
@@ -4497,17 +4500,15 @@ class BuiltinVectorSlice(Builtin):
         bgn = int(float(arg1.data))
         end = int(float(arg2.data))
         if bgn < 0:
-            return Error(None, f"slice begin is less than zero")
+            return Error(None, "slice begin is less than zero")
         if bgn > len(arg0_data.data):
-            return Error(
-                None, f"slice begin is greater than the vector length"
-            )
+            return Error(None, "slice begin is greater than the vector length")
         if end < 0:
-            return Error(None, f"slice end is less than zero")
+            return Error(None, "slice end is less than zero")
         if end > len(arg0_data.data):
-            return Error(None, f"slice end is greater than the vector length")
+            return Error(None, "slice end is greater than the vector length")
         if end < bgn:
-            return Error(None, f"slice end is less than slice begin")
+            return Error(None, "slice end is less than slice begin")
         # Copy underlying data as the update will alter all Python objects
         # holding references to the underlying `SharedVectorData` object.
         underlying = arg0_data.data.copy()
