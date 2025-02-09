@@ -17,6 +17,15 @@ let vec2 = {
 };
 let x = [vec2::new(+3, +5), vec2::new(-1, 0), vec2::new(+3, -2)];
 println(repr(x) + ".sorted() is " + repr(x.sorted()));
+
+print("\n");
+
+let sorted = getmeta([])::sorted;
+try { sorted(map{"foo": "bar"}); } else err { dumpln(string(err)); }
+try { sorted(map{"foo": "bar"}.&); } else err { dumpln(string(err)); }
 ################################################################################
 # ["foo", "bar", "baz"].sorted() is ["bar", "baz", "foo"]
 # [{"x": 3, "y": 5}, {"x": -1, "y": 0}, {"x": 3, "y": -2}].sorted() is [{"x": -1, "y": 0}, {"x": 3, "y": -2}, {"x": 3, "y": 5}]
+#
+# "expected reference to vector-like value for argument 0, received map"
+# "expected reference to vector-like value for argument 0, received reference to map"

@@ -4566,6 +4566,14 @@ class BuiltinVectorSorted(BuiltinFromSource):
             return result;
         };
         return function(self) {
+            let ty = utype(self);
+            if ty != "reference" {
+                error "expected reference to vector-like value for argument 0, received " + ty;
+            }
+            let ty = utype(self.*);
+            if ty != "vector" {
+                error "expected reference to vector-like value for argument 0, received reference to " + ty;
+            }
             try { return sort(self.*); } else err { error err; }
         };
         """
@@ -4724,7 +4732,9 @@ let_builtin_raw(VECTOR_META, BuiltinVectorInsert())
 let_builtin_raw(VECTOR_META, BuiltinVectorRemove())
 let_builtin_raw(VECTOR_META, BuiltinVectorSlice())
 let_builtin_raw(VECTOR_META, BuiltinVectorReversed())
-let_builtin_raw(VECTOR_META, BuiltinVectorSorted(None, BASE_ENVIRONMENT))
+let_builtin_raw(
+    VECTOR_META, BuiltinVectorSorted(None, Environment(BASE_ENVIRONMENT))
+)
 
 let_builtin_raw(MAP_META, BuiltinMapCount())
 let_builtin_raw(MAP_META, BuiltinMapContains())
