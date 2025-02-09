@@ -1396,8 +1396,34 @@ class Error:
 ControlFlow = Union[Return, Break, Continue, Error]
 
 
+CONST_STRING_STRING = String("string")
+CONST_STRING_TYPE = String("type")
+CONST_STRING_NEXT = String("next")
+CONST_STRING_PATH = String("path")
+CONST_STRING_FILE = String("file")
+CONST_STRING_DIRECTORY = String("directory")
+CONST_STRING_MODULE = String("module")
+CONST_STRING_COMPARE = String("compare")
+CONST_STRING_UNARY_POSITIVE = String("unary+")
+CONST_STRING_UNARY_NEGATIVE = String("unary-")
+CONST_STRING_NOT = String("not")
+CONST_STRING_AND = String("and")
+CONST_STRING_OR = String("or")
+CONST_STRING_EQ = String("==")
+CONST_STRING_NE = String("!=")
+CONST_STRING_LE = String("<=")
+CONST_STRING_GE = String(">=")
+CONST_STRING_LT = String("<")
+CONST_STRING_GT = String(">")
+CONST_STRING_ADD = String("+")
+CONST_STRING_SUB = String("-")
+CONST_STRING_MUL = String("*")
+CONST_STRING_DIV = String("/")
+CONST_STRING_REM = String("%")
+
+
 def typename(value: Value) -> str:
-    metavalue = value.metavalue(String("type"))
+    metavalue = value.metavalue(CONST_STRING_TYPE)
     if metavalue is None:
         return value.type()
     if isinstance(metavalue, String):
@@ -1619,7 +1645,7 @@ class AstPositive(AstExpression):
         result = self.expression.eval(env)
         if isinstance(result, Error):
             return result
-        metafunction = result.metafunction(String("unary+"))
+        metafunction = result.metafunction(CONST_STRING_UNARY_POSITIVE)
         if metafunction is not None:
             return call(self.location, metafunction, [result.copy()])
         if isinstance(result, Number):
@@ -1640,7 +1666,7 @@ class AstNegative(AstExpression):
         result = self.expression.eval(env)
         if isinstance(result, Error):
             return result
-        metafunction = result.metafunction(String("unary-"))
+        metafunction = result.metafunction(CONST_STRING_UNARY_NEGATIVE)
         if metafunction is not None:
             return call(self.location, metafunction, [result.copy()])
         if not isinstance(result, Number):
@@ -1661,7 +1687,7 @@ class AstNot(AstExpression):
         result = self.expression.eval(env)
         if isinstance(result, Error):
             return result
-        metafunction = result.metafunction(String("not"))
+        metafunction = result.metafunction(CONST_STRING_NOT)
         if metafunction is not None:
             return call(self.location, metafunction, [result.copy()])
         if not isinstance(result, Boolean):
@@ -1692,7 +1718,7 @@ class AstAnd(AstExpression):
         if isinstance(rhs, Boolean) and not rhs.data:
             return Boolean.new(False)  # short circuit
 
-        metafunction = binary_operator_metafunction(lhs, rhs, String("and"))
+        metafunction = binary_operator_metafunction(lhs, rhs, CONST_STRING_AND)
         if metafunction is not None:
             return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         if isinstance(lhs, Boolean) and isinstance(rhs, Boolean):
@@ -1723,7 +1749,7 @@ class AstOr(AstExpression):
         if isinstance(rhs, Boolean) and rhs.data:
             return Boolean.new(True)  # short circuit
 
-        metafunction = binary_operator_metafunction(lhs, rhs, String("or"))
+        metafunction = binary_operator_metafunction(lhs, rhs, CONST_STRING_OR)
         if metafunction is not None:
             return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         if isinstance(lhs, Boolean) and isinstance(rhs, Boolean):
@@ -1748,11 +1774,11 @@ class AstEq(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = binary_operator_metafunction(lhs, rhs, String("=="))
+        metafunction = binary_operator_metafunction(lhs, rhs, CONST_STRING_EQ)
         if metafunction is not None:
             return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         metafunction = binary_operator_metafunction(
-            lhs, rhs, String("compare")
+            lhs, rhs, CONST_STRING_COMPARE
         )
         if metafunction is not None:
             result = call(
@@ -1783,11 +1809,11 @@ class AstNe(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = binary_operator_metafunction(lhs, rhs, String("!="))
+        metafunction = binary_operator_metafunction(lhs, rhs, CONST_STRING_NE)
         if metafunction is not None:
             return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         metafunction = binary_operator_metafunction(
-            lhs, rhs, String("compare")
+            lhs, rhs, CONST_STRING_COMPARE
         )
         if metafunction is not None:
             result = call(
@@ -1818,11 +1844,11 @@ class AstLe(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = binary_operator_metafunction(lhs, rhs, String("<="))
+        metafunction = binary_operator_metafunction(lhs, rhs, CONST_STRING_LE)
         if metafunction is not None:
             return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         metafunction = binary_operator_metafunction(
-            lhs, rhs, String("compare")
+            lhs, rhs, CONST_STRING_COMPARE
         )
         if metafunction is not None:
             result = call(
@@ -1860,11 +1886,11 @@ class AstGe(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = binary_operator_metafunction(lhs, rhs, String(">="))
+        metafunction = binary_operator_metafunction(lhs, rhs, CONST_STRING_GE)
         if metafunction is not None:
             return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         metafunction = binary_operator_metafunction(
-            lhs, rhs, String("compare")
+            lhs, rhs, CONST_STRING_COMPARE
         )
         if metafunction is not None:
             result = call(
@@ -1902,11 +1928,11 @@ class AstLt(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = binary_operator_metafunction(lhs, rhs, String("<"))
+        metafunction = binary_operator_metafunction(lhs, rhs, CONST_STRING_LT)
         if metafunction is not None:
             return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         metafunction = binary_operator_metafunction(
-            lhs, rhs, String("compare")
+            lhs, rhs, CONST_STRING_COMPARE
         )
         if metafunction is not None:
             result = call(
@@ -1944,11 +1970,11 @@ class AstGt(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = binary_operator_metafunction(lhs, rhs, String(">"))
+        metafunction = binary_operator_metafunction(lhs, rhs, CONST_STRING_GT)
         if metafunction is not None:
             return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         metafunction = binary_operator_metafunction(
-            lhs, rhs, String("compare")
+            lhs, rhs, CONST_STRING_COMPARE
         )
         if metafunction is not None:
             result = call(
@@ -1986,7 +2012,7 @@ class AstAdd(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = binary_operator_metafunction(lhs, rhs, String("+"))
+        metafunction = binary_operator_metafunction(lhs, rhs, CONST_STRING_ADD)
         if metafunction is not None:
             return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         if isinstance(lhs, Number) and isinstance(rhs, Number):
@@ -2013,7 +2039,7 @@ class AstSub(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = binary_operator_metafunction(lhs, rhs, String("-"))
+        metafunction = binary_operator_metafunction(lhs, rhs, CONST_STRING_SUB)
         if metafunction is not None:
             return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         if not (isinstance(lhs, Number) and isinstance(rhs, Number)):
@@ -2038,7 +2064,7 @@ class AstMul(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = binary_operator_metafunction(lhs, rhs, String("*"))
+        metafunction = binary_operator_metafunction(lhs, rhs, CONST_STRING_MUL)
         if metafunction is not None:
             return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         if not (isinstance(lhs, Number) and isinstance(rhs, Number)):
@@ -2063,7 +2089,7 @@ class AstDiv(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = binary_operator_metafunction(lhs, rhs, String("/"))
+        metafunction = binary_operator_metafunction(lhs, rhs, CONST_STRING_DIV)
         if metafunction is not None:
             return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         if not (isinstance(lhs, Number) and isinstance(rhs, Number)):
@@ -2090,7 +2116,7 @@ class AstRem(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = binary_operator_metafunction(lhs, rhs, String("%"))
+        metafunction = binary_operator_metafunction(lhs, rhs, CONST_STRING_REM)
         if metafunction is not None:
             return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         if not (isinstance(lhs, Number) and isinstance(rhs, Number)):
@@ -2359,7 +2385,7 @@ class AstStatementFor(AstStatement):
         collection = collection.copy()
 
         loop_env = Environment(env)
-        if metafunction := collection.metafunction(String("next")):
+        if metafunction := collection.metafunction(CONST_STRING_NEXT):
             if self.identifier_v is not None:
                 return Error(
                     self.location,
@@ -3329,7 +3355,7 @@ class BuiltinPrint(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
-        metafunction = arguments[0].metafunction(String("string"))
+        metafunction = arguments[0].metafunction(CONST_STRING_STRING)
         if metafunction is not None:
             result = call(None, metafunction, arguments)
             if isinstance(result, Error):
@@ -3349,7 +3375,7 @@ class BuiltinPrintln(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
-        metafunction = arguments[0].metafunction(String("string"))
+        metafunction = arguments[0].metafunction(CONST_STRING_STRING)
         if metafunction is not None:
             result = call(None, metafunction, arguments)
             if isinstance(result, Error):
@@ -3425,7 +3451,7 @@ class BuiltinString(Builtin):
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
-        metafunction = arguments[0].metafunction(String("string"))
+        metafunction = arguments[0].metafunction(CONST_STRING_STRING)
         if metafunction is not None:
             result = call(None, metafunction, arguments)
             if isinstance(result, Error):
@@ -3631,11 +3657,11 @@ class BuiltinImport(Builtin):
         Builtin.expect_argument_count(arguments, 1)
         arg0 = Builtin.typed_argument(arguments, 0, String)
         env = Environment(BASE_ENVIRONMENT)
-        module = env.get(String("module"))
+        module = env.get(CONST_STRING_MODULE)
         assert module is not None, "expected `module` to be in the environment"
-        module_path = module[String("path")]
-        module_file = module[String("file")]
-        module_directory = module[String("directory")]
+        module_path = module[CONST_STRING_PATH]
+        module_file = module[CONST_STRING_FILE]
+        module_directory = module[CONST_STRING_DIRECTORY]
         assert isinstance(module_directory, String)
         # Always search the current module directory first
         paths: list[str] = [module_directory.runes]
@@ -3663,9 +3689,9 @@ class BuiltinImport(Builtin):
         else:
             result = Error(None, f"module {arg0} not found")
         # Always restore module fields
-        module[String("path")] = module_path
-        module[String("file")] = module_file
-        module[String("directory")] = module_directory
+        module[CONST_STRING_PATH] = module_path
+        module[CONST_STRING_FILE] = module_file
+        module[CONST_STRING_DIRECTORY] = module_directory
         if isinstance(result, Error):
             return result
         if result is None:
@@ -4833,7 +4859,7 @@ def main() -> None:
     if args.file is not None:
         argv.insert(0, args.file)
         env = Environment(BASE_ENVIRONMENT)
-        module = env.get(String("module"))
+        module = env.get(CONST_STRING_MODULE)
         assert module is not None, "expected `module` to be in the environment"
         path = os.path.realpath(args.file)
         module[String.new("path")] = String.new(path)
