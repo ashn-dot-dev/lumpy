@@ -3498,11 +3498,11 @@ class BuiltinVector(Builtin):
         if isinstance(arguments[0], Map):
 
             def kv(k, v):
-                return Vector([k.copy(), v.copy()])
+                return Vector.new([k.copy(), v.copy()])
 
-            return Vector([kv(k, v) for k, v in arguments[0].data.items()])
+            return Vector.new([kv(k, v) for k, v in arguments[0].data.items()])
         if isinstance(arguments[0], Set):
-            return Vector([x.copy() for x in arguments[0].data])
+            return Vector.new([x.copy() for x in arguments[0].data])
         return Error(None, f"cannot convert value {arguments[0]} to vector")
 
 
@@ -4889,7 +4889,7 @@ def main() -> None:
         module[String.new("directory")] = String.new(os.path.dirname(path))
         env.let(
             String.new("argv"),
-            Vector([String.new(x) for x in argv]),
+            Vector.new([String.new(x) for x in argv]),
         )
         try:
             result = eval_file(args.file, env)
