@@ -1,0 +1,34 @@
+let re = import("../main.lumpy");
+
+let result = re::findall(`foo`, "nope");
+dumpln(result);
+
+let result = re::findall(`foo`, "WWWfooXXXfooYYYfooZZZ");
+dumpln(result);
+
+let result = re::findall(`\d*\.\d*`, "1.23 4.56 7.89");
+dumpln(result);
+
+let result = re::findall(`(\d*)\.(\d*)`, "1.23 4.56 7.89");
+dumpln(result);
+
+let result = re::findall(`(abc(\d)|def(\d))`, "abc1 def2");
+dumpln(result);
+
+let result = re::findall(`(abc((\d*)\.(\d*))|def((\d*)\.(\d*).(\d*)))`, "abc1.23 def4.56.78");
+dumpln(result);
+
+let result = re::findall(`\bf[a-z]*`, "which foot or hand fell fastest");
+dumpln(result);
+
+let result = re::findall(`(\w+)=(\d+)`, "set width=20 and height=10");
+dumpln(result);
+################################################################################
+# []
+# ["foo", "foo", "foo"]
+# ["1.23", "4.56", "7.89"]
+# [["1", "23"], ["4", "56"], ["7", "89"]]
+# [["abc1", "1", ""], ["def2", "", "2"]]
+# [["abc1.23", "1.23", "1", "23", "", "", "", ""], ["def4.56.78", "", "", "", "4.56.78", "4", "56", "78"]]
+# ["foot", "fell", "fastest"]
+# [["width", "20"], ["height", "10"]]

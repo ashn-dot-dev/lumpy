@@ -824,7 +824,6 @@ class External(Value):
         return "external"
 
     def copy(self) -> "External":
-        # External values are explicitly not given a metamap by default.
         return External(self.data, self.meta.copy() if self.meta else None)
 
     def cow(self) -> None:
@@ -2023,6 +2022,10 @@ class AstAdd(AstExpression):
             return Number.new(float(lhs.data) + float(rhs.data))
         if isinstance(lhs, String) and isinstance(rhs, String):
             return String.new(lhs.data + rhs.data)
+        if isinstance(lhs, Vector) and isinstance(rhs, Vector):
+            return Vector.new(
+                [x.copy() for x in lhs.data] + [x.copy() for x in rhs.data]
+            )
         return Error(
             self.location,
             f"attempted + operation with types `{typename(lhs)}` and `{typename(rhs)}`",
@@ -3283,6 +3286,21 @@ def call(
     return Null.new()
 
 
+class BuiltinAssert(BuiltinFromSource):
+    name = "assert"
+
+    @staticmethod
+    def source() -> str:
+        return """
+        let assert = function(condition) {
+            if not condition {
+                error "assertion failure";
+            }
+        };
+        return assert;
+        """
+
+
 class BuiltinSetmeta(Builtin):
     name = "setmeta"
 
@@ -3496,11 +3514,12 @@ class BuiltinVector(Builtin):
         if isinstance(arguments[0], Vector):
             return arguments[0]
         if isinstance(arguments[0], Map):
-
-            def kv(k, v):
-                return Vector.new([k.copy(), v.copy()])
-
-            return Vector.new([kv(k, v) for k, v in arguments[0].data.items()])
+            return Vector.new(
+                [
+                    Vector.new([k.copy(), v.copy()])
+                    for k, v in arguments[0].data.items()
+                ]
+            )
         if isinstance(arguments[0], Set):
             return Vector.new([x.copy() for x in arguments[0].data])
         return Error(None, f"cannot convert value {arguments[0]} to vector")
@@ -3627,21 +3646,6 @@ class BuiltinDifference(BuiltinFromSource):
         """
 
 
-class BuiltinAssert(BuiltinFromSource):
-    name = "assert"
-
-    @staticmethod
-    def source() -> str:
-        return """
-        let assert = function(condition) {
-            if not condition {
-                error "assertion failure";
-            }
-        };
-        return assert;
-        """
-
-
 class BuiltinMin(BuiltinFromSource):
     name = "min"
 
@@ -3734,6 +3738,14 @@ class BuiltinExtend(Builtin):
         except Exception:
             return Error(None, String.new(traceback.format_exc()))
         return Null.new()
+
+
+class BuiltinBaseenv(Builtin):
+    name = "baseenv"
+
+    def function(self, arguments: list[Value]) -> Union[Value, Error]:
+        Builtin.expect_argument_count(arguments, 0)
+        return BASE_ENVIRONMENT.store.copy()
 
 
 class BuiltinFsRead(Builtin):
@@ -4096,7 +4108,7 @@ class BuiltinRandomInteger(Builtin):
 
 
 class BuiltinNumberIsNaN(Builtin):
-    name = "is_nan"
+    name = "number::is_nan"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -4107,7 +4119,7 @@ class BuiltinNumberIsNaN(Builtin):
 
 
 class BuiltinNumberIsInf(Builtin):
-    name = "is_inf"
+    name = "number::is_inf"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -4118,7 +4130,7 @@ class BuiltinNumberIsInf(Builtin):
 
 
 class BuiltinNumberIsInteger(Builtin):
-    name = "is_integer"
+    name = "number::is_integer"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -4129,7 +4141,7 @@ class BuiltinNumberIsInteger(Builtin):
 
 
 class BuiltinNumberFixed(Builtin):
-    name = "fixed"
+    name = "number::fixed"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4145,7 +4157,7 @@ class BuiltinNumberFixed(Builtin):
 
 
 class BuiltinNumberTrunc(Builtin):
-    name = "trunc"
+    name = "number::trunc"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -4156,7 +4168,7 @@ class BuiltinNumberTrunc(Builtin):
 
 
 class BuiltinNumberRound(Builtin):
-    name = "round"
+    name = "number::round"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -4167,7 +4179,7 @@ class BuiltinNumberRound(Builtin):
 
 
 class BuiltinNumberFloor(Builtin):
-    name = "floor"
+    name = "number::floor"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -4178,7 +4190,7 @@ class BuiltinNumberFloor(Builtin):
 
 
 class BuiltinNumberCeil(Builtin):
-    name = "ceil"
+    name = "number::ceil"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -4189,7 +4201,7 @@ class BuiltinNumberCeil(Builtin):
 
 
 class BuiltinStringCount(Builtin):
-    name = "count"
+    name = "string::count"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -4200,7 +4212,7 @@ class BuiltinStringCount(Builtin):
 
 
 class BuiltinStringContains(Builtin):
-    name = "contains"
+    name = "string::contains"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4212,7 +4224,7 @@ class BuiltinStringContains(Builtin):
 
 
 class BuiltinStringStartsWith(Builtin):
-    name = "starts_with"
+    name = "string::starts_with"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4224,7 +4236,7 @@ class BuiltinStringStartsWith(Builtin):
 
 
 class BuiltinStringEndsWith(Builtin):
-    name = "ends_with"
+    name = "string::ends_with"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4236,7 +4248,7 @@ class BuiltinStringEndsWith(Builtin):
 
 
 class BuiltinStringTrim(Builtin):
-    name = "trim"
+    name = "string::trim"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -4247,7 +4259,7 @@ class BuiltinStringTrim(Builtin):
 
 
 class BuiltinStringFind(Builtin):
-    name = "find"
+    name = "string::find"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4262,7 +4274,7 @@ class BuiltinStringFind(Builtin):
 
 
 class BuiltinStringRfind(Builtin):
-    name = "rfind"
+    name = "string::rfind"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4277,7 +4289,7 @@ class BuiltinStringRfind(Builtin):
 
 
 class BuiltinStringJoin(Builtin):
-    name = "join"
+    name = "string::join"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4299,7 +4311,7 @@ class BuiltinStringJoin(Builtin):
 
 
 class BuiltinStringSlice(Builtin):
-    name = "slice"
+    name = "string::slice"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 3)
@@ -4333,7 +4345,7 @@ class BuiltinStringSlice(Builtin):
 
 
 class BuiltinStringSplit(Builtin):
-    name = "split"
+    name = "string::split"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4350,7 +4362,7 @@ class BuiltinStringSplit(Builtin):
 
 
 class BuiltinStringCut(Builtin):
-    name = "cut"
+    name = "string::cut"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4372,7 +4384,7 @@ class BuiltinStringCut(Builtin):
 
 
 class BuiltinVectorCount(Builtin):
-    name = "count"
+    name = "vector::count"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -4383,7 +4395,7 @@ class BuiltinVectorCount(Builtin):
 
 
 class BuiltinVectorContains(Builtin):
-    name = "contains"
+    name = "vector::contains"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4394,7 +4406,7 @@ class BuiltinVectorContains(Builtin):
 
 
 class BuiltinVectorFind(Builtin):
-    name = "find"
+    name = "vector::find"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4408,7 +4420,7 @@ class BuiltinVectorFind(Builtin):
 
 
 class BuiltinVectorRfind(Builtin):
-    name = "rfind"
+    name = "vector::rfind"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4422,7 +4434,7 @@ class BuiltinVectorRfind(Builtin):
 
 
 class BuiltinVectorPush(Builtin):
-    name = "push"
+    name = "vector::push"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4436,7 +4448,7 @@ class BuiltinVectorPush(Builtin):
 
 
 class BuiltinVectorPop(Builtin):
-    name = "pop"
+    name = "vector::pop"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -4450,7 +4462,7 @@ class BuiltinVectorPop(Builtin):
 
 
 class BuiltinVectorInsert(Builtin):
-    name = "insert"
+    name = "vector::insert"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 3)
@@ -4467,7 +4479,7 @@ class BuiltinVectorInsert(Builtin):
 
 
 class BuiltinVectorRemove(Builtin):
-    name = "remove"
+    name = "vector::remove"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4484,7 +4496,7 @@ class BuiltinVectorRemove(Builtin):
 
 
 class BuiltinVectorSlice(Builtin):
-    name = "slice"
+    name = "vector::slice"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 3)
@@ -4516,7 +4528,7 @@ class BuiltinVectorSlice(Builtin):
 
 
 class BuiltinVectorReversed(Builtin):
-    name = "reversed"
+    name = "vector::reversed"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -4530,7 +4542,7 @@ class BuiltinVectorReversed(Builtin):
 
 
 class BuiltinVectorSorted(BuiltinFromSource):
-    name = "sorted"
+    name = "vector::sorted"
 
     @staticmethod
     def source() -> str:
@@ -4580,7 +4592,7 @@ class BuiltinVectorSorted(BuiltinFromSource):
 
 
 class BuiltinMapCount(Builtin):
-    name = "count"
+    name = "map::count"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -4589,7 +4601,7 @@ class BuiltinMapCount(Builtin):
 
 
 class BuiltinMapContains(Builtin):
-    name = "contains"
+    name = "map::contains"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4598,7 +4610,7 @@ class BuiltinMapContains(Builtin):
 
 
 class BuiltinMapInsert(Builtin):
-    name = "insert"
+    name = "map::insert"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 3)
@@ -4608,7 +4620,7 @@ class BuiltinMapInsert(Builtin):
 
 
 class BuiltinMapRemove(Builtin):
-    name = "remove"
+    name = "map::remove"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4621,7 +4633,7 @@ class BuiltinMapRemove(Builtin):
 
 
 class BuiltinSetCount(Builtin):
-    name = "count"
+    name = "set::count"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
@@ -4630,7 +4642,7 @@ class BuiltinSetCount(Builtin):
 
 
 class BuiltinSetContains(Builtin):
-    name = "contains"
+    name = "set::contains"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4639,7 +4651,7 @@ class BuiltinSetContains(Builtin):
 
 
 class BuiltinSetInsert(Builtin):
-    name = "insert"
+    name = "set::insert"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4649,7 +4661,7 @@ class BuiltinSetInsert(Builtin):
 
 
 class BuiltinSetRemove(Builtin):
-    name = "remove"
+    name = "set::remove"
 
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 2)
@@ -4693,93 +4705,77 @@ def eval_file(
     return eval_source(source, env, SourceLocation(str(path), 1))
 
 
-def let_builtin_raw(map: Map, builtin: Builtin) -> None:
-    """
-    Add a builtin to the provided map using the name of the builtin as a key.
-    The key string is created without a metamap.
-    """
-    map[String(builtin.name)] = builtin
+NUMBER_META[String("is_nan")] = BuiltinNumberIsNaN()
+NUMBER_META[String("is_inf")] = BuiltinNumberIsInf()
+NUMBER_META[String("is_integer")] = BuiltinNumberIsInteger()
+NUMBER_META[String("fixed")] = BuiltinNumberFixed()
+NUMBER_META[String("trunc")] = BuiltinNumberTrunc()
+NUMBER_META[String("round")] = BuiltinNumberRound()
+NUMBER_META[String("floor")] = BuiltinNumberFloor()
+NUMBER_META[String("ceil")] = BuiltinNumberCeil()
 
+STRING_META[String("count")] = BuiltinStringCount()
+STRING_META[String("contains")] = BuiltinStringContains()
+STRING_META[String("starts_with")] = BuiltinStringStartsWith()
+STRING_META[String("ends_with")] = BuiltinStringEndsWith()
+STRING_META[String("trim")] = BuiltinStringTrim()
+STRING_META[String("find")] = BuiltinStringFind()
+STRING_META[String("rfind")] = BuiltinStringRfind()
+STRING_META[String("slice")] = BuiltinStringSlice()
+STRING_META[String("split")] = BuiltinStringSplit()
+STRING_META[String("join")] = BuiltinStringJoin()
+STRING_META[String("cut")] = BuiltinStringCut()
 
-let_builtin_raw(NUMBER_META, BuiltinNumberIsNaN())
-let_builtin_raw(NUMBER_META, BuiltinNumberIsInf())
-let_builtin_raw(NUMBER_META, BuiltinNumberIsInteger())
-let_builtin_raw(NUMBER_META, BuiltinNumberFixed())
-let_builtin_raw(NUMBER_META, BuiltinNumberTrunc())
-let_builtin_raw(NUMBER_META, BuiltinNumberRound())
-let_builtin_raw(NUMBER_META, BuiltinNumberFloor())
-let_builtin_raw(NUMBER_META, BuiltinNumberCeil())
-
-let_builtin_raw(STRING_META, BuiltinStringCount())
-let_builtin_raw(STRING_META, BuiltinStringContains())
-let_builtin_raw(STRING_META, BuiltinStringStartsWith())
-let_builtin_raw(STRING_META, BuiltinStringEndsWith())
-let_builtin_raw(STRING_META, BuiltinStringTrim())
-let_builtin_raw(STRING_META, BuiltinStringFind())
-let_builtin_raw(STRING_META, BuiltinStringRfind())
-let_builtin_raw(STRING_META, BuiltinStringSlice())
-let_builtin_raw(STRING_META, BuiltinStringSplit())
-let_builtin_raw(STRING_META, BuiltinStringJoin())
-let_builtin_raw(STRING_META, BuiltinStringCut())
-
-let_builtin_raw(VECTOR_META, BuiltinVectorCount())
-let_builtin_raw(VECTOR_META, BuiltinVectorContains())
-let_builtin_raw(VECTOR_META, BuiltinVectorFind())
-let_builtin_raw(VECTOR_META, BuiltinVectorRfind())
-let_builtin_raw(VECTOR_META, BuiltinVectorPush())
-let_builtin_raw(VECTOR_META, BuiltinVectorPop())
-let_builtin_raw(VECTOR_META, BuiltinVectorInsert())
-let_builtin_raw(VECTOR_META, BuiltinVectorRemove())
-let_builtin_raw(VECTOR_META, BuiltinVectorSlice())
-let_builtin_raw(VECTOR_META, BuiltinVectorReversed())
-let_builtin_raw(
-    VECTOR_META, BuiltinVectorSorted(None, Environment(BASE_ENVIRONMENT))
+VECTOR_META[String("count")] = BuiltinVectorCount()
+VECTOR_META[String("contains")] = BuiltinVectorContains()
+VECTOR_META[String("find")] = BuiltinVectorFind()
+VECTOR_META[String("rfind")] = BuiltinVectorRfind()
+VECTOR_META[String("push")] = BuiltinVectorPush()
+VECTOR_META[String("pop")] = BuiltinVectorPop()
+VECTOR_META[String("insert")] = BuiltinVectorInsert()
+VECTOR_META[String("remove")] = BuiltinVectorRemove()
+VECTOR_META[String("slice")] = BuiltinVectorSlice()
+VECTOR_META[String("reversed")] = BuiltinVectorReversed()
+VECTOR_META[String("sorted")] = BuiltinVectorSorted(
+    None, Environment(BASE_ENVIRONMENT)
 )
 
-let_builtin_raw(MAP_META, BuiltinMapCount())
-let_builtin_raw(MAP_META, BuiltinMapContains())
-let_builtin_raw(MAP_META, BuiltinMapInsert())
-let_builtin_raw(MAP_META, BuiltinMapRemove())
+MAP_META[String("count")] = BuiltinMapCount()
+MAP_META[String("contains")] = BuiltinMapContains()
+MAP_META[String("insert")] = BuiltinMapInsert()
+MAP_META[String("remove")] = BuiltinMapRemove()
 
-let_builtin_raw(SET_META, BuiltinSetCount())
-let_builtin_raw(SET_META, BuiltinSetContains())
-let_builtin_raw(SET_META, BuiltinSetInsert())
-let_builtin_raw(SET_META, BuiltinSetRemove())
-
-
-def let_builtin(map: Map, builtin: Builtin) -> None:
-    """
-    Add a builtin to the provided map using the name of the builtin as a key.
-    The key string is created with a nominal string metamap.
-    """
-    map[String.new(builtin.name)] = builtin
-
+SET_META[String("count")] = BuiltinSetCount()
+SET_META[String("contains")] = BuiltinSetContains()
+SET_META[String("insert")] = BuiltinSetInsert()
+SET_META[String("remove")] = BuiltinSetRemove()
 
 BASE_ENVIRONMENT.let(String.new("NaN"), Number.new(float("NaN")))
 BASE_ENVIRONMENT.let(String.new("Inf"), Number.new(float("Inf")))
-let_builtin(BASE_ENVIRONMENT.store, BuiltinSetmeta())
-let_builtin(BASE_ENVIRONMENT.store, BuiltinGetmeta())
-let_builtin(BASE_ENVIRONMENT.store, BuiltinUtype())
-let_builtin(BASE_ENVIRONMENT.store, BuiltinType())
-let_builtin(BASE_ENVIRONMENT.store, BuiltinRepr())
-let_builtin(BASE_ENVIRONMENT.store, BuiltinInput())
-let_builtin(BASE_ENVIRONMENT.store, BuiltinInputln())
-let_builtin(BASE_ENVIRONMENT.store, BuiltinDump())
-let_builtin(BASE_ENVIRONMENT.store, BuiltinDumpln())
-let_builtin(BASE_ENVIRONMENT.store, BuiltinPrint())
-let_builtin(BASE_ENVIRONMENT.store, BuiltinPrintln())
-let_builtin(BASE_ENVIRONMENT.store, BuiltinBoolean())
-let_builtin(BASE_ENVIRONMENT.store, BuiltinNumber())
-let_builtin(BASE_ENVIRONMENT.store, BuiltinString())
-let_builtin(BASE_ENVIRONMENT.store, BuiltinVector())
-let_builtin(BASE_ENVIRONMENT.store, BuiltinUnion())
-let_builtin(BASE_ENVIRONMENT.store, BuiltinIntersection())
-let_builtin(BASE_ENVIRONMENT.store, BuiltinDifference())
-let_builtin(BASE_ENVIRONMENT.store, BuiltinAssert())
-let_builtin(BASE_ENVIRONMENT.store, BuiltinMin())
-let_builtin(BASE_ENVIRONMENT.store, BuiltinMax())
-let_builtin(BASE_ENVIRONMENT.store, BuiltinImport())
-let_builtin(BASE_ENVIRONMENT.store, BuiltinExtend())
+BASE_ENVIRONMENT.let(String.new("assert"), BuiltinAssert())
+BASE_ENVIRONMENT.let(String.new("setmeta"), BuiltinSetmeta())
+BASE_ENVIRONMENT.let(String.new("getmeta"), BuiltinGetmeta())
+BASE_ENVIRONMENT.let(String.new("utype"), BuiltinUtype())
+BASE_ENVIRONMENT.let(String.new("type"), BuiltinType())
+BASE_ENVIRONMENT.let(String.new("repr"), BuiltinRepr())
+BASE_ENVIRONMENT.let(String.new("input"), BuiltinInput())
+BASE_ENVIRONMENT.let(String.new("inputln"), BuiltinInputln())
+BASE_ENVIRONMENT.let(String.new("dump"), BuiltinDump())
+BASE_ENVIRONMENT.let(String.new("dumpln"), BuiltinDumpln())
+BASE_ENVIRONMENT.let(String.new("print"), BuiltinPrint())
+BASE_ENVIRONMENT.let(String.new("println"), BuiltinPrintln())
+BASE_ENVIRONMENT.let(String.new("boolean"), BuiltinBoolean())
+BASE_ENVIRONMENT.let(String.new("number"), BuiltinNumber())
+BASE_ENVIRONMENT.let(String.new("string"), BuiltinString())
+BASE_ENVIRONMENT.let(String.new("vector"), BuiltinVector())
+BASE_ENVIRONMENT.let(String.new("union"), BuiltinUnion())
+BASE_ENVIRONMENT.let(String.new("intersection"), BuiltinIntersection())
+BASE_ENVIRONMENT.let(String.new("difference"), BuiltinDifference())
+BASE_ENVIRONMENT.let(String.new("min"), BuiltinMin())
+BASE_ENVIRONMENT.let(String.new("max"), BuiltinMax())
+BASE_ENVIRONMENT.let(String.new("import"), BuiltinImport())
+BASE_ENVIRONMENT.let(String.new("extend"), BuiltinExtend())
+BASE_ENVIRONMENT.let(String.new("baseenv"), BuiltinBaseenv())
 BASE_ENVIRONMENT.let(
     String.new("fs"),
     Map.new(
@@ -4870,7 +4866,7 @@ class Repl(code.InteractiveConsole):
             print(f"error: {e}")
             return False
         # If the program is valid, but did not end in a semicolon or additional
-        # newline, then assume that there may be additonal source to proccess,
+        # newline, then assume that there may be additional source to process,
         # e.g. the else clause of an if-elif-else statement.
         if not (source.endswith("\n") or source.rstrip().endswith(";")):
             return True

@@ -7,7 +7,7 @@ class BuiltinExternalInteger(Builtin):
         Builtin.expect_argument_count(arguments, 0)
         return External.new(123)
 
-let_builtin(BASE_ENVIRONMENT.store, BuiltinExternalInteger())
+BASE_ENVIRONMENT.let(String.new("externint"), BuiltinExternalInteger())
 ```;
 extend(source);
 

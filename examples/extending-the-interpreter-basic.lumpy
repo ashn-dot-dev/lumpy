@@ -12,7 +12,7 @@ class BuiltinScream(Builtin):
         print('AAAAHHHH')
         return Null()
 
-let_builtin(BASE_ENVIRONMENT.store, BuiltinScream())
+BASE_ENVIRONMENT.let(String.new("scream"), BuiltinScream())
 ```;
 extend(source);
 scream();

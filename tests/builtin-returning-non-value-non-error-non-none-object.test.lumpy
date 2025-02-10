@@ -6,7 +6,7 @@ class BuiltinFoo(Builtin):
     def function(self, arguments):
         return 123
 
-let_builtin(BASE_ENVIRONMENT.store, BuiltinFoo())
+BASE_ENVIRONMENT.let(String.new("foo"), BuiltinFoo())
 ```;
 extend(source);
 dumpln(foo());

@@ -90,21 +90,21 @@ println("== Accessors ==");
 println("===============");
 
 let v = [123, 456, 789];
-println("v is " + repr(v));
-println("v[1] is " + repr(v[1]));
-try { v[3]; } else err { println("v[3] produces " + repr(err)); }
-try { v["foo"]; } else err { println("v[\"foo\"] produces " + repr(err)); }
+println(`v is ` + repr(v));
+println(`v[1] is ` + repr(v[1]));
+try { v[3]; } else err { println(`v[3] produces ` + repr(err)); }
+try { v["foo"]; } else err { println(`v["foo"] produces ` + repr(err)); }
 
 print("\n");
 
 let m = {"foo": "bar", 123: {456, 789}, {"key": "val"}: "baz"};
-println("m is " + repr(m));
-println("m[\"foo\"] is " + repr(m["foo"]));
-println("m[123] is " + repr(m[123]));
-println("m[{\"key\": \"val\"}] is " + repr(m[{"key": "val"}]));
-println("m::foo is " + repr(m::foo) + " (equivalent to m[\"foo\"])");
-println("m.foo is " + repr(m.foo) + " (equivalent to m[\"foo\"] for field access)");
-try { m["qux"]; } else err { println("m[\"qux\"] produces " + repr(err)); }
+println(`m is ` + repr(m));
+println(`m["foo"] is ` + repr(m["foo"]));
+println(`m[123] is ` + repr(m[123]));
+println(`m[{"key": "val"}] is ` + repr(m[{"key": "val"}]));
+println(`m::foo is ` + repr(m::foo) + ` (equivalent to m["foo"])`);
+println(`m.foo is ` + repr(m.foo) + ` (equivalent to m["foo"] for field access)`);
+try { m["qux"]; } else err { println(`m["qux"] produces ` + repr(err)); }
 
 print("\n");
 
@@ -113,26 +113,26 @@ println("== Vector Value Semantics ==");
 println("============================");
 
 let k = ["y", 456];
-println("k is " + repr(k));
-println("let v be [[\"x\", 123], k, [\"z\", 789]]");
+println(`k is ` + repr(k));
+println(`let v be [["x", 123], k, ["z", 789]]`);
 let v = [["x", 123], k, ["z", 789]];
-println("v is " + repr(v));
-println("set v[1][1] to \"foo\"");
+println(`v is ` + repr(v));
+println(`set v[1][1] to "foo"`);
 v[1][1] = "foo";
-println("k is " + repr(k));
-println("v is " + repr(v));
+println(`k is ` + repr(k));
+println(`v is ` + repr(v));
 
 print("\n");
 
 let v1 = [["x", 123], ["y", 456], ["z", 789]];
-println("v1 is " + repr(v1));
+println(`v1 is ` + repr(v1));
 let v2 = v1;
-println("let v2 be v1");
-println("v2 is " + repr(v2));
-println("set v2[1][1] to \"foo\"");
+println(`let v2 be v1`);
+println(`v2 is ` + repr(v2));
+println(`set v2[1][1] to "foo"`);
 v2[1][1] = "foo";
-println("v1 is " + repr(v1));
-println("v2 is " + repr(v2));
+println(`v1 is ` + repr(v1));
+println(`v2 is ` + repr(v2));
 
 print("\n");
 
@@ -141,26 +141,26 @@ println("== Map Value Semantics ==");
 println("=========================");
 
 let k = {"y": 456};
-println("k is " + repr(k));
-println("let m be {\"a\": {\"x\": 123}, \"b\": k, \"c\": {\"z\": 789}}");
+println(`k is ` + repr(k));
+println(`let m be {"a": {"x": 123}, "b": k, "c": {"z": 789}}`);
 let m = {"a": {"x": 123}, "b": k, "c": {"z": 789}};
-println("m is " + repr(m));
-println("set m[\"b\"][\"y\"] to \"foo\"");
+println(`m is ` + repr(m));
+println(`set m["b"]["y"] to "foo"`);
 m["b"]["y"] = "foo";
-println("k is " + repr(k));
-println("m is " + repr(m));
+println(`k is ` + repr(k));
+println(`m is ` + repr(m));
 
 print("\n");
 
 let m1 = {"a": {"x": 123}, "b": {"y": 456}, "c": {"z": 789}};
-println("m1 is " + repr(m1));
-println("let m2 be m1");
+println(`m1 is ` + repr(m1));
+println(`let m2 be m1`);
 let m2 = m1;
-println("m2 is " + repr(m2));
-println("set m2[\"b\"][\"y\"] to \"foo\"");
+println(`m2 is ` + repr(m2));
+println(`set m2["b"]["y"] to "foo"`);
 m2["b"]["y"] = "foo";
-println("m1 is " + repr(m1));
-println("m2 is " + repr(m2));
+println(`m1 is ` + repr(m1));
+println(`m2 is ` + repr(m2));
 
 print("\n");
 
@@ -169,14 +169,14 @@ println("== Set Value Semantics ==");
 println("=========================");
 
 let k = {"b", 456};
-println("k is " + repr(k));
-println("let s be {{\"x\", 123}, k, {\"c\", 789}}");
-let s = {{"x", 123}, k, {"c", 789}};
-println("s is " + repr(s));
-println("insert \"foo\" into k");
+println(`k is ` + repr(k));
+println(`let s be {{"a", 123}, k, {"c", 789}}`);
+let s = {{"a", 123}, k, {"c", 789}};
+println(`s is ` + repr(s));
+println(`insert "foo" into k`);
 k.insert("foo");
-println("k = " + repr(k));
-println("s = " + repr(s));
+println(`k = ` + repr(k));
+println(`s = ` + repr(s));
 
 print("\n");
 
@@ -185,126 +185,128 @@ println("== Operators ==");
 println("===============");
 
 println("operator + (unary)");
-println("+123 is " + repr(+123));
-println("+-123 is " + repr(+-123));
+println(`+123 is ` + repr(+123));
+println(`+-123 is ` + repr(+-123));
 
 print("\n");
 
 println("operator - (unary)");
-println("-123 is " + repr(-123));
-println("--123 is " + repr(--123));
+println(`-123 is ` + repr(-123));
+println(`--123 is ` + repr(--123));
 
 print("\n");
 
 println("operator not");
-println("not true is " + repr(not true));
-println("not false is " + repr(not false));
+println(`not true is ` + repr(not true));
+println(`not false is ` + repr(not false));
 
 print("\n");
 
 println("operator ==");
-println("123 == 123 is " + repr(123 == 123));
-println("123 == 456 is " + repr(123 == 456));
-println("\"foo\" == \"foo\" is " + repr("foo" == "foo"));
-println("\"foo\" == \"bar\" is " + repr("foo" == "bar"));
-println("123 == \"foo\" is " + repr(123 == "foo"));
+println(`123 == 123 is ` + repr(123 == 123));
+println(`123 == 456 is ` + repr(123 == 456));
+println(`"foo" == "foo" is ` + repr("foo" == "foo"));
+println(`"foo" == "bar" is ` + repr("foo" == "bar"));
+println(`123 == "foo" is ` + repr(123 == "foo"));
 
 print("\n");
 
 println("operator !=");
-println("123 != 123 is " + repr(123 != 123));
-println("123 != 456 is " + repr(123 != 456));
-println("\"foo\" != \"foo\" is " + repr("foo" != "foo"));
-println("\"foo\" != \"bar\" is " + repr("foo" != "bar"));
-println("123 != \"foo\" is " + repr(123 != "foo"));
+println(`123 != 123 is ` + repr(123 != 123));
+println(`123 != 456 is ` + repr(123 != 456));
+println(`"foo" != "foo" is ` + repr("foo" != "foo"));
+println(`"foo" != "bar" is ` + repr("foo" != "bar"));
+println(`123 != "foo" is ` + repr(123 != "foo"));
 
 print("\n");
 
 println("operator <=");
-println("123 <= 123 is " + repr(123 <= 123));
-println("123 <= 456 is " + repr(123 <= 456));
-println("\"foo\" <= \"foo\" is " + repr("foo" <= "foo"));
-println("\"foo\" <= \"bar\" is " + repr("foo" <= "bar"));
+println(`123 <= 123 is ` + repr(123 <= 123));
+println(`123 <= 456 is ` + repr(123 <= 456));
+println(`"foo" <= "foo" is ` + repr("foo" <= "foo"));
+println(`"foo" <= "bar" is ` + repr("foo" <= "bar"));
 
 print("\n");
 
 println("operator >=");
-println("123 >= 123 is " + repr(123 >= 123));
-println("123 >= 456 is " + repr(123 >= 456));
-println("\"foo\" >= \"foo\" is " + repr("foo" >= "foo"));
-println("\"foo\" >= \"bar\" is " + repr("foo" >= "bar"));
+println(`123 >= 123 is ` + repr(123 >= 123));
+println(`123 >= 456 is ` + repr(123 >= 456));
+println(`"foo" >= "foo" is ` + repr("foo" >= "foo"));
+println(`"foo" >= "bar" is ` + repr("foo" >= "bar"));
 
 print("\n");
 
 println("operator <");
-println("123 < 123 is " + repr(123 < 123));
-println("123 < 456 is " + repr(123 < 456));
-println("\"foo\" < \"foo\" is " + repr("foo" < "foo"));
-println("\"foo\" < \"bar\" is " + repr("foo" < "bar"));
+println(`123 < 123 is ` + repr(123 < 123));
+println(`123 < 456 is ` + repr(123 < 456));
+println(`"foo" < "foo" is ` + repr("foo" < "foo"));
+println(`"foo" < "bar" is ` + repr("foo" < "bar"));
 
 print("\n");
 
 println("operator >");
-println("123 > 123 is " + repr(123 > 123));
-println("123 > 456 is " + repr(123 > 456));
-println("\"foo\" > \"foo\" is " + repr("foo" > "foo"));
-println("\"foo\" > \"bar\" is " + repr("foo" > "bar"));
+println(`123 > 123 is ` + repr(123 > 123));
+println(`123 > 456 is ` + repr(123 > 456));
+println(`"foo" > "foo" is ` + repr("foo" > "foo"));
+println(`"foo" > "bar" is ` + repr("foo" > "bar"));
 
 print("\n");
 
 println("operator +");
-println("123 + 456 is " + repr(123 + 456));
-println("\"foo\" + \"bar\" is " + repr("foo" + "bar"));
+println(`123 + 456 is ` + repr(123 + 456));
+println(`"foo" + "bar" is ` + repr("foo" + "bar"));
+println(`["foo", "bar"] + ["baz"] is ` + repr(["foo", "bar"] + ["baz"]));
 
 print("\n");
 
 println("operator -");
-println("123 - 456 is " + repr(123 - 456));
+println(`123 - 456 is ` + repr(123 - 456));
 
 print("\n");
 
 println("operator *");
-println("123 * 456 is " + repr(123 * 456));
+println(`123 * 456 is ` + repr(123 * 456));
 
 print("\n");
 
 println("operator /");
-println("123 / 456 is " + repr(123 / 456));
-try { 123 / 0; } else err { println("123 / 0 produces " + repr(err)); }
+println(`123 / 456 is ` + repr(123 / 456));
+println(`123 / Inf is ` + repr(123 / Inf));
+try { 123 / 0; } else err { println(`123 / 0 produces ` + repr(err)); }
 
 print("\n");
 
 println("operator %");
-println("+7 % +3 is " + repr(+7 % +3));
-println("+7 % -3 is " + repr(+7 % -3));
-println("-7 % +3 is " + repr(-7 % +3));
-println("-7 % -3 is " + repr(-7 % -3));
-println("10 % 3.5 is " + repr(10 % 3.5));
-println("123 % Inf is " + repr(123 % Inf));
-try { 123 % 0; } else err { println("123 % 0 produces " + repr(err)); }
+println(`+7 % +3 is ` + repr(+7 % +3));
+println(`+7 % -3 is ` + repr(+7 % -3));
+println(`-7 % +3 is ` + repr(-7 % +3));
+println(`-7 % -3 is ` + repr(-7 % -3));
+println(`10 % 3.5 is ` + repr(10 % 3.5));
+println(`123 % Inf is ` + repr(123 % Inf));
+try { 123 % 0; } else err { println(`123 % 0 produces ` + repr(err)); }
 
 print("\n");
 
 println("operator .&");
-println("123.& is " + repr(123.&));
+println(`123.& is ` + repr(123.&));
 
 print("\n");
 
 println("operator .*");
-println("123.&.* is " + repr(123.&.*));
-println("let x be map{}");
+println(`123.&.* is ` + repr(123.&.*));
+println(`let x be map{}`);
 let x = map{};
-println("let y be x.&");
+println(`let y be x.&`);
 let y = x.&;
-println("set y.*[\"foo\"] to \"bar\"");
+println(`set y.*["foo"] to "bar"`);
 y.*["foo"] = "bar";
-println("x is " + repr(x));
+println(`x is ` + repr(x));
 
 print("\n");
 
 println("operator Precedence");
 let tmp = (123 + 456) * 789 + map{"x": 3.14}["x"];
-println("(123 + 456) * 789 + map{\"x\": 3.14}[\"x\"] evaluates to " + repr(tmp));
+println(`(123 + 456) * 789 + map{"x": 3.14}["x"] evaluates to ` + repr(tmp));
 
 print("\n");
 
@@ -387,17 +389,17 @@ println("person is " + repr(person));
 
 print("\n");
 
-println("let alice be the result of person::new(\"Alice\", 32)");
+println(`let alice be the result of person::new("Alice", 32)`);
 let alice = person::new("Alice", 32);
-println("alice is " + repr(alice));
-println("getmeta(alice) is " + repr(getmeta(alice)));
+println(`alice is ` + repr(alice));
+println(`getmeta(alice) is ` + repr(getmeta(alice)));
 
 print("\n");
 
-println("let bob be the result of person::new(\"Bob\", 27)");
+println(`let bob be the result of person::new("Bob", 27)`);
 let bob = person::new("Bob", 27);
-println("bob is " + repr(bob));
-println("getmeta(bob) is " + repr(getmeta(bob)));
+println(`bob is ` + repr(bob));
+println(`getmeta(bob) is ` + repr(getmeta(bob)));
 
 print("\n");
 
@@ -451,17 +453,17 @@ println("vec2 is " + repr(vec2));
 
 print("\n");
 
-println("let a be the result of vec2::new(-3, +5)");
+println(`let a be the result of vec2::new(-3, +5)`);
 let a = vec2::new(-3, +5);
-println("a is " + repr(a));
-println("getmeta(a) is " + repr(getmeta(a)));
+println(`a is ` + repr(a));
+println(`getmeta(a) is ` + repr(getmeta(a)));
 
 print("\n");
 
-println("let b be the result of vec2::new(+1, +0)");
+println(`let b be the result of vec2::new(+1, +0)`);
 let b = vec2::new(+1, +0);
-println("b is " + repr(b));
-println("getmeta(b) is " + repr(getmeta(b)));
+println(`b is ` + repr(b));
+println(`getmeta(b) is ` + repr(getmeta(b)));
 
 print("\n");
 
@@ -570,7 +572,7 @@ print("\n");
 let m = map{"a": 123, "b": 456, "c": 789};
 println("Map Loop: for k, v in " + repr(m));
 for k, v in m {
-    println("k is " + repr(k) + ", " + "v is " + repr(v));
+    println("k is " + repr(k) + ", v is " + repr(v));
 }
 
 print("\n");
@@ -668,9 +670,10 @@ while x <= 5 {
 
 print("\n");
 
-println("Break: while true break");
+println("Break: while true break before an error occurs");
 while true {
     break;
+    error "oopsie";
 }
 
 print("\n");
@@ -721,8 +724,9 @@ print("\n");
 
 println("let x be 123");
 let x = 123;
+println("call a function");
 function() {
-    println("\tset x to 456 from within a function (using assignment without let)");
+    println("\tset x to 456 from within the function (using assignment without let)");
     x = 456;
     println("\tinside the function x is " + repr(x));
 }();
@@ -751,13 +755,13 @@ let x = map{
         println("\t[inside f] self.*.a is " + repr(self.*.a));
     },
 };
-println("x is " + repr(x));
-println("x[\"f\"] is a function with a single `self` parameter");
-println("calling x[\"f\"] as x[\"f\"](x.&)");
+println(`x is ` + repr(x));
+println(`x["f"] is a function with a single self parameter`);
+println(`calling x["f"] as x["f"](x.&)`);
 x["f"](x.&);
-println("calling x[\"f\"] as x::f(x.&) (equivalent to the call above)");
+println(`calling x["f"] as x::f(x.&) (equivalent to the call above)`);
 x::f(x.&);
-println("calling x[\"f\"] as x.f() (equivalent to the call above, x.& is implicitly passed as the first argument)");
+println(`calling x["f"] as x.f() (equivalent to the call above, x.& is implicitly passed as the first argument)`);
 x.f();
 
 print("\n");
@@ -809,8 +813,57 @@ dumpln(dump);    # dump@builtin
 dumpln(dumpln);  # dumpln@builtin
 dumpln(repr);    # repr@builtin
 
-# The behavior of each builtin function is described by the function's
-# associated test under the `tests` directory.
+print("\n");
+
+# A full list of builtin values and functions is presented below. The behavior
+# of each builtin function is described by the function's associated test under
+# the `tests` directory.
+let traverse = function(indent, m) {
+    for k, v in m {
+        if utype(v) == "map" {
+            println(indent + k + "↴");
+            traverse(indent + "  ", v);
+            continue;
+        }
+
+        if utype(v) == "function" {
+            println(indent + repr(v));
+            continue;
+        }
+
+        println(indent + repr(k) + " → " +repr(v));
+    }
+};
+let dumpall = function(title, x) {
+    if utype(x) == "null" {
+        println(title + ": " + repr(x) + " metamap");
+        return;
+    }
+
+    # The default metamaps of base types doe not have their own metamap, so the
+    # number of elements in each metamap is counted manually.
+    let count = 0;
+    for k in x {
+        count = count + 1;
+    }
+    if count == 0 {
+        println(title + ": empty metamap");
+        return;
+    }
+
+    println(title + ":");
+    traverse("  ", x);
+};
+
+dumpall("default null metamap", getmeta(null));
+dumpall("default boolean metamap", getmeta(false));
+dumpall("default number metamap", getmeta(0));
+dumpall("default string metamap", getmeta(""));
+dumpall("default vector metamap", getmeta([]));
+dumpall("default map metamap", getmeta(map{}));
+dumpall("default set metamap", getmeta(set{}));
+dumpall("default function metamap", getmeta(function(){}));
+dumpall("default base environment", baseenv());
 
 print("\n");
 

@@ -45,7 +45,7 @@ class BuiltinGameInit(Builtin):
 
 
 class BuiltinGameQuit(Builtin):
-    name = String("quit")
+    name = "quit"
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 0)
@@ -54,7 +54,7 @@ class BuiltinGameQuit(Builtin):
 
 
 class BuiltinGameTick(Builtin):
-    name = String("tick")
+    name = "tick"
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 0)
@@ -76,11 +76,11 @@ class BuiltinGameTick(Builtin):
 
 
 class BuiltinGameIsHeld(Builtin):
-    name = String("is_held")
+    name = "is_held"
 
     def function(self, arguments):
         Builtin.expect_argument_count(arguments, 1)
-        key = Builtin.typed_argument(arguments, 0, String).data.upper()
+        key = Builtin.typed_argument(arguments, 0, String).runes.upper()
         keys = pygame.key.get_pressed()
         if key == "UP":
             return Boolean.new(keys[pygame.K_UP])
@@ -94,14 +94,14 @@ class BuiltinGameIsHeld(Builtin):
 
 
 game = Map.new({
-    String("position"): Vec2(SCREEN_W / 2, SCREEN_H / 2).into_lumpy(),
-    String("running"): Boolean.new(False),
-    BuiltinGameInit.name: BuiltinGameInit(),
-    BuiltinGameQuit.name: BuiltinGameQuit(),
-    BuiltinGameTick.name: BuiltinGameTick(),
-    BuiltinGameIsHeld.name: BuiltinGameIsHeld(),
+    String.new("position"): Vec2(SCREEN_W / 2, SCREEN_H / 2).into_lumpy(),
+    String.new("running"): Boolean.new(False),
+    String.new(BuiltinGameInit.name): BuiltinGameInit(),
+    String.new(BuiltinGameQuit.name): BuiltinGameQuit(),
+    String.new(BuiltinGameTick.name): BuiltinGameTick(),
+    String.new(BuiltinGameIsHeld.name): BuiltinGameIsHeld(),
 })
-BASE_ENVIRONMENT.let(String("game"), game)
+BASE_ENVIRONMENT.let(String.new("game"), game)
 ```;
 extend(source);
 

@@ -63,7 +63,7 @@ class BuiltinReSearch(Builtin):
         result = re.search(pattern.bytes, string.bytes)
         if result is None:
             return Null.new()
-        return External(result, LUMPY_LIB_RE_MATCH_RESULT_META.copy());
+        return External(result, LUMPY_LIB_RE_MATCH_RESULT_META.copy())
 
 
 class BuiltinReMatch(Builtin):
@@ -76,7 +76,7 @@ class BuiltinReMatch(Builtin):
         result = re.match(pattern.bytes, string.bytes)
         if result is None:
             return Null.new()
-        return External(result, LUMPY_LIB_RE_MATCH_RESULT_META.copy());
+        return External(result, LUMPY_LIB_RE_MATCH_RESULT_META.copy())
 
 
 class BuiltinReFullmatch(Builtin):
@@ -89,7 +89,24 @@ class BuiltinReFullmatch(Builtin):
         result = re.fullmatch(pattern.bytes, string.bytes)
         if result is None:
             return Null.new()
-        return External(result, LUMPY_LIB_RE_MATCH_RESULT_META.copy());
+        return External(result, LUMPY_LIB_RE_MATCH_RESULT_META.copy())
+
+
+class BuiltinReFindall(Builtin):
+    name = "re::findall"
+
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 2)
+        pattern = Builtin.typed_argument(arguments, 0, String)
+        string = Builtin.typed_argument(arguments, 1, String)
+        result = re.findall(pattern.bytes, string.bytes)
+        matches = []
+        for m in result:
+            if isinstance(m, (bytes, str)):
+                matches.append(String.new(m))
+                continue
+            matches.append(Vector.new([String.new(x) for x in m]))
+        return Vector.new(matches)
 
 
 LUMPY_LIB_RE_MATCH_RESULT_META = Map.new({
@@ -103,6 +120,7 @@ LUMPY_LIB_RE = Map.new({
     String.new("search"): BuiltinReSearch(),
     String.new("match"): BuiltinReMatch(),
     String.new("fullmatch"): BuiltinReFullmatch(),
+    String.new("findall"): BuiltinReFindall(),
 })
 BASE_ENVIRONMENT.let(String.new("LUMPY_LIB_RE"), LUMPY_LIB_RE)
 ```;
