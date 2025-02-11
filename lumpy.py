@@ -4457,7 +4457,10 @@ class BuiltinVectorPop(Builtin):
         )
         if arg0_data.data.uses > 1:
             arg0_data.cow()  # copy-on-write
-        return arg0_data.data.pop().copy()
+        try:
+            return arg0_data.data.pop().copy()
+        except IndexError:
+            return Error(None, f"attempted {BuiltinVectorPop.name} on an empty vector")
 
 
 class BuiltinVectorInsert(Builtin):
@@ -4490,9 +4493,13 @@ class BuiltinVectorRemove(Builtin):
             return Error(None, f"expected integer index, received {arg1}")
         if arg0_data.data.uses > 1:
             arg0_data.cow()  # copy-on-write
-        element = arg0_data.data[int(float(arg1.data))].copy()
-        del arg0_data.data[int(float(arg1.data))]
-        return element
+        index = int(float(arg1.data))
+        try:
+            element = arg0_data.data[index].copy()
+            del arg0_data.data[index]
+            return element
+        except IndexError:
+            return Error(None, f"attempted {BuiltinVectorRemove.name} with invalid index {index}")
 
 
 class BuiltinVectorSlice(Builtin):
