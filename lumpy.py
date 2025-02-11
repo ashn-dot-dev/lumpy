@@ -4633,10 +4633,11 @@ class BuiltinMapRemove(Builtin):
         Builtin.expect_argument_count(arguments, 2)
         arg0, arg0_data = Builtin.typed_argument_reference(arguments, 0, Map)
         try:
+            element = arg0_data[arguments[1]].copy()
             del arg0_data[arguments[1]]
+            return element
         except KeyError:
-            pass
-        return Null.new()
+            return Error(None, f"attempted {BuiltinMapRemove.name} on an map without key {arguments[1]}")
 
 
 class BuiltinSetCount(Builtin):
