@@ -4637,7 +4637,7 @@ class BuiltinMapRemove(Builtin):
             del arg0_data[arguments[1]]
             return element
         except KeyError:
-            return Error(None, f"attempted {BuiltinMapRemove.name} on an map without key {arguments[1]}")
+            return Error(None, f"attempted {BuiltinMapRemove.name} on a map without key {arguments[1]}")
 
 
 class BuiltinSetCount(Builtin):
@@ -4675,10 +4675,11 @@ class BuiltinSetRemove(Builtin):
         Builtin.expect_argument_count(arguments, 2)
         arg0, arg0_data = Builtin.typed_argument_reference(arguments, 0, Set)
         try:
+            element = arguments[1].copy()
             arg0_data.remove(arguments[1])
+            return element
         except KeyError:
-            pass
-        return Null.new()
+            return Error(None, f"attempted {BuiltinSetRemove.name} on a set without element {arguments[1]}")
 
 
 BASE_ENVIRONMENT = Environment()

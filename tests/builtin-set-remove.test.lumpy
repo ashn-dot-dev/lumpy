@@ -1,5 +1,10 @@
 let x = {"foo", "bar", "baz"};
-x.remove("bar");
+let y = x.remove("bar");
 dumpln(x);
+dumpln(y);
+
+try { x.remove("qux"); } else err { dumpln(err); }
 ################################################################################
 # {"foo", "baz"}
+# "bar"
+# "attempted set::remove on a set without element \"qux\""
