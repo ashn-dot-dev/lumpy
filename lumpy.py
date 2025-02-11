@@ -4460,7 +4460,9 @@ class BuiltinVectorPop(Builtin):
         try:
             return arg0_data.data.pop().copy()
         except IndexError:
-            return Error(None, f"attempted {BuiltinVectorPop.name} on an empty vector")
+            return Error(
+                None, f"attempted {BuiltinVectorPop.name} on an empty vector"
+            )
 
 
 class BuiltinVectorInsert(Builtin):
@@ -4499,7 +4501,10 @@ class BuiltinVectorRemove(Builtin):
             del arg0_data.data[index]
             return element
         except IndexError:
-            return Error(None, f"attempted {BuiltinVectorRemove.name} with invalid index {index}")
+            return Error(
+                None,
+                f"attempted {BuiltinVectorRemove.name} with invalid index {index}",
+            )
 
 
 class BuiltinVectorSlice(Builtin):
@@ -4637,7 +4642,10 @@ class BuiltinMapRemove(Builtin):
             del arg0_data[arguments[1]]
             return element
         except KeyError:
-            return Error(None, f"attempted {BuiltinMapRemove.name} on a map without key {arguments[1]}")
+            return Error(
+                None,
+                f"attempted {BuiltinMapRemove.name} on a map without key {arguments[1]}",
+            )
 
 
 class BuiltinSetCount(Builtin):
@@ -4679,7 +4687,10 @@ class BuiltinSetRemove(Builtin):
             arg0_data.remove(arguments[1])
             return element
         except KeyError:
-            return Error(None, f"attempted {BuiltinSetRemove.name} on a set without element {arguments[1]}")
+            return Error(
+                None,
+                f"attempted {BuiltinSetRemove.name} on a set without element {arguments[1]}",
+            )
 
 
 BASE_ENVIRONMENT = Environment()
