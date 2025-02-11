@@ -7,5 +7,4 @@ try { x.remove("qux"); } else err { dumpln(err); }
 ################################################################################
 # {"foo": 123, "baz": 789}
 # 456
-# "attempted map::remove on a map without key \"qux\""
-
+# "attempted map::remove on an map without key \"qux\""
