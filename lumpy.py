@@ -4457,8 +4457,7 @@ class BuiltinVectorPop(Builtin):
         )
         if arg0_data.data.uses > 1:
             arg0_data.cow()  # copy-on-write
-        arg0_data.data.pop()
-        return Null.new()
+        return arg0_data.data.pop().copy()
 
 
 class BuiltinVectorInsert(Builtin):
