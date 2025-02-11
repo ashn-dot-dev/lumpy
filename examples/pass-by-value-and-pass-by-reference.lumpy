@@ -18,7 +18,7 @@ let birthday = function(person_ref) {
     person_ref.*.age = person_ref.*.age + 1;
 };
 
-birthday(alice.&); # pass a refrence to alice
+birthday(alice.&); # pass a reference to alice
 println("alice after calling birthday is " + repr(alice));
 
 print("\n");

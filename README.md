@@ -110,12 +110,12 @@ a != b is false
 Objects are passed by (copied) value to functions, behaving exactly the same as
 if they were assigned (i.e. copied due to value semantics) to each parameter.
 References are first-class values in Lumpy, and pass-by-reference is achieved
-by taking a refrence to a value with the postfix `.&` operator, and then
+by taking a reference to a value with the postfix `.&` operator, and then
 passing that value to a function. Lumpy has special syntax where
 `value.func(args)` implicitly passes a reference to `value` as the first
 argument to metafunction `func`, similar to `this` within non-static member
 functions in C++ or `self` within non-static methods in Python. The special
-implicit refrence syntax provides a convenient way to support object-oriented
+implicit reference syntax provides a convenient way to support object-oriented
 patterns in Lumpy.
 
 ```
@@ -139,7 +139,7 @@ let birthday = function(person_ref) {
     person_ref.*.age = person_ref.*.age + 1;
 };
 
-birthday(alice.&); # pass a refrence to alice
+birthday(alice.&); # pass a reference to alice
 println("alice after calling birthday is " + repr(alice));
 
 print("\n");
