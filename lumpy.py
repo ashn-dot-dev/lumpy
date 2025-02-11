@@ -4490,8 +4490,9 @@ class BuiltinVectorRemove(Builtin):
             return Error(None, f"expected integer index, received {arg1}")
         if arg0_data.data.uses > 1:
             arg0_data.cow()  # copy-on-write
+        element = arg0_data.data[int(float(arg1.data))].copy()
         del arg0_data.data[int(float(arg1.data))]
-        return Null.new()
+        return element
 
 
 class BuiltinVectorSlice(Builtin):
