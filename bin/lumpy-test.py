@@ -3,7 +3,6 @@ import difflib
 import os
 import re
 import pathlib
-import platform
 import subprocess
 import sys
 
@@ -12,7 +11,7 @@ BOL = re.compile(r"^(#[ ]?)?")
 DIR = os.path.dirname(os.path.realpath(__file__))
 LUMPY_HOME = os.environ.get("LUMPY_HOME", os.path.dirname(DIR))
 LUMPY_PROG = f"{LUMPY_HOME}{os.path.sep}lumpy.py"
-PYTHON_PROG = "python" if platform.system().lower() == "windows" else "python3"
+PYTHON_PROG = sys.executable
 
 testsrun = 0
 failures = 0
