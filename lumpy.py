@@ -4716,7 +4716,7 @@ def eval_file(
     env: Optional[Environment] = None,
     argv: Optional[list[str]] = None,
 ) -> Optional[Union[Value, Error]]:
-    with open(path, "r") as f:
+    with open(path, "r", encoding="utf-8") as f:
         source = f.read()
     return eval_source(source, env, SourceLocation(str(path), 1))
 

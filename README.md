@@ -184,6 +184,8 @@ with:
 
 ## Development Setup
 
+### Unix-Like Platforms (Linux, macOS, etc.)
+
 ```sh
 /path/to/lumpy$ python3 -m venv .venv-lumpy
 /path/to/lumpy$ . .venv-lumpy/bin/activate
@@ -193,6 +195,15 @@ with:
 (.venv-lumpy) /path/to/lumpy$ make format  # format using black
 (.venv-lumpy) /path/to/lumpy$ make build   # build standalone executable
 (.venv-lumpy) /path/to/lumpy$ make install # install standalone tools
+```
+
+### Windows
+
+```ps1
+PS C:\path\to\lumpy> python -m venv .venv-lumpy
+PS C:\path\to\lumpy> .venv-lumpy\Scripts\Activate.ps1
+(.venv-lumpy) PS C:\path\to\lumpy> python -m pip install -r .\requirements.txt
+(.venv-lumpy) PS C:\path\to\lumpy> python bin\lumpy-test.py tests # run tests
 ```
 
 ## Installing
