@@ -1,1 +1,5 @@
-assert(module::path.ends_with("tests/builtin-module-path.test.lumpy")); # /path/to/lumpy/tests/builtin-module-path.test.lumpy
+assert(
+    module::path.ends_with(`tests/builtin-module-path.test.lumpy`) # [Unix] /path/to/lumpy/tests/builtin-module-path.test.lumpy
+    or
+    module::path.ends_with(`tests\builtin-module-path.test.lumpy`) # [Windows] C:\path\to\lumpy\tests\builtin-module-path.test.lumpy
+);
