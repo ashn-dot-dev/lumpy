@@ -1,3 +1,4 @@
-let module = fs::append("/dev/stdout", "some text");
-################################################################################
-# some text
+fs::write("data.tmp", "ABC\n");
+fs::append("data.tmp", "DEF\n");
+fs::append("data.tmp", "HIJ\n");
+assert(fs::read("data.tmp") == "ABC\nDEF\nHIJ\n");

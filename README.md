@@ -203,7 +203,7 @@ with:
 PS C:\path\to\lumpy> python -m venv .venv-lumpy
 PS C:\path\to\lumpy> .venv-lumpy\Scripts\Activate.ps1
 (.venv-lumpy) PS C:\path\to\lumpy> python -m pip install -r .\requirements.txt
-(.venv-lumpy) PS C:\path\to\lumpy> python bin\lumpy-test.py tests # run tests
+(.venv-lumpy) PS C:\path\to\lumpy> python bin\lumpy-test.py # run tests
 ```
 
 ## Installing
