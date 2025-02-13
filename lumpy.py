@@ -3750,7 +3750,7 @@ class BuiltinFsRead(Builtin):
     def function(self, arguments: list[Value]) -> Union[Value, Error]:
         Builtin.expect_argument_count(arguments, 1)
         arg0 = Builtin.typed_argument(arguments, 0, String)
-        with open(arg0.runes, "rb") as f:
+        with open(arg0.runes, "r") as f:
             data = f.read()
         return String.new(data)
 
@@ -3762,8 +3762,8 @@ class BuiltinFsWrite(Builtin):
         Builtin.expect_argument_count(arguments, 2)
         arg0 = Builtin.typed_argument(arguments, 0, String)
         arg1 = Builtin.typed_argument(arguments, 1, String)
-        with open(arg0.runes, "wb") as f:
-            f.write(arg1.bytes)
+        with open(arg0.runes, "w") as f:
+            f.write(arg1.runes)
         return Null.new()
 
 
@@ -3774,8 +3774,8 @@ class BuiltinFsAppend(Builtin):
         Builtin.expect_argument_count(arguments, 2)
         arg0 = Builtin.typed_argument(arguments, 0, String)
         arg1 = Builtin.typed_argument(arguments, 1, String)
-        with open(arg0.runes, "ab") as f:
-            f.write(arg1.bytes)
+        with open(arg0.runes, "a") as f:
+            f.write(arg1.runes)
         return Null.new()
 
 

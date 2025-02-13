@@ -1,3 +1,4 @@
-let text = fs::read("data.txt");
-assert(text.trim().starts_with("TEST DATA FILE LINE 1"));
-assert(text.trim().ends_with("TEST DATA FILE LINE 2"));
+print(fs::read("data.txt"));
+################################################################################
+# TEST DATA FILE LINE 1
+# TEST DATA FILE LINE 2
