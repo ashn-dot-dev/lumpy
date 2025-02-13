@@ -58,11 +58,12 @@ if len(args.files) != 0:
     files = []
     for file in args.files:
         if os.path.isdir(file):
-            files.extend(list(pathlib.Path(file).rglob("*.test.lumpy")))
+            files.extend(list(pathlib.Path(file).absolute().rglob("*.test.lumpy")))
         else:
             files.append(file)
 else:
     files = list(pathlib.Path.cwd().rglob("*.test.lumpy"))
+
 for file in files:
     test(file)
 
