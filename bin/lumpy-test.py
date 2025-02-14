@@ -31,7 +31,7 @@ def test(path):
         for line in lines:
             bol = BOL.match(line)
             assert bol is not None, "expected beginning-of-line regex match"
-            expected.append(line[bol.end():])
+            expected.append(line[bol.end() :])
 
     received = subprocess.run(
         [PYTHON_PROG, LUMPY_PROG, os.path.basename(path)],
@@ -62,7 +62,9 @@ if len(args.files) != 0:
     files = []
     for file in args.files:
         if os.path.isdir(file):
-            files.extend(list(pathlib.Path(file).absolute().rglob("*.test.lumpy")))
+            files.extend(
+                list(pathlib.Path(file).absolute().rglob("*.test.lumpy"))
+            )
         else:
             files.append(file)
 else:
