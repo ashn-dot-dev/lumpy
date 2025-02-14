@@ -8,7 +8,6 @@ function rmrf($file) {
 
 function install {
     $installDirectory = "$env:ProgramFiles\Lumpy"
-    echo $installDirectory
     New-Item -Type Directory -Force "$installDirectory"
     New-Item -Type Directory -Force "$installDirectory\bin"
     New-Item -Type Directory -Force "$installDirectory\lib"
