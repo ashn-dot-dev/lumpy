@@ -6,6 +6,17 @@ function rmrf($file) {
     }
 }
 
+function install {
+    $installDirectory = "$env:ProgramFiles\Lumpy"
+    echo $installDirectory
+    New-Item -Type Directory -Force "$installDirectory"
+    New-Item -Type Directory -Force "$installDirectory\bin"
+    New-Item -Type Directory -Force "$installDirectory\lib"
+    Copy-Item -Force lumpy.py "$installDirectory\lumpy.py"
+    Copy-Item -Force bin\lumpy-test.py "$installDirectory\bin\lumpy-test.py"
+    Copy-Item -Force -Recurse lib\* "$installDirectory\lib\"
+}
+
 function check {
     python bin\lumpy-test.py
 }
@@ -27,6 +38,9 @@ function clean {
 
 foreach ($item in $Args) {
     switch ($item) {
+        "install" {
+            install
+        }
         "check" {
             check
         }

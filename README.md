@@ -194,7 +194,7 @@ with:
 (.venv-lumpy) /path/to/lumpy$ make lint    # lint with mypy and flake8
 (.venv-lumpy) /path/to/lumpy$ make format  # format using black
 (.venv-lumpy) /path/to/lumpy$ make build   # build standalone executable
-(.venv-lumpy) /path/to/lumpy$ make install # install standalone tools
+(.venv-lumpy) /path/to/lumpy$ make install # install standalone Lumpy tooling
 ```
 
 ### Windows
@@ -203,12 +203,15 @@ with:
 PS C:\path\to\lumpy> python -m venv .venv-lumpy
 PS C:\path\to\lumpy> .venv-lumpy\Scripts\Activate.ps1
 (.venv-lumpy) PS C:\path\to\lumpy> python -m pip install -r .\requirements.txt
-(.venv-lumpy) PS C:\path\to\lumpy> .\make.ps1 check  # run tests
-(.venv-lumpy) PS C:\path\to\lumpy> .\make.ps1 lint   # lint with mypy and flake8
-(.venv-lumpy) PS C:\path\to\lumpy> .\make.ps1 format # format using black
+(.venv-lumpy) PS C:\path\to\lumpy> .\make.ps1 check   # run tests
+(.venv-lumpy) PS C:\path\to\lumpy> .\make.ps1 lint    # lint with mypy and flake8
+(.venv-lumpy) PS C:\path\to\lumpy> .\make.ps1 format  # format using black
+(.venv-lumpy) PS C:\path\to\lumpy> .\make.ps1 install # install Lumpy tooling
 ```
 
 ## Installing
+
+### Unix-Like
 
 The `install` target will install standalone Lumpy tooling into the directory
 specified by `LUMPY_HOME` (default `$HOME/.lumpy`). Run `make install` with
@@ -233,6 +236,28 @@ fi
 Verify that the standalone Lumpy tooling has been successfully installed by
 running `lumpy -h`. You may need to source your `.profile` in new shells until
 the start of your next login session.
+
+### Windows
+
+Executing the `install` target will install Lumpy tooling into the
+`%PROGRAMFILES%` directory (e.g. `C:\Program Files\Lumpy`). Start a PowerShell
+session as an administrator and execute:
+
+```ps1
+PS C:\path\to\lumpy> .\make.ps1 install
+```
+
+Then, add the following snippet to your `$profile`:
+
+```ps1
+$env:LUMPY_HOME = "$env:ProgramFiles\Lumpy"
+$env:LUMPY_SEARCH_PATH = "$env:LUMPY_HOME\lib"
+function lumpy { python "$env:LUMPY_HOME\lumpy.py" @args }
+function lumpy-test { python "$env:LUMPY_HOME\bin\lumpy-test.py" @args }
+```
+
+Verify that the Lumpy tooling has been successfully installed by starting a new
+PowerShell session and running `lumpy -h`.
 
 ## License
 All content in this repository, unless otherwise noted, is licensed under the
