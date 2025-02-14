@@ -29,8 +29,8 @@ check:
 #   E501 - Conflicts with Black.
 #   W503 - Conflicts with Black.
 lint:
-	python3 -m mypy --check-untyped-defs lumpy.py
-	python3 -m flake8 lumpy.py --ignore=E203,E221,E241,E501,W503
+	python3 -m mypy --check-untyped-defs lumpy.py bin/lumpy-test.py
+	python3 -m flake8 --ignore=E203,E221,E241,E501,W503 lumpy.py bin/lumpy-test.py
 
 format:
 	python3 -m black --line-length=79 lumpy.py

@@ -25,11 +25,13 @@ def test(path):
     with open(path, "r", encoding="utf-8") as f:
         source = f.read()
 
+    expected = []
     if match := SEP.search(source):
         lines = source[match.end() :].lstrip().splitlines(keepends=True)
-        expected = [line[BOL.match(line).end() :] for line in lines]
-    else:
-        expected = ""
+        for line in lines:
+            bol = BOL.match(line)
+            assert bol is not None, "expected beginning-of-line regex match"
+            expected.append(line[bol.end():])
 
     received = subprocess.run(
         [PYTHON_PROG, LUMPY_PROG, os.path.basename(path)],
@@ -39,7 +41,9 @@ def test(path):
         stderr=subprocess.STDOUT,
     ).stdout.splitlines(keepends=True)
 
-    diff = lambda: difflib.unified_diff(expected, received)
+    def diff():
+        return difflib.unified_diff(expected, received)
+
     if len(list(diff())) == 0:
         status = "PASS"
     else:
