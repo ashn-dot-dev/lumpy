@@ -203,7 +203,9 @@ with:
 PS C:\path\to\lumpy> python -m venv .venv-lumpy
 PS C:\path\to\lumpy> .venv-lumpy\Scripts\Activate.ps1
 (.venv-lumpy) PS C:\path\to\lumpy> python -m pip install -r .\requirements.txt
-(.venv-lumpy) PS C:\path\to\lumpy> python bin\lumpy-test.py # run tests
+(.venv-lumpy) PS C:\path\to\lumpy> .\make.ps1 check  # run tests
+(.venv-lumpy) PS C:\path\to\lumpy> .\make.ps1 lint   # lint with mypy and flake8
+(.venv-lumpy) PS C:\path\to\lumpy> .\make.ps1 format # format using black
 ```
 
 ## Installing
