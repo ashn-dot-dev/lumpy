@@ -184,7 +184,7 @@ with:
 
 ## Development Setup
 
-### Unix-Like Platforms (Linux, macOS, etc.)
+### Unix-Like Platforms
 
 ```sh
 /path/to/lumpy$ python3 -m venv .venv-lumpy
@@ -211,7 +211,7 @@ PS C:\path\to\lumpy> .venv-lumpy\Scripts\Activate.ps1
 
 ## Installing
 
-### Unix-Like
+### Unix-Like Platforms
 
 The `install` target will install standalone Lumpy tooling into the directory
 specified by `LUMPY_HOME` (default `$HOME/.lumpy`). Run `make install` with
