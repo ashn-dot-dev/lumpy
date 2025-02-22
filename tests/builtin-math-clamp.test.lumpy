@@ -5,7 +5,7 @@ dumpln(math::clamp(0, 100, 200));
 dumpln(math::clamp(300, 100, 200));
 
 let meta = {
-    "compare": function(lhs, rhs) {
+    "<=>": function(lhs, rhs) {
         # always say that lhs == rhs
         return 0;
     },

@@ -7,7 +7,7 @@ let vec2 = {
         setmeta(self.&, vec2);
         return self;
     },
-    "compare": function(lhs, rhs) {
+    "<=>": function(lhs, rhs) {
         if lhs.x < rhs.x { return -1; }
         if lhs.x > rhs.x { return +1; }
         if lhs.y < rhs.y { return -1; }

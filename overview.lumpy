@@ -347,25 +347,9 @@ let person = {
         println("== called with " + repr(lhs) + " and " + repr(rhs));
         return lhs.name == rhs.name and lhs.age == rhs.age;
     },
-    "!=": function(lhs, rhs) {
-        println("!= called with " + repr(lhs) + " and " + repr(rhs));
-        return not (lhs.name == rhs.name and lhs.age == rhs.age);
-    },
-    "<=": function(lhs, rhs) {
-        println("<= called with " + repr(lhs) + " and " + repr(rhs));
-        return false; # arbitrary
-    },
-    ">=": function(lhs, rhs) {
-        println(">= called with " + repr(lhs) + " and " + repr(rhs));
-        return false; # arbitrary
-    },
-    "<": function(lhs, rhs) {
-        println("< called with " + repr(lhs) + " and " + repr(rhs));
-        return false; # arbitrary
-    },
-    ">": function(lhs, rhs) {
-        println("> called with " + repr(lhs) + " and " + repr(rhs));
-        return false; # arbitrary
+    "<=>": function(lhs, rhs) {
+        println("<=> called with " + repr(lhs) + " and " + repr(rhs));
+        return 0; # arbitrary
     },
     "+": function(lhs, rhs) {
         println("+ called with " + repr(lhs) + " and " + repr(rhs));
@@ -440,7 +424,7 @@ let vec2 = {
         value.y = -value.y;
         return value;
     },
-    "compare": function(lhs, rhs) {
+    "<=>": function(lhs, rhs) {
         println("compare called with " + string(lhs) + " and " + string(rhs));
         if lhs.x < rhs.x { return -1; }
         if lhs.x > rhs.x { return +1; }

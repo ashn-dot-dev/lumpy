@@ -26,7 +26,7 @@ try { dumpln( println         > dumpln          ); } else err { dumpln(err); }
 
 print("\n");
 
-let meta = {">": function(lhs, rhs) { println("overload"); return true; }};
+let meta = {"<=>": function(lhs, rhs) { println("overload"); return +1; }};
 let x = "foo";
 let y = map{};
 setmeta(x.&, meta);

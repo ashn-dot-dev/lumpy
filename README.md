@@ -71,10 +71,10 @@ y == z is true
 ```
 
 Each object in Lumpy has a metamap that may be used to alter and extend its
-functionality. In this example, the `==` and `!=` operators are overloaded in
-the metamaps of objects `a` and `b`. The overloaded operators test for equality
-between these objects based on the objects' `id` fields rather than their
-structural identities.
+functionality. In this example, the `==` operator is overloaded in the metamaps
+of objects `a` and `b`. The overloaded operator tests for equality between
+these objects based on the objects' `id` fields rather than their structural
+identities.
 
 ```
 # examples/operator-overloading.lumpy
@@ -83,9 +83,6 @@ let meta = {
     "==": function(lhs, rhs) {
         return lhs.id == rhs.id;
     },
-    "!=": function(lhs, rhs) {
-        return lhs.id != rhs.id;
-    },
 };
 let a = {"id": "bananna", "expiry date": "2024-08-24"};
 let b = {"id": "bananna", "expiry date": "2024-08-31"};
@@ -93,8 +90,8 @@ setmeta(a.&, meta);
 setmeta(b.&, meta);
 println("a is " + repr(a));
 println("b is " + repr(b));
-# a and b are semantically equal according to the overloaded "==" and "!="
-# operators even though they are not structurally equal
+# a and b are semantically equal according to the overloaded "==" operator even
+# though they are not structurally equal
 println("a == b is " + repr(a == b));
 println("a != b is " + repr(a != b));
 ```

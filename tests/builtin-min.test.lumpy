@@ -2,7 +2,7 @@ dumpln(min(123, 456));
 dumpln(min(456, 123));
 
 let meta = {
-    "compare": function(lhs, rhs) {
+    "<=>": function(lhs, rhs) {
         # always say that lhs == rhs
         return 0;
     },

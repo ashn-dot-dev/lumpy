@@ -1406,15 +1406,10 @@ CONST_STRING_PATH = String("path")
 CONST_STRING_FILE = String("file")
 CONST_STRING_DIRECTORY = String("directory")
 CONST_STRING_MODULE = String("module")
-CONST_STRING_COMPARE = String("compare")
 CONST_STRING_UNARY_POSITIVE = String("unary+")
 CONST_STRING_UNARY_NEGATIVE = String("unary-")
 CONST_STRING_EQ = String("==")
-CONST_STRING_NE = String("!=")
-CONST_STRING_LE = String("<=")
-CONST_STRING_GE = String(">=")
-CONST_STRING_LT = String("<")
-CONST_STRING_GT = String(">")
+CONST_STRING_CMP = String("<=>")
 CONST_STRING_ADD = String("+")
 CONST_STRING_SUB = String("-")
 CONST_STRING_MUL = String("*")
@@ -1767,10 +1762,18 @@ class AstEq(AstExpression):
             return rhs
         metafunction = binary_operator_metafunction(lhs, rhs, CONST_STRING_EQ)
         if metafunction is not None:
-            return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
-        metafunction = binary_operator_metafunction(
-            lhs, rhs, CONST_STRING_COMPARE
-        )
+            result = call(
+                self.location, metafunction, [lhs.copy(), rhs.copy()]
+            )
+            if isinstance(result, Error):
+                return rhs
+            if not isinstance(result, Boolean):
+                return Error(
+                    self.location,
+                    f"metafunction `{CONST_STRING_EQ.runes}` returned non-boolean value {result}",
+                )
+            return Boolean.new(result.data)
+        metafunction = binary_operator_metafunction(lhs, rhs, CONST_STRING_CMP)
         if metafunction is not None:
             result = call(
                 self.location, metafunction, [lhs.copy(), rhs.copy()]
@@ -1780,7 +1783,7 @@ class AstEq(AstExpression):
             if not isinstance(result, Number):
                 return Error(
                     self.location,
-                    f"metafunction compare returned non-number value {result}",
+                    f"metafunction `{CONST_STRING_CMP.runes}` returned non-number value {result}",
                 )
             return Boolean.new(float(result.data) == 0)
         return Boolean.new(lhs == rhs)
@@ -1800,12 +1803,20 @@ class AstNe(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = binary_operator_metafunction(lhs, rhs, CONST_STRING_NE)
+        metafunction = binary_operator_metafunction(lhs, rhs, CONST_STRING_EQ)
         if metafunction is not None:
-            return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
-        metafunction = binary_operator_metafunction(
-            lhs, rhs, CONST_STRING_COMPARE
-        )
+            result = call(
+                self.location, metafunction, [lhs.copy(), rhs.copy()]
+            )
+            if isinstance(result, Error):
+                return rhs
+            if not isinstance(result, Boolean):
+                return Error(
+                    self.location,
+                    f"metafunction `{CONST_STRING_EQ.runes}` returned non-boolean value {result}",
+                )
+            return Boolean.new(not result.data)
+        metafunction = binary_operator_metafunction(lhs, rhs, CONST_STRING_CMP)
         if metafunction is not None:
             result = call(
                 self.location, metafunction, [lhs.copy(), rhs.copy()]
@@ -1815,7 +1826,7 @@ class AstNe(AstExpression):
             if not isinstance(result, Number):
                 return Error(
                     self.location,
-                    f"metafunction compare returned non-number value {result}",
+                    f"metafunction `{CONST_STRING_CMP.runes}` returned non-number value {result}",
                 )
             return Boolean.new(float(result.data) != 0)
         return Boolean.new(lhs != rhs)
@@ -1835,12 +1846,7 @@ class AstLe(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = binary_operator_metafunction(lhs, rhs, CONST_STRING_LE)
-        if metafunction is not None:
-            return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
-        metafunction = binary_operator_metafunction(
-            lhs, rhs, CONST_STRING_COMPARE
-        )
+        metafunction = binary_operator_metafunction(lhs, rhs, CONST_STRING_CMP)
         if metafunction is not None:
             result = call(
                 self.location, metafunction, [lhs.copy(), rhs.copy()]
@@ -1850,7 +1856,7 @@ class AstLe(AstExpression):
             if not isinstance(result, Number):
                 return Error(
                     self.location,
-                    f"metafunction compare returned non-number value {result}",
+                    f"metafunction `{CONST_STRING_CMP.runes}` returned non-number value {result}",
                 )
             return Boolean.new(float(result.data) <= 0)
         if isinstance(lhs, Number) and isinstance(rhs, Number):
@@ -1877,12 +1883,7 @@ class AstGe(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = binary_operator_metafunction(lhs, rhs, CONST_STRING_GE)
-        if metafunction is not None:
-            return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
-        metafunction = binary_operator_metafunction(
-            lhs, rhs, CONST_STRING_COMPARE
-        )
+        metafunction = binary_operator_metafunction(lhs, rhs, CONST_STRING_CMP)
         if metafunction is not None:
             result = call(
                 self.location, metafunction, [lhs.copy(), rhs.copy()]
@@ -1892,7 +1893,7 @@ class AstGe(AstExpression):
             if not isinstance(result, Number):
                 return Error(
                     self.location,
-                    f"metafunction compare returned non-number value {result}",
+                    f"metafunction `{CONST_STRING_CMP.runes}` returned non-number value {result}",
                 )
             return Boolean.new(float(result.data) >= 0)
         if isinstance(lhs, Number) and isinstance(rhs, Number):
@@ -1919,12 +1920,7 @@ class AstLt(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = binary_operator_metafunction(lhs, rhs, CONST_STRING_LT)
-        if metafunction is not None:
-            return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
-        metafunction = binary_operator_metafunction(
-            lhs, rhs, CONST_STRING_COMPARE
-        )
+        metafunction = binary_operator_metafunction(lhs, rhs, CONST_STRING_CMP)
         if metafunction is not None:
             result = call(
                 self.location, metafunction, [lhs.copy(), rhs.copy()]
@@ -1934,7 +1930,7 @@ class AstLt(AstExpression):
             if not isinstance(result, Number):
                 return Error(
                     self.location,
-                    f"metafunction compare returned non-number value {result}",
+                    f"metafunction `{CONST_STRING_CMP.runes}` returned non-number value {result}",
                 )
             return Boolean.new(float(result.data) < 0)
         if isinstance(lhs, Number) and isinstance(rhs, Number):
@@ -1961,12 +1957,7 @@ class AstGt(AstExpression):
         rhs = self.rhs.eval(env)
         if isinstance(rhs, Error):
             return rhs
-        metafunction = binary_operator_metafunction(lhs, rhs, CONST_STRING_GT)
-        if metafunction is not None:
-            return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
-        metafunction = binary_operator_metafunction(
-            lhs, rhs, CONST_STRING_COMPARE
-        )
+        metafunction = binary_operator_metafunction(lhs, rhs, CONST_STRING_CMP)
         if metafunction is not None:
             result = call(
                 self.location, metafunction, [lhs.copy(), rhs.copy()]
@@ -1976,7 +1967,7 @@ class AstGt(AstExpression):
             if not isinstance(result, Number):
                 return Error(
                     self.location,
-                    f"metafunction compare returned non-number value {result}",
+                    f"metafunction `{CONST_STRING_CMP.runes}` returned non-number value {result}",
                 )
             return Boolean.new(float(result.data) > 0)
         if isinstance(lhs, Number) and isinstance(rhs, Number):
@@ -3389,7 +3380,10 @@ class BuiltinPrint(Builtin):
             if isinstance(result, Error):
                 return result
             if not isinstance(result, String):
-                return Error(None, f"metafunction `string` returned {result}")
+                return Error(
+                    None,
+                    f"metafunction `{CONST_STRING_STRING.runes}` returned {result}",
+                )
             print(result.runes, end="")
         elif isinstance(arguments[0], String):
             print(arguments[0].runes, end="")
@@ -3409,7 +3403,10 @@ class BuiltinPrintln(Builtin):
             if isinstance(result, Error):
                 return result
             if not isinstance(result, String):
-                return Error(None, f"metafunction `string` returned {result}")
+                return Error(
+                    None,
+                    f"metafunction `{CONST_STRING_STRING.runes}` returned {result}",
+                )
             print(result.runes, end="\n")
         elif isinstance(arguments[0], String):
             print(arguments[0].runes, end="\n")

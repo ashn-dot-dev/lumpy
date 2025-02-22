@@ -4,9 +4,6 @@ let meta = {
     "==": function(lhs, rhs) {
         return lhs.id == rhs.id;
     },
-    "!=": function(lhs, rhs) {
-        return lhs.id != rhs.id;
-    },
 };
 let a = {"id": "bananna", "expiry date": "2024-08-24"};
 let b = {"id": "bananna", "expiry date": "2024-08-31"};
@@ -14,7 +11,7 @@ setmeta(a.&, meta);
 setmeta(b.&, meta);
 println("a is " + repr(a));
 println("b is " + repr(b));
-# a and b are semantically equal according to the overloaded "==" and "!="
-# operators even though they are not structurally equal
+# a and b are semantically equal according to the overloaded "==" operator even
+# though they are not structurally equal
 println("a == b is " + repr(a == b));
 println("a != b is " + repr(a != b));
