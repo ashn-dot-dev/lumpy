@@ -8,13 +8,6 @@ try { dumpln( not set{}        ); } else err { dumpln(err); }
 try { dumpln( not 123.&        ); } else err { dumpln(err); }
 try { dumpln( not function(){} ); } else err { dumpln(err); }
 try { dumpln( not println      ); } else err { dumpln(err); }
-
-print("\n");
-
-let meta = {"not": function(value) { println("overload"); return value; }};
-let x = 123;
-setmeta(x.&, meta);
-dumpln(not x);
 ################################################################################
 # "attempted unary not operation with type `null`"
 # false
@@ -26,6 +19,3 @@ dumpln(not x);
 # "attempted unary not operation with type `reference`"
 # "attempted unary not operation with type `function`"
 # "attempted unary not operation with type `function`"
-#
-# overload
-# 123

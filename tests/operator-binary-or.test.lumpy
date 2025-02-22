@@ -22,15 +22,6 @@ print("\n");
 let f = function(s) { println(s); error "oopsie"; };
 try { false or f("false or f()"); } else { println("error"); }
 true or f("true and f()");
-
-print("\n");
-
-let meta = {"or": function(lhs, rhs) { println("overload"); return true; }};
-let x = 123;
-let y = 456;
-setmeta(x.&, meta);
-try { x or y; } else err { dumpln(err); }
-try { y or x; } else err { dumpln(err); }
 ################################################################################
 # "attempted binary or operation with types `null` and `null`"
 # true
@@ -50,6 +41,3 @@ try { y or x; } else err { dumpln(err); }
 #
 # false or f()
 # error
-#
-# overload
-# overload

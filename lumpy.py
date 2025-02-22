@@ -1409,9 +1409,6 @@ CONST_STRING_MODULE = String("module")
 CONST_STRING_COMPARE = String("compare")
 CONST_STRING_UNARY_POSITIVE = String("unary+")
 CONST_STRING_UNARY_NEGATIVE = String("unary-")
-CONST_STRING_NOT = String("not")
-CONST_STRING_AND = String("and")
-CONST_STRING_OR = String("or")
 CONST_STRING_EQ = String("==")
 CONST_STRING_NE = String("!=")
 CONST_STRING_LE = String("<=")
@@ -1690,15 +1687,12 @@ class AstNot(AstExpression):
         result = self.expression.eval(env)
         if isinstance(result, Error):
             return result
-        metafunction = result.metafunction(CONST_STRING_NOT)
-        if metafunction is not None:
-            return call(self.location, metafunction, [result.copy()])
-        if not isinstance(result, Boolean):
-            return Error(
-                self.location,
-                f"attempted unary not operation with type `{typename(result)}`",
-            )
-        return Boolean.new(not result.data)
+        if isinstance(result, Boolean):
+            return Boolean.new(not result.data)
+        return Error(
+            self.location,
+            f"attempted unary not operation with type `{typename(result)}`",
+        )
 
 
 @final
@@ -1721,9 +1715,6 @@ class AstAnd(AstExpression):
         if isinstance(rhs, Boolean) and not rhs.data:
             return Boolean.new(False)  # short circuit
 
-        metafunction = binary_operator_metafunction(lhs, rhs, CONST_STRING_AND)
-        if metafunction is not None:
-            return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         if isinstance(lhs, Boolean) and isinstance(rhs, Boolean):
             return Boolean.new(lhs.data and rhs.data)
         return Error(
@@ -1752,9 +1743,6 @@ class AstOr(AstExpression):
         if isinstance(rhs, Boolean) and rhs.data:
             return Boolean.new(True)  # short circuit
 
-        metafunction = binary_operator_metafunction(lhs, rhs, CONST_STRING_OR)
-        if metafunction is not None:
-            return call(self.location, metafunction, [lhs.copy(), rhs.copy()])
         if isinstance(lhs, Boolean) and isinstance(rhs, Boolean):
             return Boolean.new(lhs.data or rhs.data)
         return Error(

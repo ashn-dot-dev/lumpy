@@ -202,6 +202,22 @@ println(`not false is ` + repr(not false));
 
 print("\n");
 
+println("operator and");
+println(`false and false is ` + repr(false and false));
+println(`false and true is ` + repr(false and true));
+println(`true and false is ` + repr(true and false));
+println(`true and true is ` + repr(true and true));
+
+print("\n");
+
+println("operator or");
+println(`false or false is ` + repr(false or false));
+println(`false or true is ` + repr(false or true));
+println(`true or false is ` + repr(true or false));
+println(`true or true is ` + repr(true or true));
+
+print("\n");
+
 println("operator ==");
 println(`123 == 123 is ` + repr(123 == 123));
 println(`123 == 456 is ` + repr(123 == 456));
@@ -327,18 +343,6 @@ let person = {
         println("unary- called with " + repr(value));
         return alice; # arbitrary
     },
-    "not": function(value) {
-        println("not called with " + repr(value));
-        return alice; # arbitrary
-    },
-    "and": function(lhs, rhs) {
-        println("and called with " + repr(lhs) + " and " + repr(rhs));
-        return false; # arbitrary
-    },
-    "or": function(lhs, rhs) {
-        println("or called with " + repr(lhs) + " and " + repr(rhs));
-        return false; # arbitrary
-    },
     "==": function(lhs, rhs) {
         println("== called with " + repr(lhs) + " and " + repr(rhs));
         return lhs.name == rhs.name and lhs.age == rhs.age;
@@ -406,9 +410,6 @@ print("\n");
 println("calling overloadable operators on alice and bob");
 +alice;
 -alice;
-not alice;
-alice and bob;
-alice or bob;
 alice == bob;
 alice != bob;
 alice <= bob;
