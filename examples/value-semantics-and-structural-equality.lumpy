@@ -4,7 +4,7 @@ let x = ["foo", {"bar": 123}, "baz"];
 let y = x; # x is assigned to y by copy
 println("x is " + repr(x));
 println("y is " + repr(y));
-# x and y are separate values with structural equality
+# x and y are separate values that are structurally equal
 println("x == y is " + repr(x == y));
 
 print("\n");

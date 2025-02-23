@@ -5,8 +5,8 @@ let meta = {
         return lhs.id == rhs.id;
     },
 };
-let a = {"id": "bananna", "expiry date": "2024-08-24"};
-let b = {"id": "bananna", "expiry date": "2024-08-31"};
+let a = {"id": "banana", "expiry date": "2024-08-24"};
+let b = {"id": "banana", "expiry date": "2024-08-31"};
 setmeta(a.&, meta);
 setmeta(b.&, meta);
 println("a is " + repr(a));

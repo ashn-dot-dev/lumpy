@@ -1,6 +1,6 @@
 import("../examples/operator-overloading.lumpy");
 ################################################################################
-# a is {"id": "bananna", "expiry date": "2024-08-24"}
-# b is {"id": "bananna", "expiry date": "2024-08-31"}
+# a is {"id": "banana", "expiry date": "2024-08-24"}
+# b is {"id": "banana", "expiry date": "2024-08-31"}
 # a == b is true
 # a != b is false

@@ -22,11 +22,12 @@ println("Hello, world!");
 Hello, world!
 ```
 
-Lumpy uses value semantics, so assignment operations copy the contents (i.e.
-the "value") of an object when executed. After an assignment statement such as
-`a = b`, the objects `a` and `b` will contain separate copies of the same
-value. Lumpy also performs equality comparisons based on structural equality,
-so if two object have the same contents, then they are considered to be equal.
+Lumpy uses value semantics, meaning assignment operations copy the contents
+(i.e. the "value") of an object when executed. After an assignment statement
+such as `a = b`, the objects `a` and `b` will contain separate copies of the
+same value. Lumpy also performs equality comparisons based on structural
+equality, so if two objects have the same contents, then they are considered to
+be equal.
 
 ```
 # examples/value-semantics-and-structural-equality.lumpy
@@ -35,7 +36,7 @@ let x = ["foo", {"bar": 123}, "baz"];
 let y = x; # x is assigned to y by copy
 println("x is " + repr(x));
 println("y is " + repr(y));
-# x and y are separate values with structural equality
+# x and y are separate values that are structurally equal
 println("x == y is " + repr(x == y));
 
 print("\n");
@@ -84,8 +85,8 @@ let meta = {
         return lhs.id == rhs.id;
     },
 };
-let a = {"id": "bananna", "expiry date": "2024-08-24"};
-let b = {"id": "bananna", "expiry date": "2024-08-31"};
+let a = {"id": "banana", "expiry date": "2024-08-24"};
+let b = {"id": "banana", "expiry date": "2024-08-31"};
 setmeta(a.&, meta);
 setmeta(b.&, meta);
 println("a is " + repr(a));
@@ -98,8 +99,8 @@ println("a != b is " + repr(a != b));
 
 ```sh
 /path/to/lumpy$ ./lumpy.py examples/operator-overloading.lumpy
-a is {"id": "bananna", "expiry date": "2024-08-24"}
-b is {"id": "bananna", "expiry date": "2024-08-31"}
+a is {"id": "banana", "expiry date": "2024-08-24"}
+b is {"id": "banana", "expiry date": "2024-08-31"}
 a == b is true
 a != b is false
 ```
@@ -107,13 +108,12 @@ a != b is false
 Objects are passed by (copied) value to functions, behaving exactly the same as
 if they were assigned (i.e. copied due to value semantics) to each parameter.
 References are first-class values in Lumpy, and pass-by-reference is achieved
-by taking a reference to a value with the postfix `.&` operator, and then
-passing that value to a function. Lumpy has special syntax where
-`value.func(args)` implicitly passes a reference to `value` as the first
-argument to metafunction `func`, similar to `this` within non-static member
-functions in C++ or `self` within non-static methods in Python. The special
-implicit reference syntax provides a convenient way to support object-oriented
-patterns in Lumpy.
+by taking a reference to a value with the postfix `.&` operator, then passing
+that value to a function. Lumpy has special syntax where `value.func(args)`
+implicitly passes a reference to `value` as the first argument to metafunction
+`func`, similar to `this` within non-static member functions in C++ or `self`
+within non-static methods in Python. This special implicit reference syntax
+provides a convenient way to support object-oriented patterns in Lumpy.
 
 ```
 # examples/pass-by-value-and-pass-by-reference.lumpy
