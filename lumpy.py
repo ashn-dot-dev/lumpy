@@ -293,11 +293,19 @@ class Number(Value):
 class String(Value):
     data: bytes
     meta: Optional["Map"] = None
+    # Cache the decoded string to avoid repeated decode operations
+    _runes_cache: Optional[str] = None
 
     def __init__(
         self, data: Union[bytes, str], meta: Optional["Map"] = None
     ) -> None:
-        self.data = data if isinstance(data, bytes) else data.encode("utf-8")
+        if isinstance(data, bytes):
+            self.data = data
+            self._runes_cache = None
+        else:
+            # If input is already a string, store both forms
+            self._runes_cache = data
+            self.data = data.encode("utf-8")
         self.meta = meta
 
     @staticmethod
@@ -313,6 +321,9 @@ class String(Value):
         return self.data == other.data
 
     def __str__(self) -> str:
+        # Use the cached runes if available
+        if self._runes_cache is not None:
+            return f'"{escape(self._runes_cache)}"'
         return f'"{escape(self.runes)}"'
 
     def __contains__(self, item) -> bool:
@@ -323,7 +334,10 @@ class String(Value):
         return "string"
 
     def copy(self) -> "String":
-        return String(self.data, self.meta.copy() if self.meta else None)
+        result = String(self.data, self.meta.copy() if self.meta else None)
+        # Transfer the cached runes to the copy
+        result._runes_cache = self._runes_cache
+        return result
 
     def cow(self) -> None:
         if self.meta is not None:
@@ -331,7 +345,10 @@ class String(Value):
 
     @property
     def runes(self) -> str:
-        return self.data.decode(encoding="utf-8")
+        # Use cached version if available, otherwise decode and cache
+        if self._runes_cache is None:
+            self._runes_cache = self.data.decode(encoding="utf-8")
+        return self._runes_cache
 
     @property
     def bytes(self) -> bytes:
@@ -343,6 +360,8 @@ class String(Value):
 class Vector(Value):
     data: SharedVectorData
     meta: Optional["Map"]
+    # Cache for hash computation
+    _hash_cache: Optional[int] = None
 
     def __init__(
         self,
@@ -354,6 +373,7 @@ class Vector(Value):
         self.data = data if data is not None else SharedVectorData()
         self.data.uses += 1
         self.meta = meta
+        self._hash_cache = None
 
     @staticmethod
     def new(
@@ -366,15 +386,33 @@ class Vector(Value):
         self.data.uses -= 1
 
     def __hash__(self) -> int:
-        return hash(str(self.data))
+        # Use cached hash if available, as hash computation is expensive
+        if self._hash_cache is None:
+            # Calculate hash more efficiently than converting to string
+            h = 0
+            for item in self.data:
+                # Combine hashes of elements using a simple but effective algorithm
+                h = 31 * h + hash(item)
+            self._hash_cache = h
+        return self._hash_cache
 
     def __eq__(self, other) -> bool:
+        # Fast path: identity check
+        if self is other:
+            return True
+        
+        # Type check
         if type(self) is not type(other):
             return False
+            
+        # Length check
         if len(self.data) != len(other.data):
             return False
-        for i in range(len(self.data)):
-            if self.data[i] != other.data[i]:
+            
+        # Compare elements - use Python's zip for potentially better performance
+        # than manual indexing in some cases
+        for a, b in zip(self.data, other.data):
+            if a != b:
                 return False
         return True
 
@@ -398,6 +436,8 @@ class Vector(Value):
             self.data.uses -= 1
             self.data = self.data.copy()  # copy-on-write
             self.data.uses += 1
+        # Invalidate hash cache on modification
+        self._hash_cache = None
         self.data.__setitem__(index, value)
 
     def __getitem__(self, key: Value) -> Value:
@@ -416,6 +456,8 @@ class Vector(Value):
             self.data.uses -= 1
             self.data = self.data.copy()  # copy-on-write
             self.data.uses += 1
+        # Invalidate hash cache on modification
+        self._hash_cache = None
         super().__delitem__(key)
 
     @staticmethod
@@ -423,7 +465,10 @@ class Vector(Value):
         return "vector"
 
     def copy(self) -> "Vector":
-        return Vector(self.data, self.meta.copy() if self.meta else None)
+        result = Vector(self.data, self.meta.copy() if self.meta else None)
+        # Transfer hash cache to the copy
+        result._hash_cache = self._hash_cache
+        return result
 
     def cow(self) -> None:
         if self.meta is not None:
@@ -433,6 +478,8 @@ class Vector(Value):
             self.data.uses -= 1
             self.data = self.data.copy()  # copy-on-write
             self.data.uses += 1
+            # Invalidate hash cache as data has changed
+            self._hash_cache = None
 
 
 @final
@@ -440,6 +487,8 @@ class Vector(Value):
 class Map(Value):
     data: SharedMapData
     meta: Optional["Map"]
+    # Cache for hash computation
+    _hash_cache: Optional[int] = None
 
     def __init__(
         self,
@@ -451,6 +500,7 @@ class Map(Value):
         self.data = data if data is not None else SharedMapData()
         self.data.uses += 1
         self.meta = meta
+        self._hash_cache = None
 
     @staticmethod
     def new(
@@ -463,13 +513,33 @@ class Map(Value):
         self.data.uses -= 1
 
     def __hash__(self) -> int:
-        return hash(str(self.data))
+        # Use cached hash if available
+        if self._hash_cache is None:
+            # Calculate hash more efficiently than converting to string
+            h = 0
+            for k, v in self.data.items():
+                # Combine hashes of keys and values
+                h = 31 * h + hash(k)
+                h = 31 * h + hash(v)
+            self._hash_cache = h
+        return self._hash_cache
 
     def __eq__(self, other) -> bool:
+        # Fast path: identity check
+        if self is other:
+            return True
+            
+        # Type check
         if type(self) is not type(other):
             return False
+            
+        # Length check
         if len(self.data) != len(other.data):
             return False
+            
+        # Compare all key-value pairs
+        # Note: we could optimize further by using hash equality first,
+        # but that would change behavior if hash collisions are present
         for k, v in self.data.items():
             if k not in other.data or other.data[k] != v:
                 return False
@@ -491,6 +561,8 @@ class Map(Value):
             self.data.uses -= 1
             self.data = self.data.copy()  # copy-on-write
             self.data.uses += 1
+        # Invalidate hash cache on modification
+        self._hash_cache = None
         try:
             self.data.__setitem__(key, value)
         except KeyError:
@@ -507,6 +579,8 @@ class Map(Value):
             self.data.uses -= 1
             self.data = self.data.copy()  # copy-on-write
             self.data.uses += 1
+        # Invalidate hash cache on modification
+        self._hash_cache = None
         try:
             self.data.__delitem__(key)
         except KeyError:
@@ -517,7 +591,10 @@ class Map(Value):
         return "map"
 
     def copy(self) -> "Map":
-        return Map(self.data, self.meta.copy() if self.meta else None)
+        result = Map(self.data, self.meta.copy() if self.meta else None)
+        # Transfer hash cache to the copy
+        result._hash_cache = self._hash_cache
+        return result
 
     def cow(self) -> None:
         if self.meta is not None:
@@ -526,6 +603,8 @@ class Map(Value):
             self.data.uses -= 1
             self.data = self.data.copy()  # copy-on-write
             self.data.uses += 1
+            # Invalidate hash cache as data has changed
+            self._hash_cache = None
 
 
 @final
@@ -533,6 +612,8 @@ class Map(Value):
 class Set(Value):
     data: SharedSetData
     meta: Optional["Map"]
+    # Cache for hash computation
+    _hash_cache: Optional[int] = None
 
     def __init__(
         self,
@@ -544,6 +625,7 @@ class Set(Value):
         self.data = data if data is not None else SharedSetData()
         self.data.uses += 1
         self.meta = meta
+        self._hash_cache = None
 
     @staticmethod
     def new(
@@ -556,13 +638,30 @@ class Set(Value):
         self.data.uses -= 1
 
     def __hash__(self) -> int:
-        return hash(str(self.data))
+        # Use cached hash if available
+        if self._hash_cache is None:
+            # Calculate hash more efficiently than converting to string
+            h = 0
+            for k in self.data.keys():
+                # Combine hashes of elements
+                h = 31 * h + hash(k)
+            self._hash_cache = h
+        return self._hash_cache
 
     def __eq__(self, other) -> bool:
+        # Fast path: identity check
+        if self is other:
+            return True
+            
+        # Type check
         if type(self) is not type(other):
             return False
+            
+        # Length check - important to do this first as it's fast
         if len(self.data) != len(other.data):
             return False
+            
+        # Check if all elements in self exist in other
         for k in self.data.keys():
             if k not in other.data:
                 return False
@@ -582,6 +681,9 @@ class Set(Value):
             self.data.uses -= 1
             self.data = self.data.copy()  # copy-on-write
             self.data.uses += 1
+        # Only invalidate hash if the element is actually inserted (not already present)
+        if element not in self.data:
+            self._hash_cache = None
         self.data.insert(element)
 
     def remove(self, element: "Value") -> None:
@@ -589,6 +691,8 @@ class Set(Value):
             self.data.uses -= 1
             self.data = self.data.copy()  # copy-on-write
             self.data.uses += 1
+        # Invalidate hash cache on removal
+        self._hash_cache = None
         self.data.remove(element)
 
     @staticmethod
@@ -596,7 +700,10 @@ class Set(Value):
         return "set"
 
     def copy(self) -> "Set":
-        return Set(self.data, self.meta.copy() if self.meta else None)
+        result = Set(self.data, self.meta.copy() if self.meta else None)
+        # Transfer hash cache to the copy
+        result._hash_cache = self._hash_cache
+        return result
 
     def cow(self) -> None:
         if self.meta is not None:
@@ -605,6 +712,8 @@ class Set(Value):
             self.data.uses -= 1
             self.data = self.data.copy()  # copy-on-write
             self.data.uses += 1
+            # Invalidate hash cache as data has changed
+            self._hash_cache = None
 
 
 @final

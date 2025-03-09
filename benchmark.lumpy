@@ -1,0 +1,180 @@
+# lumpy-benchmark.lumpy
+# A simple benchmark script to identify performance bottlenecks in Lumpy
+
+let bench_start_time = null;
+let bench_name = "";
+
+let start_benchmark = function(name) {
+    bench_name = name;
+    println("\nRunning benchmark: " + name);
+    # We use external JS timing functions via extend to get accurate timing
+    extend(
+```
+import time
+global_start_time = time.time()
+```);
+};
+
+let end_benchmark = function(iterations) {
+    # Get elapsed time from Python
+    extend(
+```
+global elapsed_time
+elapsed_time = time.time() - global_start_time
+BASE_ENVIRONMENT.let(String.new("elapsed_time"), Number.new(elapsed_time))
+```);
+    println("  Completed in " + string(elapsed_time.fixed(6)) + " seconds");
+    println("  Average: " + string(elapsed_time/iterations.fixed(9)) + " seconds per iteration");
+};
+
+# Set this to adjust benchmark intensity
+let ITERATIONS = 100000;
+println("===== Lumpy Performance Benchmark =====");
+
+# 1. Numeric operations
+start_benchmark("Simple numeric addition");
+for i in ITERATIONS {
+    let x = 1;
+    let y = 2;
+    let z = x + y;
+}
+end_benchmark(ITERATIONS);
+
+# 2. String operations
+start_benchmark("String concatenation");
+for i in ITERATIONS {
+    let a = "hello";
+    let b = "world";
+    let c = a + " " + b;
+}
+end_benchmark(ITERATIONS);
+
+# 3. Vector operations
+start_benchmark("Vector creation and access");
+for i in ITERATIONS {
+    let v = [1, 2, 3, 4, 5];
+    let x = v[2];
+}
+end_benchmark(ITERATIONS);
+
+# 4. Vector pushing
+start_benchmark("Vector push (100 elements per iteration)");
+let PUSH_ITERATIONS = ITERATIONS / 100;
+for i in PUSH_ITERATIONS {
+    let v = [];
+    for j in 100 {
+        v.push(j);
+    }
+}
+end_benchmark(PUSH_ITERATIONS);
+
+# 5. Map operations
+start_benchmark("Map creation and access");
+for i in ITERATIONS {
+    let m = {"a": 1, "b": 2, "c": 3};
+    let x = m["b"];
+}
+end_benchmark(ITERATIONS);
+
+# 6. Map insertion
+start_benchmark("Map insertion (10 elements per iteration)");
+let MAP_ITERATIONS = ITERATIONS / 100;
+for i in MAP_ITERATIONS {
+    let m = map{};
+    for j in 10 {
+        m[string(j)] = j;
+    }
+}
+end_benchmark(MAP_ITERATIONS);
+
+# 7. Function calls
+let simple_function = function(x) {
+    return x + 1;
+};
+
+start_benchmark("Function call");
+for i in ITERATIONS {
+    simple_function(5);
+}
+end_benchmark(ITERATIONS);
+
+# 8. Object with metamaps
+let make_person = function() {
+    let person_meta = {
+        "string": function(self) {
+            return self.name + " (" + string(self.age) + ")";
+        }
+    };
+    let p = {"name": "Test", "age": 30};
+    setmeta(p.&, person_meta);
+    return p;
+};
+
+start_benchmark("Object with metamaps + string conversion");
+let METAOBJ_ITERATIONS = ITERATIONS / 10;
+for i in METAOBJ_ITERATIONS {
+    let p = make_person();
+    let s = string(p);
+}
+end_benchmark(METAOBJ_ITERATIONS);
+
+# 9. Recursion
+let fib = function(n) {
+    if n <= 1 {
+        return n;
+    }
+    return fib(n-1) + fib(n-2);
+};
+
+start_benchmark("Fibonacci recursion (n=15)");
+let FIB_ITERATIONS = 10;
+for i in FIB_ITERATIONS {
+    fib(15);
+}
+end_benchmark(FIB_ITERATIONS);
+
+# 10. Loop overhead
+start_benchmark("For loop overhead (1000 iterations per loop)");
+let LOOP_ITERATIONS = ITERATIONS / 1000;
+for i in LOOP_ITERATIONS {
+    let sum = 0;
+    for j in 1000 {
+        sum = sum + 1;
+    }
+}
+end_benchmark(LOOP_ITERATIONS);
+
+# 11. Copy-on-write mechanism
+start_benchmark("Copy-on-write vectors (100 elements)");
+let COW_ITERATIONS = ITERATIONS / 1000;
+for i in COW_ITERATIONS {
+    let v1 = [];
+    for j in 100 {
+        v1.push(j);
+    }
+    
+    # Create copies that share same data
+    let v2 = v1;
+    let v3 = v1;
+    
+    # Modify one copy, triggering COW
+    v2[50] = 999;
+    v3[75] = 888;
+}
+end_benchmark(COW_ITERATIONS);
+
+# 12. Equality checking
+start_benchmark("Equality checking (100 element vectors)");
+let EQ_ITERATIONS = ITERATIONS / 1000;
+for i in EQ_ITERATIONS {
+    let v1 = [];
+    let v2 = [];
+    for j in 100 {
+        v1.push(j);
+        v2.push(j);
+    }
+    let equal = v1 == v2;
+}
+end_benchmark(EQ_ITERATIONS);
+
+println("\n===== Benchmark Complete =====");
