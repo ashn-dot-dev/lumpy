@@ -1,0 +1,79 @@
+# Hash computation benchmark
+# This benchmark specifically tests the performance of hash operations
+
+extend(```
+import time
+import gc
+
+class BuiltinGetTime(Builtin):
+    name = "get_time"
+    
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 0)
+        return Number.new(time.time())
+
+class BuiltinRunGC(Builtin):
+    name = "run_gc"
+    
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 0)
+        gc.collect()
+        return Null()
+
+BASE_ENVIRONMENT.let(String.new("get_time"), BuiltinGetTime())
+BASE_ENVIRONMENT.let(String.new("run_gc"), BuiltinRunGC())
+```);
+
+# Function to time execution
+let time_execution = function(func) {
+    run_gc();
+    let start = get_time();
+    let result = func();
+    let end = get_time();
+    return [end - start, result];
+};
+
+# Create a benchmark for map operations that use a lot of hash lookups
+let map_lookup_benchmark = function() {
+    # Create a map with string keys
+    let m = map{};
+    
+    # Create string keys once and reuse them
+    let keys = [];
+    for i in 1000 {
+        let key = string(i);
+        keys.push(key);
+        m[key] = i;
+    }
+    
+    # Perform a large number of lookups using the same keys repeatedly
+    # This should benefit from hash caching
+    let sum = 0;
+    for i in 10000 {
+        let key = keys[i % 1000];
+        sum = sum + m[key]; # This should trigger hash lookup
+    }
+    
+    return sum;
+};
+
+# Run the benchmark multiple times
+println("=== Hash Computation Benchmark ===");
+println("Looking up 10,000 keys in a map with 1,000 string entries");
+
+# Run multiple times and average
+let total_time = 0;
+let iterations = 5;
+
+for i in iterations {
+    let result = time_execution(map_lookup_benchmark);
+    let time = result[0];
+    let sum = result[1];
+    
+    println("Run " + string(i+1) + ": " + string(time) + " seconds, sum = " + string(sum));
+    total_time = total_time + time;
+}
+
+let avg_time = total_time / iterations;
+println("\nAverage time: " + string(avg_time) + " seconds");
+println("This benchmark specifically tests hash function caching performance.");

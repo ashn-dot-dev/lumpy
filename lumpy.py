@@ -203,7 +203,7 @@ class Boolean(Value):
         return Boolean(data, BOOLEAN_META.copy())
 
     def __hash__(self) -> int:
-        return hash(self.data)
+        return 1 if self.data else 0
 
     def __eq__(self, other) -> bool:
         if type(self) is not type(other):
@@ -230,6 +230,7 @@ class Boolean(Value):
 class Number(Value):
     data: SupportsFloat
     meta: Optional["Map"]
+    _hash: Optional[int] = None
 
     def __init__(
         self, data: SupportsFloat, meta: Optional["Map"] = None
@@ -241,13 +242,20 @@ class Number(Value):
         # data is actually a Python float.
         self.data = float(data)
         self.meta = meta
+        self._hash = None
 
     @staticmethod
     def new(data: SupportsFloat) -> "Number":
-        return Number(data, NUMBER_META.copy())
+        result = Number(data, NUMBER_META.copy())
+        # Pre-compute the hash for common operations.
+        result._hash = hash(float(data))
+        return result
 
     def __hash__(self) -> int:
-        return hash(self.data)
+        # Cache the hash value since numbers are immutable.
+        if self._hash is None:
+            self._hash = hash(self.data)
+        return self._hash
 
     def __eq__(self, other) -> bool:
         if type(self) is not type(other):
@@ -281,7 +289,10 @@ class Number(Value):
         return "number"
 
     def copy(self) -> "Number":
-        return Number(self.data, self.meta.copy() if self.meta else None)
+        result = Number(self.data, self.meta.copy() if self.meta else None)
+        # Propagate the cached hash to the copy.
+        result._hash = self._hash
+        return result
 
     def cow(self) -> None:
         if self.meta is not None:
@@ -293,19 +304,28 @@ class Number(Value):
 class String(Value):
     data: bytes
     meta: Optional["Map"] = None
+    _hash: Optional[int] = None
 
     def __init__(
         self, data: Union[bytes, str], meta: Optional["Map"] = None
     ) -> None:
         self.data = data if isinstance(data, bytes) else data.encode("utf-8")
         self.meta = meta
+        self._hash = None
 
     @staticmethod
     def new(data: Union[bytes, str]) -> "String":
-        return String(data, STRING_META.copy())
+        result = String(data, STRING_META.copy())
+        # Pre-compute the hash for common operations like map lookups.
+        # This is particularly important for string keys.
+        result._hash = hash(result.data)
+        return result
 
     def __hash__(self) -> int:
-        return hash(self.data)
+        # Cache the hash value since strings are immutable.
+        if self._hash is None:
+            self._hash = hash(self.data)
+        return self._hash
 
     def __eq__(self, other) -> bool:
         if type(self) is not type(other):
@@ -323,7 +343,10 @@ class String(Value):
         return "string"
 
     def copy(self) -> "String":
-        return String(self.data, self.meta.copy() if self.meta else None)
+        result = String(self.data, self.meta.copy() if self.meta else None)
+        # Propagate the cached hash to the copy.
+        result._hash = self._hash
+        return result
 
     def cow(self) -> None:
         if self.meta is not None:

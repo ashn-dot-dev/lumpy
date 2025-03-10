@@ -1,0 +1,317 @@
+# Lumpy Performance Benchmark
+# This benchmark measures performance across different common scenarios
+
+# Create timing functions using Python's time module
+extend(```
+import time
+import gc
+
+def get_time():
+    return Number.new(time.time())
+
+def run_gc():
+    gc.collect()
+
+class BuiltinGetTime(Builtin):
+    name = "get_time"
+    
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 0)
+        return Number.new(time.time())
+
+class BuiltinRunGC(Builtin):
+    name = "run_gc"
+    
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 0)
+        gc.collect()
+        return Null()
+
+# Make functions available to Lumpy
+BASE_ENVIRONMENT.let(String.new("get_time"), BuiltinGetTime())
+BASE_ENVIRONMENT.let(String.new("run_gc"), BuiltinRunGC())
+```);
+
+# Utility function to measure execution time
+let measure_time = function(func) {
+    run_gc();  # Run garbage collection to minimize interference
+    let start_time = get_time();
+    let result = func();
+    let end_time = get_time();
+    return [end_time - start_time, result];  # Return seconds and result
+};
+
+# Utility function to print benchmark results
+let print_result = function(name, time_sec, result) {
+    println("== " + name + " ==");
+    println("Time: " + string(time_sec) + " seconds");
+    if result != null {
+        println("Result: " + repr(result));
+    }
+    println("");
+};
+
+# Utility to run a benchmark multiple times and get average
+let benchmark = function(name, func, iterations) {
+    let total_time = 0;
+    let result = null;
+    
+    println("Running benchmark: " + name);
+    
+    for i in iterations {
+        let measured = measure_time(func);
+        let time_sec = measured[0];
+        let res = measured[1];
+        
+        if i == 0 { # Save result from first run
+            result = res;
+        }
+        total_time = total_time + time_sec;
+    }
+    
+    let avg_time = total_time / iterations;
+    print_result(name, avg_time, result);
+    return avg_time;
+};
+
+println("=== LUMPY PERFORMANCE BENCHMARK ===\n");
+
+# 1. Arithmetic Operations
+let arithmetic_bench = function() {
+    let result = 0;
+    for i in 10000 {
+        result = result + i * 2 / (i + 1) % 100;
+    }
+    return result;
+};
+
+benchmark("Arithmetic (10k iterations)", arithmetic_bench, 5);
+
+# 2. Function Call Overhead
+let factorial = function(n) {
+    if n <= 1 {
+        return 1;
+    }
+    return n * factorial(n - 1);
+};
+
+let function_bench = function() {
+    let result = 0;
+    for i in 10 {
+        result = result + factorial(10);
+    }
+    return result;
+};
+
+benchmark("Function Calls (factorial 10, 10 times)", function_bench, 5);
+
+# 3. String Operations
+let string_bench = function() {
+    let s = "";
+    for i in 1000 {
+        s = s + string(i);
+    }
+    return s.count();
+};
+
+benchmark("String Operations (1k concatenations)", string_bench, 5);
+
+# 4. Vector Operations
+let vector_bench = function() {
+    let v = [];
+    for i in 1000 {
+        v.push(i);
+    }
+    
+    let sum = 0;
+    for x in v {
+        sum = sum + x;
+    }
+    
+    return sum;
+};
+
+benchmark("Vector Operations (1k elements)", vector_bench, 5);
+
+# 5. Map Operations
+let map_bench = function() {
+    let m = map{};
+    for i in 1000 {
+        m[i] = i * i;
+    }
+    
+    let sum = 0;
+    for k, v in m {
+        sum = sum + v;
+    }
+    
+    return sum;
+};
+
+benchmark("Map Operations (1k elements)", map_bench, 5);
+
+# 6. Object Construction and Method Calls
+let point = {
+    "new": function(x, y) {
+        let self = {"x": x, "y": y};
+        setmeta(self.&, point);
+        return self;
+    },
+    "distance": function(self, other) {
+        let dx = self.*.x - other.x;
+        let dy = self.*.y - other.y;
+        return math::sqrt(dx * dx + dy * dy);
+    }
+};
+
+let object_bench = function() {
+    let points = [];
+    for i in 100 {
+        points.push(point::new(i, i * 2));
+    }
+    
+    let total_distance = 0;
+    for i in 99 {
+        total_distance = total_distance + points[i].distance(points[i + 1]);
+    }
+    
+    return total_distance;
+};
+
+benchmark("Object Methods (100 points, 99 distance calcs)", object_bench, 5);
+
+# 7. Deep Copy Operations
+let copy_bench = function() {
+    let original = [];
+    for i in 20 {
+        let row = [];
+        for j in 20 {
+            row.push(i * j);
+        }
+        original.push(row);
+    }
+    
+    # Create copies and modify them
+    let copies = [];
+    for i in 10 {
+        let copy = original;  # This creates a copy due to value semantics
+        copy[0][0] = i;       # This should trigger copy-on-write
+        copies.push(copy);
+    }
+    
+    return copies.count();
+};
+
+benchmark("Copy Operations (nested vector, 10 copies)", copy_bench, 5);
+
+# 8. Data Structure Access
+let access_bench = function() {
+    let v = [];
+    for i in 10000 {
+        v.push(i);
+    }
+    
+    let sum = 0;
+    for i in 10000 {
+        sum = sum + v[i % 100];  # Read the first 100 elements repeatedly
+    }
+    
+    return sum;
+};
+
+benchmark("Data Access (10k vector reads)", access_bench, 5);
+
+# 9. Recursive Fibonacci - tests recursion performance
+let fib = function(n) {
+    if n < 2 {
+        return n;
+    }
+    return fib(n - 1) + fib(n - 2);
+};
+
+let fib_bench = function() {
+    return fib(20);
+};
+
+benchmark("Recursive Fibonacci (n=20)", fib_bench, 3);
+
+# 10. Iterative Fibonacci - for comparison with recursive version
+let fib_iter = function(n) {
+    if n < 2 {
+        return n;
+    }
+    
+    let a = 0;
+    let b = 1;
+    for i in n-1 {
+        let temp = a;
+        a = b;
+        b = temp + b;
+    }
+    
+    return b;
+};
+
+let fib_iter_bench = function() {
+    return fib_iter(20);
+};
+
+benchmark("Iterative Fibonacci (n=20)", fib_iter_bench, 5);
+
+# 11. Python Extension Benchmark - Compare with native Python
+extend(```
+def py_fib(n):
+    if n < 2:
+        return n
+    return py_fib(n-1) + py_fib(n-2)
+
+class BuiltinPyFib(Builtin):
+    name = "py_fib"
+    
+    def function(self, arguments):
+        Builtin.expect_argument_count(arguments, 1)
+        n = Builtin.typed_argument(arguments, 0, Number)
+        return Number.new(py_fib(int(n.data)))
+
+BASE_ENVIRONMENT.let(String.new("py_fib"), BuiltinPyFib())
+```);
+
+let py_fib_bench = function() {
+    return py_fib(20);
+};
+
+benchmark("Python Extension Fibonacci (n=20)", py_fib_bench, 3);
+
+# 12. Compare loops with different ranges to test integer iteration
+let small_loop = function() {
+    let sum = 0;
+    for i in 100 {
+        sum = sum + i;
+    }
+    return sum;
+};
+
+let medium_loop = function() {
+    let sum = 0;
+    for i in 1000 {
+        sum = sum + i;
+    }
+    return sum;
+};
+
+let large_loop = function() {
+    let sum = 0;
+    for i in 10000 {
+        sum = sum + i;
+    }
+    return sum;
+};
+
+benchmark("Small Loop (sum 0-99)", small_loop, 5);
+benchmark("Medium Loop (sum 0-999)", medium_loop, 5);
+benchmark("Large Loop (sum 0-9999)", large_loop, 5);
+
+# Final report
+println("=== BENCHMARK COMPLETE ===");
+println("Note: Performance is measured in seconds. Lower is better.");
+println("These benchmarks help identify the bottlenecks in the Lumpy interpreter.");
