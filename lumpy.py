@@ -1437,6 +1437,9 @@ class ParseError(Exception):
 
 
 class Environment:
+    """
+    Environment for variable storage with optimized lookup
+    """
     @dataclass
     class Lookup:
         value: Value
@@ -1445,23 +1448,110 @@ class Environment:
     def __init__(self, outer: Optional["Environment"] = None) -> None:
         self.outer: Optional["Environment"] = outer
         self.store: Map = Map()
+        # Cache of resolved variable lookups for this environment
+        # Maps variable name (bytes) -> (scope level, environment)
+        # where scope level is 0 for current environment, 1 for parent, etc.
+        self._lookup_cache: dict[bytes, Tuple[int, "Environment"]] = {}
 
     def let(self, name: String, value: Value) -> None:
+        """Define a variable in the current environment"""
+        # Set the value in the store
         self.store[name] = value
+        
+        # Update lookup cache for this variable in current environment
+        self._lookup_cache[name.data] = (0, self)
+        
+        # If we have an outer environment, clear its cache entry for this name
+        # as we've now shadowed any definition in parent scopes
+        env = self.outer
+        while env is not None:
+            if name.data in env._lookup_cache:
+                del env._lookup_cache[name.data]
+            env = env.outer
 
     def get(self, name: String) -> Optional[Value]:
+        """
+        Get a variable's value from the environment chain
+        Uses a lookup cache to speed up repeated lookups
+        """
+        # Check if we have this name in our lookup cache
+        cached = self._lookup_cache.get(name.data)
+        if cached is not None:
+            level, env = cached
+            # If level is 0, the variable is in our own store
+            if level == 0:
+                return self.store.data.get(name, None)
+            # Otherwise, the variable is in the environment specified by env
+            return env.store.data.get(name, None)
+            
+        # Not in cache, check current store
         value = self.store.data.get(name, None)
-        if value is None and self.outer is not None:
-            return self.outer.get(name)
-        return value
+        if value is not None:
+            # Found in current environment
+            self._lookup_cache[name.data] = (0, self)
+            return value
+            
+        # Not in current scope, search outer scopes
+        if self.outer is not None:
+            value = self.outer.get(name)
+            if value is not None:
+                # Find which environment contains the value
+                level = 1
+                env = self.outer
+                while env is not None:
+                    if name in env.store.data:
+                        # Found the containing environment
+                        self._lookup_cache[name.data] = (level, env)
+                        break
+                    level += 1
+                    env = env.outer
+            return value
+            
+        return None
 
     def lookup(self, name: String) -> Optional[Lookup]:
+        """
+        Look up a variable and its containing store
+        Uses the same caching mechanism as get()
+        """
+        # Check if we have this name in our lookup cache
+        cached = self._lookup_cache.get(name.data)
+        if cached is not None:
+            level, env = cached
+            # If level is 0, the variable is in our own store
+            if level == 0:
+                value = self.store.data.get(name, None)
+                if value is not None:
+                    return Environment.Lookup(value, self.store)
+            # Otherwise, the variable is in the environment specified by env
+            value = env.store.data.get(name, None)
+            if value is not None:
+                return Environment.Lookup(value, env.store)
+        
+        # Not in cache, check current store
         value = self.store.data.get(name, None)
-        if value is None and self.outer is not None:
-            return self.outer.lookup(name)
-        if value is None:
-            return None
-        return Environment.Lookup(value, self.store)
+        if value is not None:
+            # Found in current environment
+            self._lookup_cache[name.data] = (0, self)
+            return Environment.Lookup(value, self.store)
+            
+        # Not in current scope, search outer scopes
+        if self.outer is not None:
+            result = self.outer.lookup(name)
+            if result is not None:
+                # Find which environment contains the value
+                level = 1
+                env = self.outer
+                while env is not None:
+                    if name in env.store.data:
+                        # Found the containing environment
+                        self._lookup_cache[name.data] = (level, env)
+                        break
+                    level += 1
+                    env = env.outer
+            return result
+            
+        return None
 
 
 @dataclass
