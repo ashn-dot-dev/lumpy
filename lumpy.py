@@ -2299,13 +2299,7 @@ class AstBlock(AstNode):
         env = Environment(env)  # Blocks execute with a new lexical scope.
         for statement in self.statements:
             result = statement.eval(env)
-            if isinstance(result, Return):
-                return result
-            if isinstance(result, Break):
-                return result
-            if isinstance(result, Continue):
-                return result
-            if isinstance(result, Error):
+            if result is not None:
                 return result
         return None
 
@@ -2557,13 +2551,7 @@ class AstStatementIfElifElse(AstStatement):
     def eval(self, env: Environment) -> Optional[ControlFlow]:
         for conditional in self.conditionals:
             (result, executed) = conditional.exec(env)
-            if isinstance(result, Return):
-                return result
-            if isinstance(result, Break):
-                return result
-            if isinstance(result, Continue):
-                return result
-            if isinstance(result, Error):
+            if result is not None:
                 return result
             if executed:
                 return result
