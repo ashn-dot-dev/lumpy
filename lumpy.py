@@ -2906,7 +2906,7 @@ class Parser:
                 assert map_or_set == ParseMapOrSet.MAP
                 self._expect_current(TokenKind.DOT)
                 identifier = self.parse_identifier()
-                expression = AstString(identifier.location, identifier.name.bytes)
+                expression: AstExpression = AstString(identifier.location, identifier.name.bytes)
             else:
                 expression = self.parse_expression()
 
