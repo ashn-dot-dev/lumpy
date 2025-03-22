@@ -2906,12 +2906,16 @@ class Parser:
                 assert map_or_set == ParseMapOrSet.MAP
                 self._expect_current(TokenKind.DOT)
                 identifier = self.parse_identifier()
-                expression: AstExpression = AstString(identifier.location, identifier.name.bytes)
+                expression: AstExpression = AstString(
+                    identifier.location, identifier.name.bytes
+                )
             else:
                 expression = self.parse_expression()
 
             if map_or_set == ParseMapOrSet.UNKNOWN:
-                if self._check_current(TokenKind.COLON) or self._check_current(TokenKind.ASSIGN):
+                if self._check_current(TokenKind.COLON) or self._check_current(
+                    TokenKind.ASSIGN
+                ):
                     map_or_set = ParseMapOrSet.MAP
                 else:
                     map_or_set = ParseMapOrSet.SET
