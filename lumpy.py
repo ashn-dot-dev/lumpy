@@ -2895,7 +2895,20 @@ class Parser:
             if self._check_current(TokenKind.RBRACE):
                 break
 
-            expression = self.parse_expression()
+            if self._check_current(TokenKind.DOT):
+                if map_or_set == ParseMapOrSet.UNKNOWN:
+                    map_or_set = ParseMapOrSet.MAP
+                if map_or_set == ParseMapOrSet.SET:
+                    raise ParseError(
+                        self.current_token.location,
+                        f"expected expression, found {self.current_token}",
+                    )
+                assert map_or_set == ParseMapOrSet.MAP
+                self._expect_current(TokenKind.DOT)
+                identifier = self.parse_identifier()
+                expression = AstString(identifier.location, identifier.name.bytes)
+            else:
+                expression = self.parse_expression()
 
             if map_or_set == ParseMapOrSet.UNKNOWN:
                 if self._check_current(TokenKind.COLON):
