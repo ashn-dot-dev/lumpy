@@ -57,8 +57,12 @@ dumpln( map{"foo": 123, "bar": 456, "baz": 789}  );
 dumpln( map{"foo": 123, "bar": 456, "baz": 789,} );
 dumpln( {"foo": 123, "bar": 456, "baz": 789}     );
 dumpln( {"foo": 123, "bar": 456, "baz": 789,}    );
-dumpln( map{.foo: 123, .bar: 456, .baz: 789}  );
-dumpln( map{.foo: 123, .bar: 456, .baz: 789,} );
+dumpln( {.foo: 123, .bar: 456, .baz: 789}        );
+dumpln( {.foo: 123, .bar: 456, .baz: 789,}       );
+dumpln( {"foo" = 123, "bar" = 456, "baz" = 789}  );
+dumpln( {"foo" = 123, "bar" = 456, "baz" = 789,} );
+dumpln( {.foo = 123, .bar = 456, .baz = 789}     );
+dumpln( {.foo = 123, .bar = 456, .baz = 789,}    );
 
 print("\n");
 

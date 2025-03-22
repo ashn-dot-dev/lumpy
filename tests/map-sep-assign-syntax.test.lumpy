@@ -1,0 +1,3 @@
+let a = map{"foo": 123};
+let b = map{"foo" = 123};
+assert(a == b);

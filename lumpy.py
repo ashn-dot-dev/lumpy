@@ -2911,7 +2911,7 @@ class Parser:
                 expression = self.parse_expression()
 
             if map_or_set == ParseMapOrSet.UNKNOWN:
-                if self._check_current(TokenKind.COLON):
+                if self._check_current(TokenKind.COLON) or self._check_current(TokenKind.ASSIGN):
                     map_or_set = ParseMapOrSet.MAP
                 else:
                     map_or_set = ParseMapOrSet.SET
@@ -2919,7 +2919,15 @@ class Parser:
             assert map_or_set != ParseMapOrSet.UNKNOWN
             match map_or_set:
                 case ParseMapOrSet.MAP:
-                    self._expect_current(TokenKind.COLON)
+                    if self._check_current(TokenKind.COLON):
+                        self._expect_current(TokenKind.COLON)
+                    elif self._check_current(TokenKind.ASSIGN):
+                        self._expect_current(TokenKind.ASSIGN)
+                    else:
+                        raise ParseError(
+                            self.current_token.location,
+                            f"expected {TokenKind.COLON} or {TokenKind.ASSIGN}, found {self.current_token}",
+                        )
                     map_elements.append((expression, self.parse_expression()))
                 case ParseMapOrSet.SET:
                     set_elements.append(expression)

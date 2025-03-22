@@ -77,7 +77,10 @@
 <map-key> ::= <expression>
             | "." <identifier>
 
-<map> ::= "{" <map-key> ":" <expression> ("," <map-key> ":" <expression>)+ ","? "}"
+<map-sep> ::= ":"
+            | "="
+
+<map> ::= "{" <map-key> <map-sep> <expression> ("," <map-key> <map-sep> <expression>)+ ","? "}"
         | "map" "{" "}"
 
 <vector> ::= "[" (<expression> ("," <expression>)+ ","?)* "]"
