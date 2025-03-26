@@ -9,7 +9,7 @@ bin/lumpy: lumpy.py
 	python3 -m nuitka lumpy.py \
 		--output-filename="$$(pwd)/bin/lumpy" \
 		--remove-output \
-		</dev/null # disable download prompt
+		--disable-ccache
 
 build: bin/lumpy
 
