@@ -2426,7 +2426,9 @@ class AstStatementFor(AstStatement):
                     self.location,
                     f"attempted key-value iteration over type `{typename(collection)}`",
                 )
-            for x in collection.data:
+            # Iterate over a shallow copy of the vector data in order to allow
+            # vector modification during iteration.
+            for x in list(collection.data):
                 loop_env.let(
                     self.identifier_k.name,
                     Reference.new(x) if self.k_is_reference else x.copy(),
@@ -2446,7 +2448,9 @@ class AstStatementFor(AstStatement):
                     self.location,
                     f"cannot use a key-reference over type `{typename(collection)}`",
                 )
-            for k, v in collection.data.items():
+            # Iterate over a shallow copy of the map data in order to allow map
+            # modification during iteration.
+            for k, v in dict(collection.data).items():
                 loop_env.let(self.identifier_k.name, k.copy())
                 if self.identifier_v is not None:
                     loop_env.let(
@@ -2473,7 +2477,9 @@ class AstStatementFor(AstStatement):
                     self.location,
                     f"cannot use a key-reference over type `{typename(collection)}`",
                 )
-            for x in collection.data:
+            # Iterate over a shallow copy of the set data in order to allow set
+            # modification during iteration.
+            for x in dict(collection.data).keys():
                 loop_env.let(self.identifier_k.name, x.copy())
                 result = self.block.eval(loop_env)
                 if isinstance(result, Return):
