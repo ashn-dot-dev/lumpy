@@ -687,7 +687,7 @@ class Function(Value):
 class Builtin(Value):
     meta: Optional["Map"] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         # Builtins should add the name of the builtin as a class property.
         self.name: str
 
@@ -695,9 +695,7 @@ class Builtin(Value):
         return hash(id(self.function))
 
     def __eq__(self, other) -> bool:
-        if type(self) is not type(other):
-            return False
-        return self.function == other.function
+        return type(self) is type(other)
 
     def __str__(self):
         return f"{self.name}@builtin"
@@ -1042,7 +1040,12 @@ class Lexer:
             self._skip_comment()
 
     def _new_token(self, kind: TokenKind, literal: str, **kwargs) -> Token:
-        return Token(kind, literal, self.location, **kwargs)
+        location = (
+            SourceLocation(self.location.filename, self.location.line)
+            if self.location is not None
+            else None
+        )
+        return Token(kind, literal, location, **kwargs)
 
     def _lex_keyword_or_identifier(self) -> Token:
         assert Lexer._is_letter(self._current_character())
@@ -1316,10 +1319,10 @@ class Lexer:
         return token
 
 
+@dataclass
 class ParseError(Exception):
-    def __init__(self, location: Optional[SourceLocation], why: str) -> None:
-        self.location = location
-        self.why = why
+    location: Optional[SourceLocation]
+    why: str
 
     def __str__(self) -> str:
         if self.location is None:
