@@ -687,9 +687,14 @@ class Function(Value):
 class Builtin(Value):
     meta: Optional["Map"] = None
 
-    def __post_init__(self) -> None:
-        # Builtins should add the name of the builtin as a class property.
-        self.name: str
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        """
+        Name associated with the builtin.
+        Builtins subclasses should add the builtin name as a class property.
+        """
+        raise NotImplementedError()
 
     def __hash__(self) -> int:
         return hash(id(self.function))
