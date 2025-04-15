@@ -636,8 +636,8 @@ class Reference(Value):
         return Reference(self.data, self.meta.copy() if self.meta else None)
 
     def cow(self) -> None:
-        # We explicitly do *not* copy self.data as the copied data should still
-        # point to the original referenced value (the Python `Value` object).
+        # We explicitly do *not* copy `self.data` as the copied data should
+        # still point to the original referenced Python `Value` object.
         if self.meta is not None:
             self.meta.cow()
 
@@ -1468,12 +1468,7 @@ class AstExpression(AstNode):
     location: Optional[SourceLocation]
 
     @abstractmethod
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
-        """
-        Providing cow=True implies that this expression is being evaluated in
-        an lvalue context where copy-on-write is required for a modification of
-        the value produced by the eval-chain.
-        """
+    def eval(self, env: Environment) -> Union[Value, Error]:
         raise NotImplementedError()
 
 
@@ -1515,14 +1510,12 @@ class AstIdentifier(AstExpression):
     location: Optional[SourceLocation]
     name: String
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+    def eval(self, env: Environment) -> Union[Value, Error]:
         value: Optional[Value] = env.get(self.name)
         if value is None:
             return Error(
                 self.location, f"identifier `{self.name.runes}` is not defined"
             )
-        if cow:
-            value.cow()
         return value
 
 
@@ -1531,7 +1524,7 @@ class AstIdentifier(AstExpression):
 class AstNull(AstExpression):
     location: Optional[SourceLocation]
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+    def eval(self, env: Environment) -> Union[Value, Error]:
         return Null.new()
 
 
@@ -1541,7 +1534,7 @@ class AstBoolean(AstExpression):
     location: Optional[SourceLocation]
     data: bool
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+    def eval(self, env: Environment) -> Union[Value, Error]:
         return Boolean.new(self.data)
 
 
@@ -1551,7 +1544,7 @@ class AstNumber(AstExpression):
     location: Optional[SourceLocation]
     data: float
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+    def eval(self, env: Environment) -> Union[Value, Error]:
         return Number.new(self.data)
 
 
@@ -1561,7 +1554,7 @@ class AstString(AstExpression):
     location: Optional[SourceLocation]
     data: bytes
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+    def eval(self, env: Environment) -> Union[Value, Error]:
         return String.new(self.data)
 
 
@@ -1571,7 +1564,7 @@ class AstVector(AstExpression):
     location: Optional[SourceLocation]
     elements: list[AstExpression]
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+    def eval(self, env: Environment) -> Union[Value, Error]:
         values: list[Value] = list()
         for x in self.elements:
             result = x.eval(env)
@@ -1587,7 +1580,7 @@ class AstMap(AstExpression):
     location: Optional[SourceLocation]
     elements: list[Tuple[AstExpression, AstExpression]]
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+    def eval(self, env: Environment) -> Union[Value, Error]:
         elements: dict[Value, Value] = dict()
         for k, v in self.elements:
             k_result = k.eval(env)
@@ -1606,7 +1599,7 @@ class AstSet(AstExpression):
     location: Optional[SourceLocation]
     elements: list[AstExpression]
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+    def eval(self, env: Environment) -> Union[Value, Error]:
         elements: list[Value] = list()
         for x in self.elements:
             result = x.eval(env)
@@ -1624,7 +1617,7 @@ class AstFunction(AstExpression):
     body: "AstBlock"
     name: Optional[String] = None
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+    def eval(self, env: Environment) -> Union[Value, Error]:
         return Function.new(self, env)
 
 
@@ -1634,8 +1627,8 @@ class AstGrouped(AstExpression):
     location: Optional[SourceLocation]
     expression: AstExpression
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
-        return self.expression.eval(env, cow=cow)
+    def eval(self, env: Environment) -> Union[Value, Error]:
+        return self.expression.eval(env)
 
 
 @final
@@ -1644,7 +1637,7 @@ class AstPositive(AstExpression):
     location: Optional[SourceLocation]
     expression: AstExpression
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+    def eval(self, env: Environment) -> Union[Value, Error]:
         result = self.expression.eval(env)
         if isinstance(result, Error):
             return result
@@ -1665,7 +1658,7 @@ class AstNegative(AstExpression):
     location: Optional[SourceLocation]
     expression: AstExpression
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+    def eval(self, env: Environment) -> Union[Value, Error]:
         result = self.expression.eval(env)
         if isinstance(result, Error):
             return result
@@ -1686,7 +1679,7 @@ class AstNot(AstExpression):
     location: Optional[SourceLocation]
     expression: AstExpression
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+    def eval(self, env: Environment) -> Union[Value, Error]:
         result = self.expression.eval(env)
         if isinstance(result, Error):
             return result
@@ -1705,7 +1698,7 @@ class AstAnd(AstExpression):
     lhs: AstExpression
     rhs: AstExpression
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+    def eval(self, env: Environment) -> Union[Value, Error]:
         lhs = self.lhs.eval(env)
         if isinstance(lhs, Error):
             return lhs
@@ -1733,7 +1726,7 @@ class AstOr(AstExpression):
     lhs: AstExpression
     rhs: AstExpression
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+    def eval(self, env: Environment) -> Union[Value, Error]:
         lhs = self.lhs.eval(env)
         if isinstance(lhs, Error):
             return lhs
@@ -1761,7 +1754,7 @@ class AstEq(AstExpression):
     lhs: AstExpression
     rhs: AstExpression
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+    def eval(self, env: Environment) -> Union[Value, Error]:
         lhs = self.lhs.eval(env)
         if isinstance(lhs, Error):
             return lhs
@@ -1804,7 +1797,7 @@ class AstNe(AstExpression):
     lhs: AstExpression
     rhs: AstExpression
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+    def eval(self, env: Environment) -> Union[Value, Error]:
         lhs = self.lhs.eval(env)
         if isinstance(lhs, Error):
             return lhs
@@ -1847,7 +1840,7 @@ class AstLe(AstExpression):
     lhs: AstExpression
     rhs: AstExpression
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+    def eval(self, env: Environment) -> Union[Value, Error]:
         lhs = self.lhs.eval(env)
         if isinstance(lhs, Error):
             return lhs
@@ -1884,7 +1877,7 @@ class AstGe(AstExpression):
     lhs: AstExpression
     rhs: AstExpression
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+    def eval(self, env: Environment) -> Union[Value, Error]:
         lhs = self.lhs.eval(env)
         if isinstance(lhs, Error):
             return lhs
@@ -1921,7 +1914,7 @@ class AstLt(AstExpression):
     lhs: AstExpression
     rhs: AstExpression
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+    def eval(self, env: Environment) -> Union[Value, Error]:
         lhs = self.lhs.eval(env)
         if isinstance(lhs, Error):
             return lhs
@@ -1958,7 +1951,7 @@ class AstGt(AstExpression):
     lhs: AstExpression
     rhs: AstExpression
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+    def eval(self, env: Environment) -> Union[Value, Error]:
         lhs = self.lhs.eval(env)
         if isinstance(lhs, Error):
             return lhs
@@ -1995,7 +1988,7 @@ class AstAdd(AstExpression):
     lhs: AstExpression
     rhs: AstExpression
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+    def eval(self, env: Environment) -> Union[Value, Error]:
         lhs = self.lhs.eval(env)
         if isinstance(lhs, Error):
             return lhs
@@ -2026,7 +2019,7 @@ class AstSub(AstExpression):
     lhs: AstExpression
     rhs: AstExpression
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+    def eval(self, env: Environment) -> Union[Value, Error]:
         lhs = self.lhs.eval(env)
         if isinstance(lhs, Error):
             return lhs
@@ -2051,7 +2044,7 @@ class AstMul(AstExpression):
     lhs: AstExpression
     rhs: AstExpression
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+    def eval(self, env: Environment) -> Union[Value, Error]:
         lhs = self.lhs.eval(env)
         if isinstance(lhs, Error):
             return lhs
@@ -2076,7 +2069,7 @@ class AstDiv(AstExpression):
     lhs: AstExpression
     rhs: AstExpression
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+    def eval(self, env: Environment) -> Union[Value, Error]:
         lhs = self.lhs.eval(env)
         if isinstance(lhs, Error):
             return lhs
@@ -2103,7 +2096,7 @@ class AstRem(AstExpression):
     lhs: AstExpression
     rhs: AstExpression
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+    def eval(self, env: Environment) -> Union[Value, Error]:
         lhs = self.lhs.eval(env)
         if isinstance(lhs, Error):
             return lhs
@@ -2136,7 +2129,7 @@ class AstFunctionCall(AstExpression):
     function: AstExpression
     arguments: list[AstExpression]
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+    def eval(self, env: Environment) -> Union[Value, Error]:
         self_argument: Optional[Value] = None
         if isinstance(self.function, AstAccessDot):
             # Special case when dot access is used for a function call. An
@@ -2188,8 +2181,8 @@ class AstAccessIndex(AstExpression):
     store: AstExpression
     field: AstExpression
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
-        store = self.store.eval(env, cow=cow)
+    def eval(self, env: Environment) -> Union[Value, Error]:
+        store = self.store.eval(env)
         if isinstance(store, Error):
             return store
         field = self.field.eval(env)
@@ -2222,8 +2215,8 @@ class AstAccessScope(AstExpression):
     store: AstExpression
     field: AstIdentifier
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
-        store = self.store.eval(env, cow=cow)
+    def eval(self, env: Environment) -> Union[Value, Error]:
+        store = self.store.eval(env)
         if isinstance(store, Error):
             return store
         field = self.field.name
@@ -2247,8 +2240,8 @@ class AstAccessDot(AstExpression):
     store: AstExpression
     field: AstIdentifier
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
-        store = self.store.eval(env, cow=cow)
+    def eval(self, env: Environment) -> Union[Value, Error]:
+        store = self.store.eval(env)
         if isinstance(store, Error):
             return store
         field = self.field.name
@@ -2272,7 +2265,7 @@ class AstMkref(AstExpression):
     location: Optional[SourceLocation]
     lhs: AstExpression
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+    def eval(self, env: Environment) -> Union[Value, Error]:
         result = self.lhs.eval(env)
         if isinstance(result, Error):
             return result
@@ -2285,7 +2278,7 @@ class AstDeref(AstExpression):
     location: Optional[SourceLocation]
     lhs: AstExpression
 
-    def eval(self, env: Environment, cow: bool = False) -> Union[Value, Error]:
+    def eval(self, env: Environment) -> Union[Value, Error]:
         result = self.lhs.eval(env)
         if isinstance(result, Error):
             return result
@@ -2660,7 +2653,7 @@ class AstStatementAssignment(AstStatement):
             store = lookup.store
             field = self.lhs.name
         elif isinstance(self.lhs, AstAccessIndex):
-            lhs_store = self.lhs.store.eval(env, cow=True)
+            lhs_store = self.lhs.store.eval(env)
             if isinstance(lhs_store, Error):
                 return lhs_store
             lhs_field = self.lhs.field.eval(env)
@@ -2669,14 +2662,14 @@ class AstStatementAssignment(AstStatement):
             store = lhs_store
             field = lhs_field
         elif isinstance(self.lhs, AstAccessDot):
-            lhs_store = self.lhs.store.eval(env, cow=True)
+            lhs_store = self.lhs.store.eval(env)
             if isinstance(lhs_store, Error):
                 return lhs_store
             lhs_field = self.lhs.field.name
             store = lhs_store
             field = lhs_field
         elif isinstance(self.lhs, AstAccessScope):
-            lhs_store = self.lhs.store.eval(env, cow=True)
+            lhs_store = self.lhs.store.eval(env)
             if isinstance(lhs_store, Error):
                 return lhs_store
             lhs_field = self.lhs.field.name
