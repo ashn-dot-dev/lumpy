@@ -17,15 +17,6 @@ println("+7 % -3 is " + repr(+7 % -3));
 println("-7 % +3 is " + repr(-7 % +3));
 println("-7 % -3 is " + repr(-7 % -3));
 println("10 % 3.5 is " + repr(10 % 3.5));
-
-print("\n");
-
-let meta = {"%": function(lhs, rhs) { println("overload"); return 0; }};
-let x = "foo";
-let y = map{};
-setmeta(x.&, meta);
-try { x % y; } else err { dumpln(err); }
-try { y % x; } else err { dumpln(err); }
 ################################################################################
 # "attempted % operation with types `null` and `null`"
 # "attempted % operation with types `boolean` and `boolean`"
@@ -43,6 +34,3 @@ try { y % x; } else err { dumpln(err); }
 # -7 % +3 is -1
 # -7 % -3 is -1
 # 10 % 3.5 is 3
-#
-# overload
-# overload

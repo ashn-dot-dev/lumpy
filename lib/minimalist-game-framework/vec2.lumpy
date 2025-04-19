@@ -19,7 +19,7 @@ let vec2 = {
         if magnitude == 0 {
             return vec2::new(0, 0);
         }
-        return self.* / magnitude;
+        return vec2::div(self.*, magnitude);
     },
     "dot": function(lhs, rhs) {
         return lhs.x * rhs.x + lhs.y * rhs.y;
@@ -27,23 +27,23 @@ let vec2 = {
     "cross": function(lhs, rhs) {
         return lhs.x * rhs.y - lhs.y * rhs.x;
     },
-    "+": function(lhs, rhs) {
+    "add": function(lhs, rhs) {
         return vec2::new(lhs.x + rhs.x, lhs.y + rhs.y);
     },
-    "-": function(lhs, rhs) {
+    "sub": function(lhs, rhs) {
         return vec2::new(lhs.x - rhs.x, lhs.y - rhs.y);
     },
-    "*": function(lhs, rhs) {
-        if type(lhs) == "number" {
+    "mul": function(lhs, rhs) {
+        if utype(lhs) == "number" {
             return vec2::new(lhs * rhs.x, lhs * rhs.y);
         }
-        if type(rhs) == "number" {
+        if utype(rhs) == "number" {
             return vec2::new(lhs.x * rhs, lhs.y * rhs);
         }
         return vec2::new(lhs.x * rhs.x, lhs.y * rhs.y);
     },
-    "/": function(lhs, rhs) {
-        if type(rhs) == "number" {
+    "div": function(lhs, rhs) {
+        if utype(rhs) == "number" {
             return vec2::new(lhs.x / rhs, lhs.y / rhs);
         }
         return vec2::new(lhs.x / rhs.x, lhs.y / rhs.y);

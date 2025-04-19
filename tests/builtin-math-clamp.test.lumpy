@@ -3,25 +3,9 @@ dumpln(math::clamp(150, 100, 200));
 dumpln(math::clamp(200, 100, 200));
 dumpln(math::clamp(0, 100, 200));
 dumpln(math::clamp(300, 100, 200));
-
-let meta = {
-    "<=>": function(lhs, rhs) {
-        # always say that lhs == rhs
-        return 0;
-    },
-};
-let a = {"foo"};
-let b = {"bar"};
-let c = {"baz"};
-setmeta(a.&, meta);
-setmeta(b.&, meta);
-setmeta(c.&, meta);
-# math::clamp should select value when min <= value <= max
-dumpln(math::clamp(a, b, c));
 ################################################################################
 # 100
 # 150
 # 200
 # 100
 # 200
-# {"foo"}

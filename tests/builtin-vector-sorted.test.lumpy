@@ -1,31 +1,18 @@
-println("[\"foo\", \"bar\", \"baz\"].sorted() is " + repr(["foo", "bar", "baz"].sorted()));
-
-# Sort uses semantic ordering.
-let vec2 = {
-    "new": function(x, y) {
-        let self = {"x": x, "y": y};
-        setmeta(self.&, vec2);
-        return self;
-    },
-    "<=>": function(lhs, rhs) {
-        if lhs.x < rhs.x { return -1; }
-        if lhs.x > rhs.x { return +1; }
-        if lhs.y < rhs.y { return -1; }
-        if lhs.y > rhs.y { return +1; }
-        return 0;
-    },
-};
-let x = [vec2::new(+3, +5), vec2::new(-1, 0), vec2::new(+3, -2)];
-println(repr(x) + ".sorted() is " + repr(x.sorted()));
+println(`["foo", "bar", "baz"].sorted() is ` + repr(["foo", "bar", "baz"].sorted()));
 
 print("\n");
 
 let sorted = getmeta([])::sorted;
 try { sorted(map{"foo": "bar"}); } else err { dumpln(string(err)); }
 try { sorted(map{"foo": "bar"}.&); } else err { dumpln(string(err)); }
+
+print("\n");
+
+try { println(`["foo", 123, "baz"].sorted() is ` + repr(["foo", 123, "baz"].sorted())); } else err { dumpln(string(err)); }
 ################################################################################
 # ["foo", "bar", "baz"].sorted() is ["bar", "baz", "foo"]
-# [{"x": 3, "y": 5}, {"x": -1, "y": 0}, {"x": 3, "y": -2}].sorted() is [{"x": -1, "y": 0}, {"x": 3, "y": -2}, {"x": 3, "y": 5}]
 #
 # "expected reference to vector-like value for argument 0, received map"
 # "expected reference to vector-like value for argument 0, received reference to map"
+#
+# "attempted < operation with types `number` and `string`"

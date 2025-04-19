@@ -1,18 +1,18 @@
 let vec2 = import("../vec2.lumpy");
 
-dumpln(vec2::new(0, 0) / 0.1);
-dumpln(vec2::new(+1, +1) / 0.1);
-dumpln(vec2::new(-1, -1) / 0.1);
+dumpln(vec2::div(vec2::new(0, 0), 0.1));
+dumpln(vec2::div(vec2::new(+1, +1), 0.1));
+dumpln(vec2::div(vec2::new(-1, -1), 0.1));
 
 print("\n");
 
-dumpln(vec2::new(0, 0) / vec2::new(0.1, 0.2));
-dumpln(vec2::new(+1, +1) / vec2::new(0.1, 0.2));
-dumpln(vec2::new(-1, -1) / vec2::new(0.1, 0.2));
+dumpln(vec2::div(vec2::new(0, 0), vec2::new(0.1, 0.2)));
+dumpln(vec2::div(vec2::new(+1, +1), vec2::new(0.1, 0.2)));
+dumpln(vec2::div(vec2::new(-1, -1), vec2::new(0.1, 0.2)));
 
 print("\n");
 
-try { dumpln((vec2::new(1, 1) / 0).fixed(3)); } else err { dumpln(err); }
+try { dumpln(vec2::div(vec2::new(1, 1), 0).fixed(3)); } else err { dumpln(err); }
 ################################################################################
 # {"x": 0, "y": 0}
 # {"x": 10, "y": 10}

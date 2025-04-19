@@ -21,31 +21,6 @@ try { dumpln( f               != f               ); } else err { dumpln(err); }
 try { dumpln( f               != g               ); } else err { dumpln(err); }
 try { dumpln( println         != println         ); } else err { dumpln(err); }
 try { dumpln( println         != dumpln          ); } else err { dumpln(err); }
-
-print("\n");
-
-let meta = {"==": function(lhs, rhs) { println("overload =="); return false; }};
-let x = "foo";
-let y = map{};
-setmeta(x.&, meta);
-try { x != y; } else err { dumpln(err); }
-try { y != x; } else err { dumpln(err); }
-
-print("\n");
-
-let meta = {"==": function(lhs, rhs) { return "nope"; }};
-let x = null;
-setmeta(x.&, meta);
-try { x != x; } else err { dumpln(err); }
-
-print("\n");
-
-let meta = {"<=>": function(lhs, rhs) { println("overload <=>"); return 1; }};
-let x = "foo";
-let y = map{};
-setmeta(x.&, meta);
-try { x != y; } else err { dumpln(err); }
-try { y != x; } else err { dumpln(err); }
 ################################################################################
 # false
 # false
@@ -66,11 +41,3 @@ try { y != x; } else err { dumpln(err); }
 # true
 # false
 # true
-#
-# overload ==
-# overload ==
-#
-# "metafunction `==` returned non-boolean value \"nope\""
-#
-# overload <=>
-# overload <=>

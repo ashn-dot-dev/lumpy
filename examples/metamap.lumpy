@@ -1,0 +1,25 @@
+# examples/metamap.lumpy
+
+let vec2 = {
+    "type": "vec2",
+    "new": function(x, y) {
+        let self = {
+            "x": x,
+            "y": y,
+        };
+        setmeta(self.&, vec2);
+        return self;
+    },
+    "magnitude": function(self) {
+        return math::sqrt(self.*.x * self.*.x + self.*.y * self.*.y);
+    },
+    "normalized": function(self) {
+        let magnitude = vec2::magnitude(self);
+        return vec2::new(self.*.x / magnitude, self.*.y / magnitude);
+    },
+};
+
+let v = vec2::new(3, 4);
+println(`v is ` + repr(v) + ` of type ` + type(v));
+println(`v.magnitude() is ` + repr(v.magnitude()));
+println(`v.normalized() is ` + repr(v.normalized()));

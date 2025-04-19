@@ -23,15 +23,6 @@ try { dumpln( f               < f               ); } else err { dumpln(err); }
 try { dumpln( f               < g               ); } else err { dumpln(err); }
 try { dumpln( println         < println         ); } else err { dumpln(err); }
 try { dumpln( println         < dumpln          ); } else err { dumpln(err); }
-
-print("\n");
-
-let meta = {"<=>": function(lhs, rhs) { println("overload"); return -1; }};
-let x = "foo";
-let y = map{};
-setmeta(x.&, meta);
-try { x < y; } else err { dumpln(err); }
-try { y < x; } else err { dumpln(err); }
 ################################################################################
 # "attempted < operation with types `null` and `null`"
 # "attempted < operation with types `boolean` and `boolean`"
@@ -54,6 +45,3 @@ try { y < x; } else err { dumpln(err); }
 # "attempted < operation with types `function` and `function`"
 # "attempted < operation with types `function` and `function`"
 # "attempted < operation with types `function` and `function`"
-#
-# overload
-# overload

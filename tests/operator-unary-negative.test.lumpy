@@ -8,13 +8,6 @@ try { dumpln( -set{}        ); } else err { dumpln(err); }
 try { dumpln( -123.&        ); } else err { dumpln(err); }
 try { dumpln( -function(){} ); } else err { dumpln(err); }
 try { dumpln( -println      ); } else err { dumpln(err); }
-
-print("\n");
-
-let meta = {"unary-": function(value) { println("overload"); return value; }};
-let x = 123;
-setmeta(x.&, meta);
-dumpln(-x);
 ################################################################################
 # "attempted unary - operation with type `null`"
 # "attempted unary - operation with type `boolean`"
@@ -26,6 +19,3 @@ dumpln(-x);
 # "attempted unary - operation with type `reference`"
 # "attempted unary - operation with type `function`"
 # "attempted unary - operation with type `function`"
-#
-# overload
-# 123

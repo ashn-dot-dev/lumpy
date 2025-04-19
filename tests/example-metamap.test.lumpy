@@ -1,0 +1,5 @@
+import("../examples/metamap.lumpy");
+################################################################################
+# v is {"x": 3, "y": 4} of type vec2
+# v.magnitude() is 5
+# v.normalized() is {"x": 0.6, "y": 0.8}

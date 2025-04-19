@@ -5,9 +5,9 @@ Lumpy is a small scripting language with value semantics.
 
 Lumpy features strong dynamic typing, structural equality, assignment by copy,
 pass by (copied) value, explicit references, and lightweight polymorphism via
-metamaps and operator overloading. Lumpy utilizes a copy-on-write data model
-that allows for inexpensive copy operations at runtime, yielding a language
-that reads, writes, and feels like efficient pseudocode.
+metamaps. Lumpy utilizes a copy-on-write data model that allows for inexpensive
+copy operations at runtime, yielding a language that reads, writes, and feels
+like efficient pseudocode.
 
 Hello World in Lumpy:
 
@@ -34,27 +34,27 @@ be equal.
 
 let x = ["foo", {"bar": 123}, "baz"];
 let y = x; # x is assigned to y by copy
-println("x is " + repr(x));
-println("y is " + repr(y));
+println(`x is ` + repr(x));
+println(`y is ` + repr(y));
 # x and y are separate values that are structurally equal
-println("x == y is " + repr(x == y));
+println(`x == y is ` + repr(x == y));
 
 print("\n");
 
 # updates to x and y do not affect each other, because they are separate values
 x[0] = "abc";
 y[1]["bar"] = "xyz";
-println("x is " + repr(x));
-println("y is " + repr(y));
+println(`x is ` + repr(x));
+println(`y is ` + repr(y));
 # x and y are no longer structurally equal as their contents' now differ
-println("x == y is " + repr(x == y));
+println(`x == y is ` + repr(x == y));
 
 print("\n");
 
 let z = ["foo", {"bar": "xyz"}, "baz"];
-println("z is " + repr(z));
+println(`z is ` + repr(z));
 # y and z are separate values with structural equality
-println("y == z is " + repr(y == z));
+println(`y == z is ` + repr(y == z));
 ```
 
 ```sh
@@ -72,37 +72,45 @@ y == z is true
 ```
 
 Each object in Lumpy has a metamap that may be used to alter and extend its
-functionality. In this example, the `==` operator is overloaded in the metamaps
-of objects `a` and `b`. The overloaded operator tests for equality between
-these objects based on the objects' `id` fields rather than their structural
-identities.
+functionality. In this example, we create a 2-dimensional vector type called
+`vec2`. When a new `vec2` instance is created via the `vec2::new` function, the
+`vec2` map/type is set as the metamap of the newly-created object. The object
+can then call `vec2` metafunctions at a later time, accessing additional
+operations associated with the type.
 
 ```
-# examples/operator-overloading.lumpy
+# examples/metamap.lumpy
 
-let meta = {
-    "==": function(lhs, rhs) {
-        return lhs.id == rhs.id;
+let vec2 = {
+    "type": "vec2",
+    "new": function(x, y) {
+        let self = {
+            "x": x,
+            "y": y,
+        };
+        setmeta(self.&, vec2);
+        return self;
+    },
+    "magnitude": function(self) {
+        return math::sqrt(self.*.x * self.*.x + self.*.y * self.*.y);
+    },
+    "normalized": function(self) {
+        let magnitude = vec2::magnitude(self);
+        return vec2::new(self.*.x / magnitude, self.*.y / magnitude);
     },
 };
-let a = {"id": "banana", "expiry date": "2024-08-24"};
-let b = {"id": "banana", "expiry date": "2024-08-31"};
-setmeta(a.&, meta);
-setmeta(b.&, meta);
-println("a is " + repr(a));
-println("b is " + repr(b));
-# a and b are semantically equal according to the overloaded "==" operator even
-# though they are not structurally equal
-println("a == b is " + repr(a == b));
-println("a != b is " + repr(a != b));
+
+let v = vec2::new(3, 4);
+println(`v is ` + repr(v) + ` of type ` + type(v));
+println(`v.magnitude() is ` + repr(v.magnitude()));
+println(`v.normalized() is ` + repr(v.normalized()));
 ```
 
 ```sh
-/path/to/lumpy$ ./lumpy.py examples/operator-overloading.lumpy
-a is {"id": "banana", "expiry date": "2024-08-24"}
-b is {"id": "banana", "expiry date": "2024-08-31"}
-a == b is true
-a != b is false
+/path/to/lumpy$ ./lumpy.py examples/metamap.lumpy
+v is {"x": 3, "y": 4} of type vec2
+v.magnitude() is 5
+v.normalized() is {"x": 0.6, "y": 0.8}
 ```
 
 Objects are passed by (copied) value to functions, behaving exactly the same as

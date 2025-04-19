@@ -1,15 +1,5 @@
 dumpln({"a": 123, "b": 456, "c": 789}.contains("a"));
 dumpln({"a": 123, "b": 456, "c": 789}.contains("foo"));
-
-let meta = {"==": function(lhs, rhs) {return true; }};
-let a = 123;
-let b = 456;
-setmeta(a.&, meta);
-setmeta(b.&, meta);
-assert(a == b);
-# Contains use structural comparison, not semantic comparison.
-dumpln({a: "foo"}.contains(b));
 ################################################################################
 # true
-# false
 # false

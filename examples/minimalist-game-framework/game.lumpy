@@ -130,7 +130,7 @@ while gf::running() {
     if gf::key::held("RARROW") {
         delta.x = delta.x + 1;
     }
-    delta = delta.normalized() * 4;
+    delta = gf::vec2::mul(delta.normalized(), 4);
     if player.alive {
         player.position.x = math::clamp(player.position.x + delta.x, 0, SCREEN_W - PLAYER_W);
         player.position.y = math::clamp(player.position.y + delta.y, 0, SCREEN_H - PLAYER_H);
@@ -311,10 +311,10 @@ while gf::running() {
             PLAYER_W,
             PLAYER_H
         ).center();
-        let diff = center - player.position;
+        let diff = gf::vec2::sub(center, player.position);
         gf::draw::image_ex(
             images::player,
-            player.position + diff * (1 - player.scale),
+            gf::vec2::add(player.position, gf::vec2::mul(diff, 1 - player.scale)),
             {
                 "scale": player.scale,
                 "angle": player.angle,
