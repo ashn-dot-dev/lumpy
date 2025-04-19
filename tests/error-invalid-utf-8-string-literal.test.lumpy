@@ -1,0 +1,6 @@
+"🍔";
+"\xf0\x9f\x8d\x94"; # 🍔
+# invalid NUL in the middle of the encoding
+try { "\xf0\x9f\x00\x8d\x94"; } else err { println(`error: ` + string(err)); }
+################################################################################
+# error: invalid UTF-8 encoded string "\xF0\x9F\x00\x8D\x94"

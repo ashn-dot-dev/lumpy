@@ -48,6 +48,11 @@ def escape(text: str) -> str:
     return "".join([MAPPING.get(c, c) for c in text])
 
 
+def hexscape(text: Union[bytes, str]) -> str:
+    data = text if isinstance(text, bytes) else text.encode("utf-8")
+    return "".join([f"\\x{b:02X}" for b in data])
+
+
 class InvalidFieldAccess(KeyError):
     def __init__(self, value: "Value", field: "Value"):
         self.value = value.copy()
@@ -291,13 +296,24 @@ class Number(Value):
 @final
 @dataclass
 class String(Value):
-    data: bytes
-    meta: Optional["Map"] = None
+    _bytes: bytes
+    _runes: str
+    meta: Optional["Map"]
 
     def __init__(
         self, data: Union[bytes, str], meta: Optional["Map"] = None
     ) -> None:
-        self.data = data if isinstance(data, bytes) else data.encode("utf-8")
+        try:
+            match data:
+                case bytes():
+                    self._bytes = data
+                    self._runes = data.decode("utf-8")
+                case str():
+                    self._bytes = data.encode("utf-8")
+                    self._runes = data
+        except (UnicodeDecodeError, UnicodeEncodeError):
+            escaped = hexscape(data)
+            raise Exception(f'invalid UTF-8 encoded string "{escaped}"')
         self.meta = meta
 
     @staticmethod
@@ -305,37 +321,47 @@ class String(Value):
         return String(data, STRING_META.copy())
 
     def __hash__(self) -> int:
-        return hash(self.data)
+        return hash(self.bytes)
 
     def __eq__(self, other) -> bool:
         if type(self) is not type(other):
             return False
-        return self.data == other.data
+        return self.bytes == other.bytes
 
     def __str__(self) -> str:
         return f'"{escape(self.runes)}"'
 
     def __contains__(self, item) -> bool:
-        return item in self.data
+        if isinstance(item, String):
+            return item.bytes in self.bytes
+        if isinstance(item, bytes):
+            return item in self.bytes
+        if isinstance(item, str):
+            return item in self.runes
+        return False
 
     @staticmethod
     def type() -> str:
         return "string"
 
     def copy(self) -> "String":
-        return String(self.data, self.meta.copy() if self.meta else None)
+        result = String.__new__(String)
+        result._bytes = self._bytes
+        result._runes = self._runes
+        result.meta = self.meta.copy() if self.meta else None
+        return result
 
     def cow(self) -> None:
         if self.meta is not None:
             self.meta.cow()
 
     @property
-    def runes(self) -> str:
-        return self.data.decode(encoding="utf-8")
+    def bytes(self) -> bytes:
+        return self._bytes
 
     @property
-    def bytes(self) -> bytes:
-        return self.data
+    def runes(self) -> str:
+        return self._runes
 
 
 @final
@@ -1534,7 +1560,10 @@ class AstString(AstExpression):
     data: bytes
 
     def eval(self, env: Environment) -> Union[Value, Error]:
-        return String.new(self.data)
+        try:
+            return String.new(self.data)
+        except Exception as e:
+            return Error(self.location, str(e))
 
 
 @final
@@ -1771,7 +1800,7 @@ class AstLe(AstExpression):
         if isinstance(lhs, Number) and isinstance(rhs, Number):
             return Boolean.new(float(lhs.data) <= float(rhs.data))
         if isinstance(lhs, String) and isinstance(rhs, String):
-            return Boolean.new(lhs.data <= rhs.data)
+            return Boolean.new(lhs.bytes <= rhs.bytes)
         return Error(
             self.location,
             f"attempted <= operation with types `{typename(lhs)}` and `{typename(rhs)}`",
@@ -1795,7 +1824,7 @@ class AstGe(AstExpression):
         if isinstance(lhs, Number) and isinstance(rhs, Number):
             return Boolean.new(float(lhs.data) >= float(rhs.data))
         if isinstance(lhs, String) and isinstance(rhs, String):
-            return Boolean.new(lhs.data >= rhs.data)
+            return Boolean.new(lhs.bytes >= rhs.bytes)
         return Error(
             self.location,
             f"attempted >= operation with types `{typename(lhs)}` and `{typename(rhs)}`",
@@ -1819,7 +1848,7 @@ class AstLt(AstExpression):
         if isinstance(lhs, Number) and isinstance(rhs, Number):
             return Boolean.new(float(lhs.data) < float(rhs.data))
         if isinstance(lhs, String) and isinstance(rhs, String):
-            return Boolean.new(lhs.data < rhs.data)
+            return Boolean.new(lhs.bytes < rhs.bytes)
         return Error(
             self.location,
             f"attempted < operation with types `{typename(lhs)}` and `{typename(rhs)}`",
@@ -1843,7 +1872,7 @@ class AstGt(AstExpression):
         if isinstance(lhs, Number) and isinstance(rhs, Number):
             return Boolean.new(float(lhs.data) > float(rhs.data))
         if isinstance(lhs, String) and isinstance(rhs, String):
-            return Boolean.new(lhs.data > rhs.data)
+            return Boolean.new(lhs.bytes > rhs.bytes)
         return Error(
             self.location,
             f"attempted > operation with types `{typename(lhs)}` and `{typename(rhs)}`",
@@ -1867,7 +1896,7 @@ class AstAdd(AstExpression):
         if isinstance(lhs, Number) and isinstance(rhs, Number):
             return Number.new(float(lhs.data) + float(rhs.data))
         if isinstance(lhs, String) and isinstance(rhs, String):
-            return String.new(lhs.data + rhs.data)
+            return String.new(lhs.bytes + rhs.bytes)
         if isinstance(lhs, Vector) and isinstance(rhs, Vector):
             return Vector.new(
                 [x.copy() for x in lhs.data] + [x.copy() for x in rhs.data]
@@ -4191,12 +4220,7 @@ class BuiltinStringSlice(Builtin):
             return Error(None, "slice end is greater than the string length")
         if end < bgn:
             return Error(None, "slice end is less than slice begin")
-        try:
-            return String.new(
-                arg0_data.bytes[bgn:end].decode(encoding="utf-8")
-            )
-        except UnicodeDecodeError:
-            return Error(None, "invalid UTF-8 encoded string")
+        return String.new(arg0_data.bytes[bgn:end])
 
 
 class BuiltinStringSplit(Builtin):

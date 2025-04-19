@@ -20,4 +20,4 @@ try { "abc😀def".slice(4, 7); } else err { println("\"abc😀def\".slice(4, 7)
 # "foo=bar".slice(-1, 7) produces the error "slice begin is less than zero"
 # "foo=bar".slice(0, -1) produces the error "slice end is less than zero"
 # "foo=bar".slice(4, 3) produces the error "slice end is less than slice begin"
-# "abc😀def".slice(4, 7) produces the error "invalid UTF-8 encoded string"
+# "abc😀def".slice(4, 7) produces the error "invalid UTF-8 encoded string \"\\x9F\\x98\\x80\""
