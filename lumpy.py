@@ -457,7 +457,6 @@ class Vector(Value):
     def cow(self) -> None:
         if self.meta is not None:
             self.meta.cow()
-        self.meta = self.meta.copy() if self.meta else None
         if self.data.uses > 1:
             self.data.uses -= 1
             self.data = self.data.copy()  # copy-on-write
