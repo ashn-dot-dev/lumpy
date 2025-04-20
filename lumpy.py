@@ -91,7 +91,7 @@ class SharedSetData(UserDict["Value", None]):
         if data is not None:
             super().__init__({k: None for k in data})
         else:
-            super().__init__(None)
+            super().__init__()
 
     def insert(self, element: "Value") -> None:
         super().__setitem__(element, None)
