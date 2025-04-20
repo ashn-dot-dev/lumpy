@@ -205,7 +205,7 @@ class Boolean(Value):
 
     @staticmethod
     def new(data: bool) -> "Boolean":
-        return Boolean(data, BOOLEAN_META.copy())
+        return Boolean(data, _BOOLEAN_META.copy())
 
     def __hash__(self) -> int:
         return hash(self.data)
@@ -249,7 +249,7 @@ class Number(Value):
 
     @staticmethod
     def new(data: SupportsFloat) -> "Number":
-        return Number(data, NUMBER_META.copy())
+        return Number(data, _NUMBER_META.copy())
 
     def __hash__(self) -> int:
         return hash(self.data)
@@ -286,7 +286,10 @@ class Number(Value):
         return "number"
 
     def copy(self) -> "Number":
-        return Number(self.data, self.meta.copy() if self.meta else None)
+        result = Number.__new__(Number)
+        result.data = self.data
+        result.meta = self.meta.copy() if self.meta else None
+        return result
 
     def cow(self) -> None:
         if self.meta is not None:
@@ -318,7 +321,7 @@ class String(Value):
 
     @staticmethod
     def new(data: Union[bytes, str]) -> "String":
-        return String(data, STRING_META.copy())
+        return String(data, _STRING_META.copy())
 
     def __hash__(self) -> int:
         return hash(self.bytes)
@@ -385,7 +388,7 @@ class Vector(Value):
     def new(
         data: Optional[Union[SharedVectorData, Iterable[Value]]] = None
     ) -> "Vector":
-        return Vector(data, VECTOR_META.copy())
+        return Vector(data, _VECTOR_META.copy())
 
     def __del__(self):
         assert self.data.uses >= 1
@@ -482,7 +485,7 @@ class Map(Value):
     def new(
         data: Optional[Union[SharedMapData, dict[Value, Value]]] = None
     ) -> "Map":
-        return Map(data, MAP_META.copy())
+        return Map(data, _MAP_META.copy())
 
     def __del__(self):
         assert self.data.uses >= 1
@@ -575,7 +578,7 @@ class Set(Value):
     def new(
         data: Optional[Union[SharedSetData, Iterable[Value]]] = None
     ) -> "Set":
-        return Set(data, SET_META.copy())
+        return Set(data, _SET_META.copy())
 
     def __del__(self):
         assert self.data.uses >= 1
@@ -641,7 +644,7 @@ class Reference(Value):
 
     @staticmethod
     def new(data: Value) -> "Reference":
-        return Reference(data, REFERENCE_META.copy())
+        return Reference(data, _REFERENCE_META.copy())
 
     def __hash__(self) -> int:
         return hash(id(self.data))
@@ -677,7 +680,7 @@ class Function(Value):
 
     @staticmethod
     def new(ast: "AstFunction", env: "Environment") -> "Function":
-        return Function(ast, env, FUNCTION_META.copy())
+        return Function(ast, env, _FUNCTION_META.copy())
 
     def __hash__(self) -> int:
         return hash(id(self.ast)) + hash(id(self.env))
@@ -1458,10 +1461,10 @@ def update_named_functions(map: "AstMap", prefix: bytes = b""):
     """
     for k, v in map.elements:
         if isinstance(k, AstString) and isinstance(v, AstFunction):
-            v.name = String.new(prefix + k.data)
+            v.name = String.new(prefix + k.data.bytes)
         if isinstance(k, AstString) and isinstance(v, AstMap):
             update_named_functions(
-                v, prefix + k.data + str(TokenKind.SCOPE).encode("utf-8")
+                v, prefix + k.data.bytes + str(TokenKind.SCOPE).encode("utf-8")
             )
 
 
@@ -1528,42 +1531,40 @@ class AstIdentifier(AstExpression):
 @dataclass
 class AstNull(AstExpression):
     location: Optional[SourceLocation]
+    data: Null
 
     def eval(self, env: Environment) -> Union[Value, Error]:
-        return Null.new()
+        return self.data
 
 
 @final
 @dataclass
 class AstBoolean(AstExpression):
     location: Optional[SourceLocation]
-    data: bool
+    data: Boolean
 
     def eval(self, env: Environment) -> Union[Value, Error]:
-        return Boolean.new(self.data)
+        return self.data
 
 
 @final
 @dataclass
 class AstNumber(AstExpression):
     location: Optional[SourceLocation]
-    data: float
+    data: Number
 
     def eval(self, env: Environment) -> Union[Value, Error]:
-        return Number.new(self.data)
+        return self.data
 
 
 @final
 @dataclass
 class AstString(AstExpression):
     location: Optional[SourceLocation]
-    data: bytes
+    data: String
 
     def eval(self, env: Environment) -> Union[Value, Error]:
-        try:
-            return String.new(self.data)
-        except Exception as e:
-            return Error(self.location, str(e))
+        return self.data
 
 
 @final
@@ -2730,15 +2731,15 @@ class Parser:
 
     def parse_null(self) -> AstNull:
         location = self._expect_current(TokenKind.NULL).location
-        return AstNull(location)
+        return AstNull(location, Null.new())
 
     def parse_boolean(self) -> AstBoolean:
         if self._check_current(TokenKind.TRUE):
             location = self._expect_current(TokenKind.TRUE).location
-            return AstBoolean(location, True)
+            return AstBoolean(location, Boolean.new(True))
         if self._check_current(TokenKind.FALSE):
             location = self._expect_current(TokenKind.FALSE).location
-            return AstBoolean(location, False)
+            return AstBoolean(location, Boolean.new(False))
         raise ParseError(
             self.current_token.location,
             f"expected boolean, found {self.current_token}",
@@ -2747,12 +2748,15 @@ class Parser:
     def parse_number(self) -> AstNumber:
         token = self._expect_current(TokenKind.NUMBER)
         assert token.number is not None
-        return AstNumber(token.location, token.number)
+        return AstNumber(token.location, Number.new(token.number))
 
     def parse_string(self) -> AstString:
         token = self._expect_current(TokenKind.STRING)
         assert token.string is not None
-        return AstString(token.location, token.string)
+        try:
+            return AstString(token.location, String.new(token.string))
+        except Exception as e:
+            raise ParseError(self.current_token.location, str(e))
 
     def parse_vector(self) -> AstVector:
         location = self._expect_current(TokenKind.LBRACKET).location
@@ -2797,7 +2801,7 @@ class Parser:
                 self._expect_current(TokenKind.DOT)
                 identifier = self.parse_identifier()
                 expression: AstExpression = AstString(
-                    identifier.location, identifier.name.bytes
+                    identifier.location, identifier.name
                 )
             else:
                 expression = self.parse_expression()
@@ -4572,15 +4576,22 @@ class BuiltinSetRemove(Builtin):
             )
 
 
+# Metamaps for fundamental types *must* not be modified after program startup.
+# These metamaps are used during AST construction, and values created via the
+# `TYPE.new` initializers share these metamap references as an optimization.
+_BOOLEAN_META = Map()
+_NUMBER_META = Map()
+_STRING_META = Map()
+_VECTOR_META = Map()
+_MAP_META = Map()
+_SET_META = Map()
+_REFERENCE_META = Map()
+_FUNCTION_META = Map()
+
+# The base environment *may* be modified after program startup. Altering the
+# base environment is explicitly permitted in order to allow modifications to
+# the runtime from within `extend` function invocations.
 BASE_ENVIRONMENT = Environment()
-BOOLEAN_META = Map()
-NUMBER_META = Map()
-STRING_META = Map()
-VECTOR_META = Map()
-MAP_META = Map()
-SET_META = Map()
-REFERENCE_META = Map()
-FUNCTION_META = Map()
 
 
 def eval_source(
@@ -4604,50 +4615,50 @@ def eval_file(
     return eval_source(source, env, SourceLocation(str(path), 1))
 
 
-NUMBER_META[String("is_nan")] = BuiltinNumberIsNaN()
-NUMBER_META[String("is_inf")] = BuiltinNumberIsInf()
-NUMBER_META[String("is_integer")] = BuiltinNumberIsInteger()
-NUMBER_META[String("fixed")] = BuiltinNumberFixed()
-NUMBER_META[String("trunc")] = BuiltinNumberTrunc()
-NUMBER_META[String("round")] = BuiltinNumberRound()
-NUMBER_META[String("floor")] = BuiltinNumberFloor()
-NUMBER_META[String("ceil")] = BuiltinNumberCeil()
+_NUMBER_META[String("is_nan")] = BuiltinNumberIsNaN()
+_NUMBER_META[String("is_inf")] = BuiltinNumberIsInf()
+_NUMBER_META[String("is_integer")] = BuiltinNumberIsInteger()
+_NUMBER_META[String("fixed")] = BuiltinNumberFixed()
+_NUMBER_META[String("trunc")] = BuiltinNumberTrunc()
+_NUMBER_META[String("round")] = BuiltinNumberRound()
+_NUMBER_META[String("floor")] = BuiltinNumberFloor()
+_NUMBER_META[String("ceil")] = BuiltinNumberCeil()
 
-STRING_META[String("count")] = BuiltinStringCount()
-STRING_META[String("contains")] = BuiltinStringContains()
-STRING_META[String("starts_with")] = BuiltinStringStartsWith()
-STRING_META[String("ends_with")] = BuiltinStringEndsWith()
-STRING_META[String("trim")] = BuiltinStringTrim()
-STRING_META[String("find")] = BuiltinStringFind()
-STRING_META[String("rfind")] = BuiltinStringRfind()
-STRING_META[String("slice")] = BuiltinStringSlice()
-STRING_META[String("split")] = BuiltinStringSplit()
-STRING_META[String("join")] = BuiltinStringJoin()
-STRING_META[String("cut")] = BuiltinStringCut()
+_STRING_META[String("count")] = BuiltinStringCount()
+_STRING_META[String("contains")] = BuiltinStringContains()
+_STRING_META[String("starts_with")] = BuiltinStringStartsWith()
+_STRING_META[String("ends_with")] = BuiltinStringEndsWith()
+_STRING_META[String("trim")] = BuiltinStringTrim()
+_STRING_META[String("find")] = BuiltinStringFind()
+_STRING_META[String("rfind")] = BuiltinStringRfind()
+_STRING_META[String("slice")] = BuiltinStringSlice()
+_STRING_META[String("split")] = BuiltinStringSplit()
+_STRING_META[String("join")] = BuiltinStringJoin()
+_STRING_META[String("cut")] = BuiltinStringCut()
 
-VECTOR_META[String("count")] = BuiltinVectorCount()
-VECTOR_META[String("contains")] = BuiltinVectorContains()
-VECTOR_META[String("find")] = BuiltinVectorFind()
-VECTOR_META[String("rfind")] = BuiltinVectorRfind()
-VECTOR_META[String("push")] = BuiltinVectorPush()
-VECTOR_META[String("pop")] = BuiltinVectorPop()
-VECTOR_META[String("insert")] = BuiltinVectorInsert()
-VECTOR_META[String("remove")] = BuiltinVectorRemove()
-VECTOR_META[String("slice")] = BuiltinVectorSlice()
-VECTOR_META[String("reversed")] = BuiltinVectorReversed()
-VECTOR_META[String("sorted")] = BuiltinVectorSorted(
+_VECTOR_META[String("count")] = BuiltinVectorCount()
+_VECTOR_META[String("contains")] = BuiltinVectorContains()
+_VECTOR_META[String("find")] = BuiltinVectorFind()
+_VECTOR_META[String("rfind")] = BuiltinVectorRfind()
+_VECTOR_META[String("push")] = BuiltinVectorPush()
+_VECTOR_META[String("pop")] = BuiltinVectorPop()
+_VECTOR_META[String("insert")] = BuiltinVectorInsert()
+_VECTOR_META[String("remove")] = BuiltinVectorRemove()
+_VECTOR_META[String("slice")] = BuiltinVectorSlice()
+_VECTOR_META[String("reversed")] = BuiltinVectorReversed()
+_VECTOR_META[String("sorted")] = BuiltinVectorSorted(
     None, Environment(BASE_ENVIRONMENT)
 )
 
-MAP_META[String("count")] = BuiltinMapCount()
-MAP_META[String("contains")] = BuiltinMapContains()
-MAP_META[String("insert")] = BuiltinMapInsert()
-MAP_META[String("remove")] = BuiltinMapRemove()
+_MAP_META[String("count")] = BuiltinMapCount()
+_MAP_META[String("contains")] = BuiltinMapContains()
+_MAP_META[String("insert")] = BuiltinMapInsert()
+_MAP_META[String("remove")] = BuiltinMapRemove()
 
-SET_META[String("count")] = BuiltinSetCount()
-SET_META[String("contains")] = BuiltinSetContains()
-SET_META[String("insert")] = BuiltinSetInsert()
-SET_META[String("remove")] = BuiltinSetRemove()
+_SET_META[String("count")] = BuiltinSetCount()
+_SET_META[String("contains")] = BuiltinSetContains()
+_SET_META[String("insert")] = BuiltinSetInsert()
+_SET_META[String("remove")] = BuiltinSetRemove()
 
 BASE_ENVIRONMENT.let(String.new("NaN"), Number.new(float("NaN")))
 BASE_ENVIRONMENT.let(String.new("Inf"), Number.new(float("Inf")))

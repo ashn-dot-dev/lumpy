@@ -1,0 +1,19 @@
+extend(```
+BASE_ENVIRONMENT.let(String("x"), Number.new(123))
+BASE_ENVIRONMENT.let(String("y"), Number.new(456))
+```);
+
+let z = x;
+
+let contains = getmeta(map{})::contains;
+assert(not contains(getmeta(x).&, "foo"));
+assert(not contains(getmeta(y).&, "foo"));
+assert(not contains(getmeta(z).&, "foo"));
+
+extend(```
+BASE_ENVIRONMENT.get(String("x")).meta[String.new("foo")] = String.new("bar")
+```);
+
+assert(    contains(getmeta(x).&, "foo"));
+assert(not contains(getmeta(y).&, "foo"));
+assert(not contains(getmeta(z).&, "foo"));
