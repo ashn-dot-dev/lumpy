@@ -173,8 +173,10 @@ class Null(Value):
 
     @staticmethod
     def new() -> "Null":
-        # Null values are explicitly not given a metamap by default.
-        return Null(meta=None)
+        if not hasattr(Null, "_singleton"):
+            # Null values are explicitly not given a metamap by default.
+            Null._singleton = Null(meta=None)  # type: ignore
+        return Null._singleton  # type: ignore
 
     def __hash__(self) -> int:
         return 0
