@@ -107,7 +107,7 @@ ValueType = TypeVar("ValueType", bound="Value")
 
 
 class Value(ABC):
-    meta: Optional["Map"]
+    meta: Optional["MetaMap"]
 
     @abstractmethod
     def __hash__(self) -> int:
@@ -169,7 +169,7 @@ class Value(ABC):
 @final
 @dataclass
 class Null(Value):
-    meta: Optional["Map"] = None
+    meta: Optional["MetaMap"] = None
 
     @staticmethod
     def new() -> "Null":
@@ -190,7 +190,7 @@ class Null(Value):
         return "null"
 
     def copy(self) -> "Null":
-        return Null(self.meta.copy() if self.meta else None)
+        return Null(self.meta if self.meta else None)
 
     def cow(self) -> None:
         if self.meta is not None:
@@ -201,11 +201,11 @@ class Null(Value):
 @dataclass
 class Boolean(Value):
     data: bool
-    meta: Optional["Map"] = None
+    meta: Optional["MetaMap"] = None
 
     @staticmethod
     def new(data: bool) -> "Boolean":
-        return Boolean(data, _BOOLEAN_META.copy())
+        return Boolean(data, _BOOLEAN_META)
 
     def __hash__(self) -> int:
         return hash(self.data)
@@ -223,7 +223,7 @@ class Boolean(Value):
         return "boolean"
 
     def copy(self) -> "Boolean":
-        return Boolean(self.data, self.meta.copy() if self.meta else None)
+        return Boolean(self.data, self.meta if self.meta else None)
 
     def cow(self) -> None:
         if self.meta is not None:
@@ -234,10 +234,10 @@ class Boolean(Value):
 @dataclass
 class Number(Value):
     data: SupportsFloat
-    meta: Optional["Map"]
+    meta: Optional["MetaMap"]
 
     def __init__(
-        self, data: SupportsFloat, meta: Optional["Map"] = None
+        self, data: SupportsFloat, meta: Optional["MetaMap"] = None
     ) -> None:
         # PEP 484 specifies that when an argument is annotated as having type
         # `float`, an argument of type `int` is accepted by the type checker.
@@ -249,7 +249,7 @@ class Number(Value):
 
     @staticmethod
     def new(data: SupportsFloat) -> "Number":
-        return Number(data, _NUMBER_META.copy())
+        return Number(data, _NUMBER_META)
 
     def __hash__(self) -> int:
         return hash(self.data)
@@ -288,7 +288,7 @@ class Number(Value):
     def copy(self) -> "Number":
         result = Number.__new__(Number)
         result.data = self.data
-        result.meta = self.meta.copy() if self.meta else None
+        result.meta = self.meta if self.meta else None
         return result
 
     def cow(self) -> None:
@@ -301,10 +301,10 @@ class Number(Value):
 class String(Value):
     _bytes: bytes
     _runes: str
-    meta: Optional["Map"]
+    meta: Optional["MetaMap"]
 
     def __init__(
-        self, data: Union[bytes, str], meta: Optional["Map"] = None
+        self, data: Union[bytes, str], meta: Optional["MetaMap"] = None
     ) -> None:
         try:
             match data:
@@ -321,7 +321,7 @@ class String(Value):
 
     @staticmethod
     def new(data: Union[bytes, str]) -> "String":
-        return String(data, _STRING_META.copy())
+        return String(data, _STRING_META)
 
     def __hash__(self) -> int:
         return hash(self.bytes)
@@ -351,7 +351,7 @@ class String(Value):
         result = String.__new__(String)
         result._bytes = self._bytes
         result._runes = self._runes
-        result.meta = self.meta.copy() if self.meta else None
+        result.meta = self.meta if self.meta else None
         return result
 
     def cow(self) -> None:
@@ -371,12 +371,12 @@ class String(Value):
 @dataclass
 class Vector(Value):
     data: SharedVectorData
-    meta: Optional["Map"]
+    meta: Optional["MetaMap"]
 
     def __init__(
         self,
         data: Optional[Union[SharedVectorData, Iterable[Value]]] = None,
-        meta: Optional["Map"] = None,
+        meta: Optional["MetaMap"] = None,
     ) -> None:
         if data is not None and not isinstance(data, SharedVectorData):
             data = SharedVectorData(data)
@@ -388,7 +388,7 @@ class Vector(Value):
     def new(
         data: Optional[Union[SharedVectorData, Iterable[Value]]] = None
     ) -> "Vector":
-        return Vector(data, _VECTOR_META.copy())
+        return Vector(data, _VECTOR_META)
 
     def __del__(self):
         assert self.data.uses >= 1
@@ -452,7 +452,7 @@ class Vector(Value):
         return "vector"
 
     def copy(self) -> "Vector":
-        return Vector(self.data, self.meta.copy() if self.meta else None)
+        return Vector(self.data, self.meta if self.meta else None)
 
     def cow(self) -> None:
         if self.meta is not None:
@@ -463,16 +463,15 @@ class Vector(Value):
             self.data.uses += 1
 
 
-@final
 @dataclass
 class Map(Value):
     data: SharedMapData
-    meta: Optional["Map"]
+    meta: Optional["MetaMap"]
 
     def __init__(
         self,
         data: Optional[Union[SharedMapData, dict[Value, Value]]] = None,
-        meta: Optional["Map"] = None,
+        meta: Optional["MetaMap"] = None,
     ) -> None:
         if data is not None and not isinstance(data, SharedMapData):
             data = SharedMapData(data)
@@ -484,7 +483,7 @@ class Map(Value):
     def new(
         data: Optional[Union[SharedMapData, dict[Value, Value]]] = None
     ) -> "Map":
-        return Map(data, _MAP_META.copy())
+        return Map(data, _MAP_META)
 
     def __del__(self):
         assert self.data.uses >= 1
@@ -545,7 +544,7 @@ class Map(Value):
         return "map"
 
     def copy(self) -> "Map":
-        return Map(self.data, self.meta.copy() if self.meta else None)
+        return Map(self.data, self.meta if self.meta else None)
 
     def cow(self) -> None:
         if self.meta is not None:
@@ -558,14 +557,34 @@ class Map(Value):
 
 @final
 @dataclass
+class MetaMap(Map):
+    def __init__(
+        self,
+        data: Optional[Union[SharedMapData, dict[Value, Value]]] = None,
+    ) -> None:
+        # Metamaps may not have metamaps themselves.
+        super().__init__(data=data, meta=None)
+
+    def __setitem__(self, key: Value, value: Value) -> None:
+        # Attempting to alter a metamap is a runtime error. This allows us to
+        # use a single Python reference for each metamap rather than creating
+        # new metamaps for each created/copied value.
+        raise Exception("attempted to modify metamap")
+
+    def copy(self) -> "MetaMap":
+        return self
+
+
+@final
+@dataclass
 class Set(Value):
     data: SharedSetData
-    meta: Optional["Map"]
+    meta: Optional["MetaMap"]
 
     def __init__(
         self,
         data: Optional[Union[SharedSetData, Iterable[Value]]] = None,
-        meta: Optional["Map"] = None,
+        meta: Optional["MetaMap"] = None,
     ) -> None:
         if data is not None and not isinstance(data, SharedSetData):
             data = SharedSetData(data)
@@ -577,7 +596,7 @@ class Set(Value):
     def new(
         data: Optional[Union[SharedSetData, Iterable[Value]]] = None
     ) -> "Set":
-        return Set(data, _SET_META.copy())
+        return Set(data, _SET_META)
 
     def __del__(self):
         assert self.data.uses >= 1
@@ -624,7 +643,7 @@ class Set(Value):
         return "set"
 
     def copy(self) -> "Set":
-        return Set(self.data, self.meta.copy() if self.meta else None)
+        return Set(self.data, self.meta if self.meta else None)
 
     def cow(self) -> None:
         if self.meta is not None:
@@ -639,11 +658,11 @@ class Set(Value):
 @dataclass
 class Reference(Value):
     data: Value
-    meta: Optional["Map"] = None
+    meta: Optional["MetaMap"] = None
 
     @staticmethod
     def new(data: Value) -> "Reference":
-        return Reference(data, _REFERENCE_META.copy())
+        return Reference(data, _REFERENCE_META)
 
     def __hash__(self) -> int:
         return hash(id(self.data))
@@ -661,7 +680,7 @@ class Reference(Value):
         return "reference"
 
     def copy(self) -> "Reference":
-        return Reference(self.data, self.meta.copy() if self.meta else None)
+        return Reference(self.data, self.meta if self.meta else None)
 
     def cow(self) -> None:
         # We explicitly do *not* copy `self.data` as the copied data should
@@ -675,11 +694,11 @@ class Reference(Value):
 class Function(Value):
     ast: "AstFunction"
     env: "Environment"
-    meta: Optional["Map"] = None
+    meta: Optional["MetaMap"] = None
 
     @staticmethod
     def new(ast: "AstFunction", env: "Environment") -> "Function":
-        return Function(ast, env, _FUNCTION_META.copy())
+        return Function(ast, env, _FUNCTION_META)
 
     def __hash__(self) -> int:
         return hash(id(self.ast)) + hash(id(self.env))
@@ -702,9 +721,7 @@ class Function(Value):
         return "function"
 
     def copy(self) -> "Function":
-        return Function(
-            self.ast, self.env, self.meta.copy() if self.meta else None
-        )
+        return Function(self.ast, self.env, self.meta if self.meta else None)
 
     def cow(self) -> None:
         if self.meta is not None:
@@ -713,7 +730,7 @@ class Function(Value):
 
 @dataclass
 class Builtin(Value):
-    meta: Optional["Map"] = None
+    meta: Optional["MetaMap"] = None
 
     @property
     @abstractmethod
@@ -802,10 +819,15 @@ class Builtin(Value):
 @dataclass
 class BuiltinFromSource(Builtin):
     env: Optional["Environment"] = None
+    lazy: bool = False
 
     def __post_init__(self) -> None:
-        self.evaled = eval_source(self.source(), self.env)
-        assert isinstance(self.evaled, Function)
+        self.evaled: Optional[Union[Function, Builtin]] = None
+        if not self.lazy:
+            evaled = eval_source(self.source(), self.env)
+            if not isinstance(evaled, (Function, Builtin)):
+                raise Exception(f"invalid builtin from source `{evaled}`")
+            self.evaled = evaled
 
     def __hash__(self) -> int:
         return hash(id(self.evaled))
@@ -816,7 +838,11 @@ class BuiltinFromSource(Builtin):
         return self.evaled == other.evaled
 
     def function(self, arguments: list[Value]) -> Union[Value, "Error"]:
-        assert isinstance(self.evaled, Function)
+        if self.evaled is None:
+            evaled = eval_source(self.source(), self.env)
+            if not isinstance(evaled, (Function, Builtin)):
+                raise Exception(f"invalid builtin from source `{evaled}`")
+            self.evaled = evaled
         result = call(None, self.evaled, arguments)
         if isinstance(result, Error):
             # Remove internal trace elements so that the trace appears to start
@@ -833,7 +859,7 @@ class BuiltinFromSource(Builtin):
 @dataclass
 class External(Value):
     data: Any
-    meta: Optional["Map"] = None
+    meta: Optional["MetaMap"] = None
 
     @staticmethod
     def new(data: Any) -> "External":
@@ -855,7 +881,7 @@ class External(Value):
         return "external"
 
     def copy(self) -> "External":
-        return External(self.data, self.meta.copy() if self.meta else None)
+        return External(self.data, self.meta if self.meta else None)
 
     def cow(self) -> None:
         # We explicitly do *not* copy self.data as the copied data should still
@@ -3196,7 +3222,7 @@ class BuiltinSetmeta(Builtin):
             arg0.data.meta = None
             return Null.new()
         if isinstance(arguments[1], Map):
-            arg0.data.meta = arguments[1]
+            arg0.data.meta = MetaMap(arguments[1].data)
             return Null.new()
         return Error(
             None,
@@ -3211,7 +3237,7 @@ class BuiltinGetmeta(Builtin):
         Builtin.expect_argument_count(arguments, 1)
         if arguments[0].meta is None:
             return Null.new()
-        return arguments[0].meta
+        return Map(arguments[0].meta.data)
 
 
 class BuiltinUtype(Builtin):
@@ -4575,22 +4601,77 @@ class BuiltinSetRemove(Builtin):
             )
 
 
-# Metamaps for fundamental types *must* not be modified after program startup.
-# These metamaps are used during AST construction, and values created via the
-# `TYPE.new` initializers share these metamap references as an optimization.
-_BOOLEAN_META = Map()
-_NUMBER_META = Map()
-_STRING_META = Map()
-_VECTOR_META = Map()
-_MAP_META = Map()
-_SET_META = Map()
-_REFERENCE_META = Map()
-_FUNCTION_META = Map()
-
 # The base environment *may* be modified after program startup. Altering the
 # base environment is explicitly permitted in order to allow modifications to
 # the runtime from within `extend` function invocations.
 BASE_ENVIRONMENT = Environment()
+
+# Metamaps for fundamental types *must* not be modified after program startup.
+# These metamaps are used during AST construction, and values created via the
+# `TYPE.new` initializers share these metamap references as an optimization.
+_BOOLEAN_META = MetaMap()
+_NUMBER_META = MetaMap(
+    {
+        String("is_nan"): BuiltinNumberIsNaN(),
+        String("is_inf"): BuiltinNumberIsInf(),
+        String("is_integer"): BuiltinNumberIsInteger(),
+        String("fixed"): BuiltinNumberFixed(),
+        String("trunc"): BuiltinNumberTrunc(),
+        String("round"): BuiltinNumberRound(),
+        String("floor"): BuiltinNumberFloor(),
+        String("ceil"): BuiltinNumberCeil(),
+    }
+)
+_STRING_META = MetaMap(
+    {
+        String("count"): BuiltinStringCount(),
+        String("contains"): BuiltinStringContains(),
+        String("starts_with"): BuiltinStringStartsWith(),
+        String("ends_with"): BuiltinStringEndsWith(),
+        String("trim"): BuiltinStringTrim(),
+        String("find"): BuiltinStringFind(),
+        String("rfind"): BuiltinStringRfind(),
+        String("slice"): BuiltinStringSlice(),
+        String("split"): BuiltinStringSplit(),
+        String("join"): BuiltinStringJoin(),
+        String("cut"): BuiltinStringCut(),
+    }
+)
+_VECTOR_META = MetaMap(
+    {
+        String("count"): BuiltinVectorCount(),
+        String("contains"): BuiltinVectorContains(),
+        String("find"): BuiltinVectorFind(),
+        String("rfind"): BuiltinVectorRfind(),
+        String("push"): BuiltinVectorPush(),
+        String("pop"): BuiltinVectorPop(),
+        String("insert"): BuiltinVectorInsert(),
+        String("remove"): BuiltinVectorRemove(),
+        String("slice"): BuiltinVectorSlice(),
+        String("reversed"): BuiltinVectorReversed(),
+        String("sorted"): BuiltinVectorSorted(
+            None, Environment(BASE_ENVIRONMENT), lazy=True
+        ),
+    }
+)
+_MAP_META = MetaMap(
+    {
+        String("count"): BuiltinMapCount(),
+        String("contains"): BuiltinMapContains(),
+        String("insert"): BuiltinMapInsert(),
+        String("remove"): BuiltinMapRemove(),
+    }
+)
+_SET_META = MetaMap(
+    {
+        String("count"): BuiltinSetCount(),
+        String("contains"): BuiltinSetContains(),
+        String("insert"): BuiltinSetInsert(),
+        String("remove"): BuiltinSetRemove(),
+    }
+)
+_REFERENCE_META = MetaMap()
+_FUNCTION_META = MetaMap()
 
 
 def eval_source(
@@ -4613,51 +4694,6 @@ def eval_file(
         source = f.read()
     return eval_source(source, env, SourceLocation(str(path), 1))
 
-
-_NUMBER_META[String("is_nan")] = BuiltinNumberIsNaN()
-_NUMBER_META[String("is_inf")] = BuiltinNumberIsInf()
-_NUMBER_META[String("is_integer")] = BuiltinNumberIsInteger()
-_NUMBER_META[String("fixed")] = BuiltinNumberFixed()
-_NUMBER_META[String("trunc")] = BuiltinNumberTrunc()
-_NUMBER_META[String("round")] = BuiltinNumberRound()
-_NUMBER_META[String("floor")] = BuiltinNumberFloor()
-_NUMBER_META[String("ceil")] = BuiltinNumberCeil()
-
-_STRING_META[String("count")] = BuiltinStringCount()
-_STRING_META[String("contains")] = BuiltinStringContains()
-_STRING_META[String("starts_with")] = BuiltinStringStartsWith()
-_STRING_META[String("ends_with")] = BuiltinStringEndsWith()
-_STRING_META[String("trim")] = BuiltinStringTrim()
-_STRING_META[String("find")] = BuiltinStringFind()
-_STRING_META[String("rfind")] = BuiltinStringRfind()
-_STRING_META[String("slice")] = BuiltinStringSlice()
-_STRING_META[String("split")] = BuiltinStringSplit()
-_STRING_META[String("join")] = BuiltinStringJoin()
-_STRING_META[String("cut")] = BuiltinStringCut()
-
-_VECTOR_META[String("count")] = BuiltinVectorCount()
-_VECTOR_META[String("contains")] = BuiltinVectorContains()
-_VECTOR_META[String("find")] = BuiltinVectorFind()
-_VECTOR_META[String("rfind")] = BuiltinVectorRfind()
-_VECTOR_META[String("push")] = BuiltinVectorPush()
-_VECTOR_META[String("pop")] = BuiltinVectorPop()
-_VECTOR_META[String("insert")] = BuiltinVectorInsert()
-_VECTOR_META[String("remove")] = BuiltinVectorRemove()
-_VECTOR_META[String("slice")] = BuiltinVectorSlice()
-_VECTOR_META[String("reversed")] = BuiltinVectorReversed()
-_VECTOR_META[String("sorted")] = BuiltinVectorSorted(
-    None, Environment(BASE_ENVIRONMENT)
-)
-
-_MAP_META[String("count")] = BuiltinMapCount()
-_MAP_META[String("contains")] = BuiltinMapContains()
-_MAP_META[String("insert")] = BuiltinMapInsert()
-_MAP_META[String("remove")] = BuiltinMapRemove()
-
-_SET_META[String("count")] = BuiltinSetCount()
-_SET_META[String("contains")] = BuiltinSetContains()
-_SET_META[String("insert")] = BuiltinSetInsert()
-_SET_META[String("remove")] = BuiltinSetRemove()
 
 BASE_ENVIRONMENT.let(String.new("NaN"), Number.new(float("NaN")))
 BASE_ENVIRONMENT.let(String.new("Inf"), Number.new(float("Inf")))

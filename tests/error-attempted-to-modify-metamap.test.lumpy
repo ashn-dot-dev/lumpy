@@ -1,0 +1,9 @@
+extend(```
+BASE_ENVIRONMENT.let(String("x"), Number.new(123))
+try:
+    BASE_ENVIRONMENT.get(String("x")).meta[String.new("foo")] = String.new("bar")
+except Exception as e:
+    print(e)
+```);
+################################################################################
+# attempted to modify metamap
