@@ -173,10 +173,7 @@ class Null(Value):
 
     @staticmethod
     def new() -> "Null":
-        if not hasattr(Null, "_singleton"):
-            # Null values are explicitly not given a metamap by default.
-            Null._singleton = Null(meta=None)  # type: ignore
-        return Null._singleton  # type: ignore
+        return Null(meta=None)
 
     def __hash__(self) -> int:
         return 0
@@ -1561,7 +1558,7 @@ class AstNull(AstExpression):
     data: Null
 
     def eval(self, env: Environment) -> Union[Value, Error]:
-        return self.data
+        return self.data.copy()
 
 
 @final
@@ -1571,7 +1568,7 @@ class AstBoolean(AstExpression):
     data: Boolean
 
     def eval(self, env: Environment) -> Union[Value, Error]:
-        return self.data
+        return self.data.copy()
 
 
 @final
@@ -1581,7 +1578,7 @@ class AstNumber(AstExpression):
     data: Number
 
     def eval(self, env: Environment) -> Union[Value, Error]:
-        return self.data
+        return self.data.copy()
 
 
 @final
@@ -1591,7 +1588,7 @@ class AstString(AstExpression):
     data: String
 
     def eval(self, env: Environment) -> Union[Value, Error]:
-        return self.data
+        return self.data.copy()
 
 
 @final
