@@ -1601,7 +1601,7 @@ class AstVector(AstExpression):
     elements: list[AstExpression]
 
     def eval(self, env: Environment) -> Union[Value, Error]:
-        values: list[Value] = list()
+        values = SharedVectorData()
         for x in self.elements:
             result = x.eval(env)
             if isinstance(result, Error):
@@ -1617,7 +1617,7 @@ class AstMap(AstExpression):
     elements: list[Tuple[AstExpression, AstExpression]]
 
     def eval(self, env: Environment) -> Union[Value, Error]:
-        elements: dict[Value, Value] = dict()
+        elements = SharedMapData()
         for k, v in self.elements:
             k_result = k.eval(env)
             if isinstance(k_result, Error):
@@ -1636,12 +1636,12 @@ class AstSet(AstExpression):
     elements: list[AstExpression]
 
     def eval(self, env: Environment) -> Union[Value, Error]:
-        elements: list[Value] = list()
+        elements = SharedSetData()
         for x in self.elements:
             result = x.eval(env)
             if isinstance(result, Error):
                 return result
-            elements.append(result.copy())
+            elements.insert(result.copy())
         return Set.new(elements)
 
 
