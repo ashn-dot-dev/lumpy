@@ -4845,7 +4845,7 @@ def main() -> None:
             result = eval_file(args.file, env)
         except Exception as e:
             print(e, file=sys.stderr)
-            return
+            sys.exit(1)
         if isinstance(result, Return):
             print(result.value)
         if isinstance(result, Error):
@@ -4858,6 +4858,7 @@ def main() -> None:
                 if element.location is not None:
                     s += f" called from {element.location}"
                 print(s, file=sys.stderr)
+            sys.exit(1)
     else:
         HOME = os.environ.get("LUMPY_HOME", Path.home())
         HISTFILE = Path(HOME) / ".lumpy-history"
