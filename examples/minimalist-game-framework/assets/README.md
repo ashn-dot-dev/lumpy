@@ -10,7 +10,7 @@ SOURCES: https://commons.wikimedia.org/wiki/File:Africa_and_Europe_from_a_Millio
 ```
 
 ```
-suttle.png
+shuttle.png
 LICENSE: Public Domain (CC0)
 SOURCES: https://opengameart.org/content/simple-spaceship
 ```
