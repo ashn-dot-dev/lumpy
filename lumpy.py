@@ -2800,7 +2800,7 @@ class Parser:
         if self._check_current(TokenKind.MAP):
             map_or_set = ParseMapOrSet.MAP
             self._advance_token()
-        if self._check_current(TokenKind.SET):
+        elif self._check_current(TokenKind.SET):
             map_or_set = ParseMapOrSet.SET
             self._advance_token()
         map_elements: list[Tuple[AstExpression, AstExpression]] = list()
