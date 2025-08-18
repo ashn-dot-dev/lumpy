@@ -32,7 +32,7 @@ let player = {
     "alive": true,
     "scale": 1.0,
     "angle": 0.0,
-    "position": gf::vec2::new(
+    "position": gf::vec2::init(
         SCREEN_W / 2 - PLAYER_W / 2,
         SCREEN_H / 2 - PLAYER_H / 2,
     ),
@@ -117,7 +117,7 @@ while gf::running() {
     println("Keys Pressed This Frame: " + repr(keys_pressed));
     println("Keys Released This Frame: " + repr(keys_released));
 
-    let delta = gf::vec2::new(0, 0);
+    let delta = gf::vec2::init(0, 0);
     if gf::key::held("UARROW") {
         delta.y = delta.y - 1;
     }
@@ -158,7 +158,7 @@ while gf::running() {
         gf::sound::play(sounds::laser, VOLUME_SCALE * 0.25);
         lasers.push({
             "alive": true,
-            "position": gf::vec2::new(
+            "position": gf::vec2::init(
                 player.position.x + PLAYER_W / 2 - LASER_W / 2,
                 player.position.y - LASER_H,
             ),
@@ -169,7 +169,7 @@ while gf::running() {
         enemies.push({
             "alive": true,
             "scale": 1.0,
-            "position": gf::vec2::new(
+            "position": gf::vec2::init(
                 random::number(0, SCREEN_W - ENEMY_W),
                 -ENEMY_H
             ),
@@ -182,13 +182,13 @@ while gf::running() {
         }
         for laser.& in lasers {
             if not overlapping(
-                gf::rect::new(
+                gf::rect::init(
                     laser.*.position.x,
                     laser.*.position.y,
                     LASER_W,
                     LASER_H,
                 ),
-                gf::rect::new(
+                gf::rect::init(
                     enemy.*.position.x,
                     enemy.*.position.y,
                     ENEMY_W,
@@ -201,13 +201,13 @@ while gf::running() {
             enemy.*.alive = false;
             score = score + 1;
             let distance = gf::vec2::distance(
-                gf::rect::new(
+                gf::rect::init(
                     player.position.x,
                     player.position.y,
                     PLAYER_W,
                     PLAYER_H
                 ).center(),
-                gf::rect::new(
+                gf::rect::init(
                     enemy.*.position.x,
                     enemy.*.position.y,
                     ENEMY_W,
@@ -217,13 +217,13 @@ while gf::running() {
             let volume = VOLUME_SCALE * (1 - (distance / max(SCREEN_W, SCREEN_H)));
             gf::sound::play(sounds::explosion, volume);
         }
-        let player_center = gf::rect::new(
+        let player_center = gf::rect::init(
             player.position.x,
             player.position.y,
             PLAYER_W,
             PLAYER_H,
         ).center();
-        let player_hitbox = gf::rect::new(
+        let player_hitbox = gf::rect::init(
             player_center.x - PLAYER_HITBOX_W / 2,
             player_center.y - PLAYER_HITBOX_H / 2,
             PLAYER_HITBOX_W,
@@ -231,7 +231,7 @@ while gf::running() {
         );
         if player.alive and overlapping(
             player_hitbox,
-            gf::rect::new(
+            gf::rect::init(
                 enemy.*.position.x,
                 enemy.*.position.y,
                 ENEMY_W,
@@ -269,14 +269,14 @@ while gf::running() {
 
     gf::draw::image_ex(
         images::earth,
-        gf::vec2::new(SCREEN_W - 160, SCREEN_H - 160),
+        gf::vec2::init(SCREEN_W - 160, SCREEN_H - 160),
         {"scale": 2},
     );
     for laser in lasers {
         if not laser.alive {
             continue;
         }
-        let rect = gf::rect::new(
+        let rect = gf::rect::init(
             laser.position.x,
             laser.position.y,
             LASER_W,
@@ -284,11 +284,11 @@ while gf::running() {
         );
         gf::draw::rect_solid(
             rect,
-            gf::color::new(0x70, 0x00, 0x70, null),
+            gf::color::init(0x70, 0x00, 0x70, null),
         );
         gf::draw::rect_empty(
             rect,
-            gf::color::new(0x70, 0x50, 0x00, null),
+            gf::color::init(0x70, 0x50, 0x00, null),
             1,
         );
     }
@@ -298,14 +298,14 @@ while gf::running() {
                 images::enemy,
                 enemy.position,
                 {
-                    "scale": gf::vec2::new(1.0, enemy.scale),
+                    "scale": gf::vec2::init(1.0, enemy.scale),
                     "flip-y": true,
                 },
             );
         }
     }
     if player.scale > 0 {
-        let center = gf::rect::new(
+        let center = gf::rect::init(
             player.position.x,
             player.position.y,
             PLAYER_W,
@@ -325,14 +325,14 @@ while gf::running() {
     let size = gf::measure::text(font, text);
     gf::draw::text(
         font,
-        gf::vec2::new(SCREEN_W - size.x - 2, 2),
-        gf::color::new(0xFF, 0xFF, 0xFF, null),
+        gf::vec2::init(SCREEN_W - size.x - 2, 2),
+        gf::color::init(0xFF, 0xFF, 0xFF, null),
         text,
     );
     gf::draw::text(
         font,
-        gf::vec2::new(2, 2),
-        gf::color::new(0x00, 0x80, 0x00, null),
+        gf::vec2::init(2, 2),
+        gf::color::init(0x00, 0x80, 0x00, null),
         "FPS: " + string(gf::fps().fixed(0)),
     );
 

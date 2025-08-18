@@ -941,6 +941,7 @@ class TokenKind(enum.Enum):
     FALSE = "false"
     MAP = "map"
     SET = "set"
+    NEW = "new"
     NOT = "not"
     AND = "and"
     OR = "or"
@@ -971,6 +972,7 @@ class Token:
         str(TokenKind.FALSE):    TokenKind.FALSE,
         str(TokenKind.MAP):      TokenKind.MAP,
         str(TokenKind.SET):      TokenKind.SET,
+        str(TokenKind.NEW):      TokenKind.NEW,
         str(TokenKind.NOT):      TokenKind.NOT,
         str(TokenKind.AND):      TokenKind.AND,
         str(TokenKind.OR):       TokenKind.OR,
@@ -1652,6 +1654,35 @@ class AstFunction(AstExpression):
 
     def eval(self, env: Environment) -> Union[Value, Error]:
         return Function.new(self, env)
+
+
+@final
+@dataclass
+class AstNew(AstExpression):
+    location: Optional[SourceLocation]
+    meta: AstExpression
+    expression: AstExpression
+
+    def eval(self, env: Environment) -> Union[Value, Error]:
+        # Roughly equivalent to:
+        #
+        #   let x = expression;
+        #   setmeta(x.&, meta);
+        #
+        # ...but explicitly expects a non-null metamap.
+        meta = self.meta.eval(env)
+        if isinstance(meta, Error):
+            return meta
+        expression = self.expression.eval(env)
+        if isinstance(expression, Error):
+            return expression
+        if not isinstance(meta, Map):
+            return Error(
+                self.meta.location,
+                f"expected null or map-like value, received {typename(meta)}",
+            )
+        expression.meta = MetaMap(meta.data)
+        return expression
 
 
 @final
@@ -2668,6 +2699,7 @@ class Parser:
         self._register_nud(TokenKind.SET, Parser.parse_map_or_set)
         self._register_nud(TokenKind.LBRACE, Parser.parse_map_or_set)
         self._register_nud(TokenKind.FUNCTION, Parser.parse_function)
+        self._register_nud(TokenKind.NEW, Parser.parse_new)
         self._register_nud(TokenKind.LPAREN, Parser.parse_grouped)
         self._register_nud(TokenKind.ADD, Parser.parse_positive)
         self._register_nud(TokenKind.SUB, Parser.parse_negative)
@@ -2889,6 +2921,12 @@ class Parser:
         expression = self.parse_expression()
         self._expect_current(TokenKind.RPAREN)
         return AstGrouped(location, expression)
+
+    def parse_new(self) -> AstNew:
+        location = self._expect_current(TokenKind.NEW).location
+        meta = self.parse_expression()
+        expression = self.parse_expression()
+        return AstNew(location, meta, expression)
 
     def parse_positive(self) -> AstPositive:
         location = self._expect_current(TokenKind.ADD).location

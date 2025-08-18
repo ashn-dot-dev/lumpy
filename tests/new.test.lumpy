@@ -1,0 +1,11 @@
+let foo = {
+    .type = "foo",
+    .party = function(self) {
+        println("🥳 woo party 🎉");
+    },
+};
+dumpln(type(new foo map{}));
+(new foo map{}).party();
+################################################################################
+# "foo"
+# 🥳 woo party 🎉

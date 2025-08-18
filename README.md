@@ -73,9 +73,9 @@ y == z is true
 
 Each object in Lumpy has a metamap that may be used to alter and extend its
 functionality. In this example, we create a 2-dimensional vector type called
-`vec2`. When a new `vec2` instance is created via the `vec2::new` function, the
-`vec2` map/type is set as the metamap of the newly-created object. The object
-can then call `vec2` metafunctions at a later time, accessing additional
+`vec2`. When a new `vec2` instance is created via the `vec2::init` function,
+the `vec2` map/type is set as the metamap of the newly-created object. The
+object can then call `vec2` metafunctions at a later time, accessing additional
 operations associated with the type.
 
 ```
@@ -83,24 +83,22 @@ operations associated with the type.
 
 let vec2 = {
     "type": "vec2",
-    "new": function(x, y) {
-        let self = {
+    "init": function(x, y) {
+        return new vec2 {
             "x": x,
             "y": y,
         };
-        setmeta(self.&, vec2);
-        return self;
     },
     "magnitude": function(self) {
         return math::sqrt(self.*.x * self.*.x + self.*.y * self.*.y);
     },
     "normalized": function(self) {
         let magnitude = vec2::magnitude(self);
-        return vec2::new(self.*.x / magnitude, self.*.y / magnitude);
+        return vec2::init(self.*.x / magnitude, self.*.y / magnitude);
     },
 };
 
-let v = vec2::new(3, 4);
+let v = vec2::init(3, 4);
 println(`v is ` + repr(v) + ` of type ` + type(v));
 println(`v.magnitude() is ` + repr(v.magnitude()));
 println(`v.normalized() is ` + repr(v.normalized()));

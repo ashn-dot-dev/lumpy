@@ -93,7 +93,7 @@ print("\n");
 
 let fizzbuzzer = {
     "type": "fizzbuzzer",
-    "new": function(n, max) {
+    "init": function(n, max) {
         let self = {"n": n, "max": max};
         setmeta(self.&, fizzbuzzer);
         return self;
@@ -116,20 +116,20 @@ let fizzbuzzer = {
         return n;
     },
 };
-for x in fizzbuzzer::new(1, 15) {
+for x in fizzbuzzer::init(1, 15) {
     println(x);
 }
 
 print("\n");
 
 try {
-    for k.& in fizzbuzzer::new(1, 15) { }
+    for k.& in fizzbuzzer::init(1, 15) { }
 } else err {
     dumpln(err);
 }
 
 try {
-    for k, v in fizzbuzzer::new(1, 15) { }
+    for k, v in fizzbuzzer::init(1, 15) { }
 } else err {
     dumpln(err);
 }

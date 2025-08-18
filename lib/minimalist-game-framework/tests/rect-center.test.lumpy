@@ -1,8 +1,8 @@
 let rect = import("../rect.lumpy");
 
-dumpln(rect::new(0, 0, 4, 8).center());
-dumpln(rect::new(1, 1, 4, 8).center());
-dumpln(rect::new(+1, -1, 4, 8).center());
+dumpln(rect::init(0, 0, 4, 8).center());
+dumpln(rect::init(1, 1, 4, 8).center());
+dumpln(rect::init(+1, -1, 4, 8).center());
 ################################################################################
 # {"x": 2, "y": 4}
 # {"x": 3, "y": 5}

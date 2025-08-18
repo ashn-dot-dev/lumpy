@@ -1,15 +1,13 @@
 let vec2 = {
     "type": "minimalist-game-framework::vec2",
-    "new": function(x, y) {
-        let self = {
+    "init": function(x, y) {
+        return new vec2 {
             "x": x,
             "y": y,
         };
-        setmeta(self.&, vec2);
-        return self;
     },
     "fixed": function(self, ndigits) {
-        return vec2::new(self.*.x.fixed(ndigits), self.*.y.fixed(ndigits));
+        return vec2::init(self.*.x.fixed(ndigits), self.*.y.fixed(ndigits));
     },
     "magnitude": function(self) {
         return math::sqrt(self.*.x * self.*.x + self.*.y * self.*.y);
@@ -17,7 +15,7 @@ let vec2 = {
     "normalized": function(self) {
         let magnitude = vec2::magnitude(self);
         if magnitude == 0 {
-            return vec2::new(0, 0);
+            return vec2::init(0, 0);
         }
         return vec2::div(self.*, magnitude);
     },
@@ -28,25 +26,25 @@ let vec2 = {
         return lhs.x * rhs.y - lhs.y * rhs.x;
     },
     "add": function(lhs, rhs) {
-        return vec2::new(lhs.x + rhs.x, lhs.y + rhs.y);
+        return vec2::init(lhs.x + rhs.x, lhs.y + rhs.y);
     },
     "sub": function(lhs, rhs) {
-        return vec2::new(lhs.x - rhs.x, lhs.y - rhs.y);
+        return vec2::init(lhs.x - rhs.x, lhs.y - rhs.y);
     },
     "mul": function(lhs, rhs) {
         if utype(lhs) == "number" {
-            return vec2::new(lhs * rhs.x, lhs * rhs.y);
+            return vec2::init(lhs * rhs.x, lhs * rhs.y);
         }
         if utype(rhs) == "number" {
-            return vec2::new(lhs.x * rhs, lhs.y * rhs);
+            return vec2::init(lhs.x * rhs, lhs.y * rhs);
         }
-        return vec2::new(lhs.x * rhs.x, lhs.y * rhs.y);
+        return vec2::init(lhs.x * rhs.x, lhs.y * rhs.y);
     },
     "div": function(lhs, rhs) {
         if utype(rhs) == "number" {
-            return vec2::new(lhs.x / rhs, lhs.y / rhs);
+            return vec2::init(lhs.x / rhs, lhs.y / rhs);
         }
-        return vec2::new(lhs.x / rhs.x, lhs.y / rhs.y);
+        return vec2::init(lhs.x / rhs.x, lhs.y / rhs.y);
     },
     "distance": function(a, b) {
         let xdiff = a.x - b.x;

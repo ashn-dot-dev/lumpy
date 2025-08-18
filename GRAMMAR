@@ -43,6 +43,7 @@
                | <set>
                | <function>
                | <identifier>
+               | new <expression> <expression>
                | "(" <expression> ")"
                | "+" <expression>
                | "-" <expression>

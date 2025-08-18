@@ -1,9 +1,9 @@
 let vec2 = import("../vec2.lumpy");
 
-dumpln(vec2::new(0, 0).magnitude().fixed(3));
-dumpln(vec2::new(+1, +1).magnitude().fixed(3));
-dumpln(vec2::new(-1, -1).magnitude().fixed(3));
-dumpln(vec2::new(math::cos(math::pi / 4), math::sin(math::pi / 4)).magnitude().fixed(3));
+dumpln(vec2::init(0, 0).magnitude().fixed(3));
+dumpln(vec2::init(+1, +1).magnitude().fixed(3));
+dumpln(vec2::init(-1, -1).magnitude().fixed(3));
+dumpln(vec2::init(math::cos(math::pi / 4), math::sin(math::pi / 4)).magnitude().fixed(3));
 ################################################################################
 # 0
 # 1.414

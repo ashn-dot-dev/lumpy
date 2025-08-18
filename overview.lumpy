@@ -463,10 +463,8 @@ print("\n");
 
 let fizzbuzzer = {
     "type": "fizzbuzzer",
-    "new": function(n, max) {
-        let self = {"n": n, "max": max};
-        setmeta(self.&, fizzbuzzer);
-        return self;
+    "init": function(n, max) {
+        return new fizzbuzzer {"n": n, "max": max};
     },
     "next": function(self) {
         let n = self.*.n;
@@ -486,7 +484,7 @@ let fizzbuzzer = {
         return n;
     },
 };
-let fb = fizzbuzzer::new(1, 15);
+let fb = fizzbuzzer::init(1, 15);
 println("Custom Iterator Loop: for x in " + repr(fb) + " with metamap " + repr(getmeta(fb)));
 for x in fb {
     println(x);
@@ -494,7 +492,7 @@ for x in fb {
 
 print("\n");
 
-let fb = fizzbuzzer::new(1, 15);
+let fb = fizzbuzzer::init(1, 15);
 println("Custom Iterator Loops With References Are Not Permitted: for reference x in " + repr(fb) + " with metamap " + repr(getmeta(fb)));
 try {
     for x.& in fb { }

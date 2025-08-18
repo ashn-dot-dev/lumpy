@@ -2,24 +2,22 @@
 
 let vec2 = {
     "type": "vec2",
-    "new": function(x, y) {
-        let self = {
+    "init": function(x, y) {
+        return new vec2 {
             "x": x,
             "y": y,
         };
-        setmeta(self.&, vec2);
-        return self;
     },
     "magnitude": function(self) {
         return math::sqrt(self.*.x * self.*.x + self.*.y * self.*.y);
     },
     "normalized": function(self) {
         let magnitude = vec2::magnitude(self);
-        return vec2::new(self.*.x / magnitude, self.*.y / magnitude);
+        return vec2::init(self.*.x / magnitude, self.*.y / magnitude);
     },
 };
 
-let v = vec2::new(3, 4);
+let v = vec2::init(3, 4);
 println(`v is ` + repr(v) + ` of type ` + type(v));
 println(`v.magnitude() is ` + repr(v.magnitude()));
 println(`v.normalized() is ` + repr(v.normalized()));

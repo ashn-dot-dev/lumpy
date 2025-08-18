@@ -1,7 +1,7 @@
 let color = import("../color.lumpy");
 
-dumpln(color::new(0xAA, 0xBB, 0xCC, 0xDD));
-dumpln(color::new(0xAA, 0xBB, 0xCC, null));
+dumpln(color::init(0xAA, 0xBB, 0xCC, 0xDD));
+dumpln(color::init(0xAA, 0xBB, 0xCC, null));
 ################################################################################
 # {"r": 170, "g": 187, "b": 204, "a": 221}
 # {"r": 170, "g": 187, "b": 204, "a": 255}

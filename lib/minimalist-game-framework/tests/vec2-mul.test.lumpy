@@ -1,20 +1,20 @@
 let vec2 = import("../vec2.lumpy");
 
-dumpln(vec2::mul(0.1, vec2::new(0, 0)));
-dumpln(vec2::mul(0.1, vec2::new(+1, +1)));
-dumpln(vec2::mul(0.1, vec2::new(-1, -1)));
+dumpln(vec2::mul(0.1, vec2::init(0, 0)));
+dumpln(vec2::mul(0.1, vec2::init(+1, +1)));
+dumpln(vec2::mul(0.1, vec2::init(-1, -1)));
 
 print("\n");
 
-dumpln(vec2::mul(vec2::new(0, 0), 0.1));
-dumpln(vec2::mul(vec2::new(+1, +1), 0.1));
-dumpln(vec2::mul(vec2::new(-1, -1), 0.1));
+dumpln(vec2::mul(vec2::init(0, 0), 0.1));
+dumpln(vec2::mul(vec2::init(+1, +1), 0.1));
+dumpln(vec2::mul(vec2::init(-1, -1), 0.1));
 
 print("\n");
 
-dumpln(vec2::mul(vec2::new(0, 0), vec2::new(0.1, 0.2)));
-dumpln(vec2::mul(vec2::new(+1, +1), vec2::new(0.1, 0.2)));
-dumpln(vec2::mul(vec2::new(-1, -1), vec2::new(0.1, 0.2)));
+dumpln(vec2::mul(vec2::init(0, 0), vec2::init(0.1, 0.2)));
+dumpln(vec2::mul(vec2::init(+1, +1), vec2::init(0.1, 0.2)));
+dumpln(vec2::mul(vec2::init(-1, -1), vec2::init(0.1, 0.2)));
 ################################################################################
 # {"x": 0, "y": 0}
 # {"x": 0.1, "y": 0.1}

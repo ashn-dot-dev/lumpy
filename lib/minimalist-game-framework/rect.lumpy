@@ -2,20 +2,18 @@ let vec2 = import("vec2.lumpy");
 
 let rect = {
     "type": "minimalist-game-framework::rect",
-    "new": function(x, y, w, h) {
+    "init": function(x, y, w, h) {
         if w < 0 { error "rect with w < 0 (w is " + repr(w) + ")"; }
         if h < 0 { error "rect with h < 0 (h is " + repr(h) + ")"; }
-        let self = {
+        return new rect {
             "x": x,
             "y": y,
             "w": w,
             "h": h,
         };
-        setmeta(self.&, rect);
-        return self;
     },
     "center": function(self) {
-        return vec2::new(
+        return vec2::init(
             self.*.x + self.*.w / 2,
             self.*.y + self.*.h / 2,
         );

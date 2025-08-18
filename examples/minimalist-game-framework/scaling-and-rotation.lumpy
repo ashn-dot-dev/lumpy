@@ -14,7 +14,7 @@ while gf::running() {
     let scale = 16 + 8 * math::cos(ticks / 60);
     let position = gf::vec2::sub(
         gf::mouse::position(),
-        gf::vec2::new(0, sword.h() * scale / 2));
+        gf::vec2::init(0, sword.h() * scale / 2));
     let angle = math::sin(ticks / 30) * 45;
 
     gf::draw::image_ex(
@@ -23,7 +23,7 @@ while gf::running() {
         {
             "scale": scale,
             "angle": angle,
-            "pivot": gf::vec2::new(0, sword.h() / 2),
+            "pivot": gf::vec2::init(0, sword.h() / 2),
         }
     );
 

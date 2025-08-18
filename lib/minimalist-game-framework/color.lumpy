@@ -1,17 +1,15 @@
 let color = {
     "type": "minimalist-game-framework::color",
-    "new": function(r, g, b, a) {
+    "init": function(r, g, b, a) {
         if a == null {
             a = 0xFF;
         }
-        let self = {
+        return new color {
             "r": math::clamp(r, 0x00, 0xFF),
             "g": math::clamp(g, 0x00, 0xFF),
             "b": math::clamp(b, 0x00, 0xFF),
             "a": math::clamp(a, 0x00, 0xFF),
         };
-        setmeta(self.&, color);
-        return self;
     },
 };
 
