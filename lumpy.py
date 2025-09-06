@@ -1679,7 +1679,7 @@ class AstNew(AstExpression):
         if not isinstance(meta, Map):
             return Error(
                 self.meta.location,
-                f"expected null or map-like value, received {typename(meta)}",
+                f"expected map-like value, received {typename(meta)}",
             )
         expression.meta = MetaMap(meta.data)
         return expression
