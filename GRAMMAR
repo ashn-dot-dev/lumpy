@@ -72,8 +72,8 @@
 
 <function> ::= "function" "(" (<identifier> ("," <identifier>)+ ",")? ")" <block>
 
-<set> ::= "{" <expression> ("," <expression>)+ ","? "}"
-        | "set" "{" "}"
+<set> ::= "set" "{" "}"
+        | "set"? "<" (<expression> ("," <expression>)+) ","?)? ">"
 
 <map-key> ::= <expression>
             | "." <identifier>
@@ -81,8 +81,10 @@
 <map-sep> ::= ":"
             | "="
 
-<map> ::= "{" <map-key> <map-sep> <expression> ("," <map-key> <map-sep> <expression>)+ ","? "}"
-        | "map" "{" "}"
+<map-elemenet> = <map-key> <map-sep> <expression>
+
+<map> ::= "map" "{" "}"
+        | "map"? "{" (<map-element> ("," <map-element>)+ ","?)? "}"
 
 <vector> ::= "[" (<expression> ("," <expression>)+ ","?)* "]"
 

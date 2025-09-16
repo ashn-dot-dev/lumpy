@@ -1426,13 +1426,11 @@ class Return:
 @dataclass
 class Break:
     location: Optional[SourceLocation]
-    pass
 
 
 @dataclass
 class Continue:
     location: Optional[SourceLocation]
-    pass
 
 
 @dataclass
