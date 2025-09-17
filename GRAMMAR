@@ -61,7 +61,7 @@
                | <expression> "*" <expression>
                | <expression> "/" <expression>
                | <expression> "%" <expression>
-               | <expression> "(" (<expression> ("," <expression>)+ ","?) ")"
+               | <expression> "(" (<expression> ("," <expression>)*)? ","? ")"
                | <expression> "[" <expression> "]"
                | <expression> "." <identifier>
                | <expression> "::" <identifier>
@@ -70,10 +70,10 @@
 
 <identifier> ::= /[a-zA-Z_]\w*/
 
-<function> ::= "function" "(" (<identifier> ("," <identifier>)+ ",")? ")" <block>
+<function> ::= "function" "(" (<identifier> ("," <identifier>)*)? ")" <block>
 
 <set> ::= "set" "{" "}"
-        | "set"? "<" (<expression> ("," <expression>)+) ","?)? ">"
+        | "set"? "{" (<expression> ("," <expression>)* ","?)? "}"
 
 <map-key> ::= <expression>
             | "." <identifier>
@@ -81,12 +81,12 @@
 <map-sep> ::= ":"
             | "="
 
-<map-elemenet> = <map-key> <map-sep> <expression>
+<map-element> = <map-key> <map-sep> <expression>
 
 <map> ::= "map" "{" "}"
-        | "map"? "{" (<map-element> ("," <map-element>)+ ","?)? "}"
+        | "map"? "{" (<map-element> ("," <map-element>)* ","?)? "}"
 
-<vector> ::= "[" (<expression> ("," <expression>)+ ","?)* "]"
+<vector> ::= "[" (<expression> ("," <expression>)* ","?)? "]"
 
 <string> ::= '"' <character>* '"'
            | "`" <printable>* "`"
