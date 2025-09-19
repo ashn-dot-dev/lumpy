@@ -1,6 +1,12 @@
 The Lumpy Programming Language
 ==============================
 
+**Note that as of 2025-09-19, further development on the Lumpy language and
+associated tooling has been discontinued. The Lumpy interpreter and example
+programs are expected to continue working into the future with minimal changes
+required. The dependencies `pygame-ce` and `nuitka` may require updating for
+newer Python versions.**
+
 Lumpy is a small scripting language with value semantics.
 
 Lumpy features strong dynamic typing, structural equality, assignment by copy,
